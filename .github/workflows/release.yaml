@@ -43,23 +43,23 @@ jobs:
             - name: Bump version with standard-version
               run: npx standard-version
               env:
-                  GITHUB_TOKEN: ${{ secrets.PAT_TOKEN2 }} # Use the Personal Access Token (PAT)
+                  GITHUB_TOKEN: ${{ secrets.PAT_TOKEN3 }} # Use the Personal Access Token (PAT)
 
             # Pull the latest changes from the remote and checkout the main branch
             - name: Checkout the main branch
               env:
-                  PAT_TOKEN: ${{ secrets.PAT_TOKEN2 }} # Use the PAT for pulling
+                  PAT_TOKEN: ${{ secrets.PAT_TOKEN3 }} # Use the PAT for pulling
               run: |
-                  git remote set-url origin https://x-access-token:${PAT_TOKEN}@github.com/keithwalsh/react-module-scaffold.git
+                  git remote set-url origin https://x-access-token:${PAT_TOKEN}@github.com/keithwalsh/react-spreadsheet-ts.git
                   git fetch origin main
                   git checkout -b main origin/main
 
             # Push changes, including new version commit and tag
             - name: Push changes
               env:
-                  PAT_TOKEN: ${{ secrets.PAT_TOKEN2 }} # Use the PAT for pushing
+                  PAT_TOKEN: ${{ secrets.PAT_TOKEN3 }} # Use the PAT for pushing
               run: |
-                  git remote set-url origin https://x-access-token:${PAT_TOKEN}@github.com/keithwalsh/react-module-scaffold.git
+                  git remote set-url origin https://x-access-token:${PAT_TOKEN}@github.com/keithwalsh/react-spreadsheet-ts.git
                   git push --follow-tags origin main
 
     release:
@@ -78,7 +78,7 @@ jobs:
               id: create_release
               uses: actions/create-release@v1
               env:
-                  GITHUB_TOKEN: ${{ secrets.PAT_TOKEN2 }} # Use PAT for release creation
+                  GITHUB_TOKEN: ${{ secrets.PAT_TOKEN3 }} # Use PAT for release creation
               with:
                   tag_name: ${{ github.ref_name }} # This will capture the semver tag name (e.g., v1.0.1)
                   release_name: Release ${{ github.ref_name }}
