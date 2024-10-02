@@ -1,18 +1,19 @@
 import React from "react";
-import { IconButton, TableCell, TableCellProps } from "@mui/material";
+import { IconButton, TableCell } from "@mui/material";
 import { FaRegSquare, FaCheckSquare } from "react-icons/fa";
-
-interface SelectAllTableCellProps extends TableCellProps {
-    selectAll: boolean;
-    toggleSelectAll: () => void;
-    iconSize?: number;
-}
+import { SelectAllTableCellProps } from "@types";
 
 const SelectAllCell: React.FC<SelectAllTableCellProps> = ({
+    theme = "light",
     selectAll,
     toggleSelectAll,
     size = "small",
-    sx = { padding: "0px 1px", borderRight: "1px solid #e0e0e0", backgroundColor: "#f0f0f0" },
+    sx = {
+        padding: "0px 1px",
+        ...(theme === "light" ? { color: "rgba(0, 0, 0, 0.54)" } : { color: "#BEBFC0" }),
+        ...(theme === "light" ? { backgroundColor: "#f0f0f0" } : { backgroundColor: "#414547" }),
+        ...(theme === "light" ? { borderRight: "1px solid #e0e0e0" } : { borderRight: "1px solid #686868" }),
+    },
     ...rest
 }) => {
     return (
@@ -21,6 +22,7 @@ const SelectAllCell: React.FC<SelectAllTableCellProps> = ({
                 onClick={toggleSelectAll}
                 size="small"
                 sx={{
+                    ...(theme === "light" ? { color: "rgba(0, 0, 0, 0.54)" } : { color: "#BEBFC0" }),
                     borderRadius: 0,
                     "& .MuiTouchRipple-root .MuiTouchRipple-child": {
                         borderRadius: 0,

@@ -1,29 +1,24 @@
 import * as React from "react";
 import { TableCell } from "@mui/material";
+import { ColumnHeaderCellProps } from "@types";
 
-interface Props {
-    index: number;
-    handleColumnSelection: (colIndex: number) => void;
-    className?: string;
-}
-
-const ColumnHeaderCell: React.FC<Props> = ({ index, handleColumnSelection, className }) => {
+const ColumnHeaderCell: React.FC<ColumnHeaderCellProps> = ({ theme = "light", index, handleColumnSelection, className }) => {
     return (
         <TableCell
             sx={{
-                color: "rgba(0, 0, 0, 0.54)",
+                ...(theme === "light" ? { color: "rgba(0, 0, 0, 0.54)" } : { color: "#BEBFC0" }),
                 cursor: "pointer",
                 userSelect: "none",
-                backgroundColor: "#f0f0f0",
+                ...(theme === "light" ? { backgroundColor: "#f0f0f0" } : { backgroundColor: "#414547" }),
                 fontWeight: "normal",
                 textAlign: "center",
                 padding: "2px 2px",
                 height: "1px",
                 lineHeight: "1",
                 fontSize: "0.8rem",
-                borderRight: "1px solid #e0e0e0",
+                ...(theme === "light" ? { borderRight: "1px solid #e0e0e0" } : { borderRight: "1px solid #686868" }),
                 "&:hover": {
-                    backgroundColor: "#e0e0e0",
+                    ...(theme === "light" ? { backgroundColor: "#e0e0e0" } : { backgroundColor: "#686868" }),
                 },
             }}
             className={className}

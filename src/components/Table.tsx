@@ -1,22 +1,25 @@
 import * as React from "react";
 import { TableContainer as TableContainerMUI, Table as TableMUI, Paper } from "@mui/material";
+import { TableProps } from "@types";
 
-interface Props {
-    children?: React.ReactNode;
-    className?: string;
-    onPaste?: (event: React.ClipboardEvent<HTMLDivElement>) => void;
-}
-
-const Table = React.forwardRef<HTMLTableElement, Props>(({ children, className, onPaste }, ref) => {
+const Table = React.forwardRef<HTMLTableElement, TableProps>(({ theme = "light", children, className, onPaste }, ref) => {
     return (
         <div className={className}>
             <TableContainerMUI
-                component={Paper}
+                component={theme === "light" ? Paper : "div"}
                 sx={{
                     mt: 2,
                     width: "auto",
                     display: "inline-block",
-                    border: "1px solid #e0e0e0",
+                    ...(theme === "light"
+                        ? {
+                              border: "1px solid #e0e0e0",
+                              backgroundColor: "transparent",
+                          }
+                        : {
+                              border: "1px solid #686868",
+                              backgroundColor: "transparent",
+                          }),
                     borderRight: "none",
                     borderBottom: "none",
                 }}

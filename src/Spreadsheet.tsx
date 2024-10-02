@@ -1,11 +1,10 @@
 import React, { useReducer, useRef, useEffect } from "react";
-import { Box, TableBody, TableRow, TableHead } from "@mui/material";
+import { Box, CssBaseline, ThemeProvider, createTheme, TableBody, TableRow, TableHead } from "@mui/material";
 import { ButtonGroup, ButtonGroupProvider, Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, Table } from "@components";
 import { reducer, handlePaste } from "@utils";
-import { initialState, Alignment } from "@types";
+import { initialState, Alignment, SpreadsheetProps } from "@types";
 
-// MDTable component
-const MDTable = () => {
+export const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light" }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
     const tableRef = useRef<HTMLTableElement>(null);
     const buttonGroupRef = useRef<HTMLDivElement>(null);
@@ -114,58 +113,70 @@ const MDTable = () => {
         dispatch({ type: "SET_SELECTED_CELL", payload: { row: rowIndex, col: colIndex } });
     };
 
+    const themeMui = createTheme({
+        palette: {
+            mode: theme,
+        },
+    });
+
     return (
-        <Box sx={{ p: 2 }}>
-            <ButtonGroupProvider
-                onClickUndo={handleUndo}
-                onClickRedo={handleRedo}
-                onClickAlignLeft={() => setAlignment("left")}
-                onClickAlignCenter={() => setAlignment("center")}
-                onClickAlignRight={() => setAlignment("right")}
-                onClickAddRow={handleAddRow}
-                onClickRemoveRow={handleRemoveRow}
-                onClickAddColumn={handleAddColumn}
-                onClickRemoveColumn={handleRemoveColumn}
-                onClickSetBold={handleSetBold}
-                onClickSetItalic={handleSetItalic}
-                onClickSetCode={handleSetCode}
-            >
-                <div ref={buttonGroupRef}>
-                    <ButtonGroup />
-                </div>
-            </ButtonGroupProvider>
-            <Table onPaste={handlePasteEvent} ref={tableRef}>
-                <TableHead>
-                    <TableRow>
-                        <SelectAllCell selectAll={state.selectAll} toggleSelectAll={toggleSelectAll} />
-                        {state.data[0].map((_, index) => (
-                            <ColumnHeaderCell key={index} index={index} handleColumnSelection={handleColumnSelection} />
-                        ))}
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {state.data.map((row, rowIndex) => (
-                        <Row key={rowIndex}>
-                            <RowNumberCell onClick={() => handleRowSelection(rowIndex)}>{rowIndex + 1}</RowNumberCell>
-                            {row.map((cell, colIndex) => (
-                                <Cell
-                                    key={colIndex}
-                                    rowIndex={rowIndex}
-                                    colIndex={colIndex}
-                                    align={state.alignments[rowIndex][colIndex]}
-                                    selectedCells={state.selectedCells}
-                                    selectedCell={state.selectedCell}
-                                    handleCellSelection={handleCellSelection}
-                                    handleCellChange={handleCellChange}
-                                    cellData={cell}
-                                ></Cell>
+        <ThemeProvider theme={themeMui}>
+            <CssBaseline />
+            <Box sx={{ p: 2 }}>
+                <ButtonGroupProvider
+                    onClickUndo={handleUndo}
+                    onClickRedo={handleRedo}
+                    onClickAlignLeft={() => setAlignment("left")}
+                    onClickAlignCenter={() => setAlignment("center")}
+                    onClickAlignRight={() => setAlignment("right")}
+                    onClickAddRow={handleAddRow}
+                    onClickRemoveRow={handleRemoveRow}
+                    onClickAddColumn={handleAddColumn}
+                    onClickRemoveColumn={handleRemoveColumn}
+                    onClickSetBold={handleSetBold}
+                    onClickSetItalic={handleSetItalic}
+                    onClickSetCode={handleSetCode}
+                >
+                    <div ref={buttonGroupRef}>
+                        <ButtonGroup theme={theme} />
+                    </div>
+                </ButtonGroupProvider>
+                <Table theme={theme} onPaste={handlePasteEvent} ref={tableRef}>
+                    <TableHead>
+                        <TableRow>
+                            <SelectAllCell theme={theme} selectAll={state.selectAll} toggleSelectAll={toggleSelectAll} />
+                            {state.data[0].map((_, index) => (
+                                <ColumnHeaderCell key={index} index={index} theme={theme} handleColumnSelection={handleColumnSelection} />
                             ))}
-                        </Row>
-                    ))}
-                </TableBody>
-            </Table>
-        </Box>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {state.data.map((row, rowIndex) => (
+                            <Row theme={theme} key={rowIndex}>
+                                <RowNumberCell theme={theme} onClick={() => handleRowSelection(rowIndex)}>
+                                    {rowIndex + 1}
+                                </RowNumberCell>
+                                {row.map((cell, colIndex) => (
+                                    <Cell
+                                        theme={theme}
+                                        key={colIndex}
+                                        rowIndex={rowIndex}
+                                        colIndex={colIndex}
+                                        align={state.alignments[rowIndex][colIndex]}
+                                        selectedCells={state.selectedCells}
+                                        selectedCell={state.selectedCell}
+                                        handleCellSelection={handleCellSelection}
+                                        handleCellChange={handleCellChange}
+                                        cellData={cell}
+                                    ></Cell>
+                                ))}
+                            </Row>
+                        ))}
+                    </TableBody>
+                </Table>
+            </Box>
+        </ThemeProvider>
     );
 };
 
-export default MDTable;
+export default Spreadsheet;

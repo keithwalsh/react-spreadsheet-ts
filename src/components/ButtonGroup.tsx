@@ -15,45 +15,13 @@ import {
     RiDeleteRow,
 } from "react-icons/ri";
 import { LuUndo2, LuRedo2 } from "react-icons/lu";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import { ButtonGroupContextType } from "@types";
+import { ButtonGroupContextType, ButtonGroupProviderProps, ButtonGroupProps } from "@types";
 
-// Create the context using the ButtonGroupContextType
 const ButtonGroupContext = createContext<ButtonGroupContextType | undefined>(undefined);
-
-// Create a provider for the ButtonGroupContext
-interface ButtonGroupProviderProps extends ButtonGroupContextType {
-    children: React.ReactNode;
-}
 
 export const ButtonGroupProvider: React.FC<ButtonGroupProviderProps> = ({ children, ...handlers }) => (
     <ButtonGroupContext.Provider value={handlers}>{children}</ButtonGroupContext.Provider>
 );
-
-interface ButtonGroupProps {
-    palletteMode?: "light" | "dark";
-    visibleButtons?: (string | "divider")[];
-    orientation?: "horizontal" | "vertical";
-    marginTop?: number;
-    iconSize?: number;
-    iconMargin?: number;
-    dividerMargin?: number;
-    tooltipArrow?: boolean;
-    tooltipPlacement?:
-        | "bottom-end"
-        | "bottom-start"
-        | "bottom"
-        | "left-end"
-        | "left-start"
-        | "left"
-        | "right-end"
-        | "right-start"
-        | "right"
-        | "top-end"
-        | "top-start"
-        | "top";
-}
 
 const defaultVisibleButtons: (string | "divider")[] = [
     "Undo",
@@ -74,7 +42,7 @@ const defaultVisibleButtons: (string | "divider")[] = [
 ];
 
 const ButtonGroup: React.FC<ButtonGroupProps> = ({
-    palletteMode = "light",
+    theme = "light",
     visibleButtons,
     orientation = "horizontal",
     marginTop = 3,
@@ -84,11 +52,6 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
     tooltipArrow = true,
     tooltipPlacement = "top",
 }) => {
-    const theme = createTheme({
-        palette: {
-            mode: palletteMode,
-        },
-    });
     const handlers = useContext(ButtonGroupContext);
 
     if (!handlers) {
@@ -113,50 +76,68 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
     const buttonsToRender = visibleButtons && visibleButtons.length > 0 ? visibleButtons : defaultVisibleButtons;
 
     return (
-        <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Box
-                sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    border: 1,
-                    borderColor: "divider",
-                    marginTop: marginTop,
-                    borderRadius: 1,
-                    maxWidth: "max-content",
-                    "& svg": { m: iconMargin },
-                    "& .MuiDivider-root": {
-                        ...(orientation === "horizontal" ? { mx: dividerMargin } : { my: dividerMargin }),
-                    },
-                }}
-            >
-                <MUIButtonGroup orientation={orientation}>
-                    {buttonsToRender.map((buttonOrDivider, index) => {
-                        if (buttonOrDivider === "divider") {
-                            return <Divider key={`divider-${index}`} orientation={orientation === "horizontal" ? "vertical" : "horizontal"} flexItem />;
-                        } else {
-                            const button = allButtons.find((b) => b.title === buttonOrDivider);
-                            if (!button) return null;
-                            return (
-                                <Tooltip key={button.title} title={button.title} placement={tooltipPlacement} arrow={tooltipArrow}>
-                                    <IconButton
-                                        onClick={button.onClick}
-                                        sx={{
-                                            borderRadius: 0,
-                                            "& .MuiTouchRipple-root .MuiTouchRipple-child": {
-                                                borderRadius: 0,
-                                            },
-                                        }}
-                                    >
-                                        <button.icon size={iconSize} />
-                                    </IconButton>
-                                </Tooltip>
-                            );
-                        }
-                    })}
-                </MUIButtonGroup>
-            </Box>
-        </ThemeProvider>
+        <Box
+            sx={{
+                display: "flex",
+                alignItems: "center",
+                border: 1,
+                marginTop: marginTop,
+                borderRadius: 1,
+                maxWidth: "max-content",
+                ...(theme === "light"
+                    ? {
+                          borderColor: "divider",
+                          "& svg": { m: iconMargin },
+                          "& .MuiDivider-root": {
+                              ...(orientation === "horizontal" ? { mx: dividerMargin } : { my: dividerMargin }),
+                          },
+                      }
+                    : {
+                          borderColor: "#686868",
+                          "& svg": { m: iconMargin, color: "#BEBFC0" },
+                          "& .MuiDivider-root": {
+                              borderColor: "#686868",
+                              ...(orientation === "horizontal" ? { mx: dividerMargin } : { my: dividerMargin }),
+                          },
+                      }),
+            }}
+        >
+            <MUIButtonGroup orientation={orientation}>
+                {buttonsToRender.map((buttonOrDivider, index) => {
+                    if (buttonOrDivider === "divider") {
+                        return <Divider key={`divider-${index}`} orientation={orientation === "horizontal" ? "vertical" : "horizontal"} flexItem />;
+                    } else {
+                        const button = allButtons.find((b) => b.title === buttonOrDivider);
+                        if (!button) return null;
+                        return (
+                            <Tooltip key={button.title} title={button.title} placement={tooltipPlacement} arrow={tooltipArrow}>
+                                <IconButton
+                                    onClick={button.onClick}
+                                    sx={{
+                                        ...(theme === "light"
+                                            ? {
+                                                  borderRadius: 0,
+                                                  "& .MuiTouchRipple-root .MuiTouchRipple-child": {
+                                                      borderRadius: 0,
+                                                  },
+                                              }
+                                            : {
+                                                  borderRadius: 0,
+                                                  "&:hover": { backgroundColor: "#2F353D" },
+                                                  "& .MuiTouchRipple-root .MuiTouchRipple-child": {
+                                                      borderRadius: 0,
+                                                  },
+                                              }),
+                                    }}
+                                >
+                                    <button.icon size={iconSize} />
+                                </IconButton>
+                            </Tooltip>
+                        );
+                    }
+                })}
+            </MUIButtonGroup>
+        </Box>
     );
 };
 

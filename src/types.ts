@@ -1,4 +1,5 @@
 import { CSSProperties } from "react";
+import { TableCellProps } from "@mui/material";
 
 // Type definitions
 
@@ -67,7 +68,36 @@ export interface ButtonGroupContextType {
     onClickSetCode: () => void;
 }
 
+export interface ButtonGroupProviderProps extends ButtonGroupContextType {
+    children: React.ReactNode;
+}
+
+export interface ButtonGroupProps {
+    theme?: "light" | "dark";
+    visibleButtons?: (string | "divider")[];
+    orientation?: "horizontal" | "vertical";
+    marginTop?: number;
+    iconSize?: number;
+    iconMargin?: number;
+    dividerMargin?: number;
+    tooltipArrow?: boolean;
+    tooltipPlacement?:
+        | "bottom-end"
+        | "bottom-start"
+        | "bottom"
+        | "left-end"
+        | "left-start"
+        | "left"
+        | "right-end"
+        | "right-start"
+        | "right"
+        | "top-end"
+        | "top-start"
+        | "top";
+}
+
 export interface CellProps {
+    theme?: "light" | "dark";
     rowIndex: number;
     colIndex: number;
     align: "inherit" | "left" | "center" | "right" | "justify";
@@ -77,4 +107,44 @@ export interface CellProps {
     handleCellChange: (rowIndex: number, colIndex: number, value: string) => void;
     style?: CSSProperties;
     cellData?: string;
+}
+
+export interface ColumnHeaderCellProps {
+    theme?: "light" | "dark";
+    index: number;
+    handleColumnSelection: (colIndex: number) => void;
+    className?: string;
+}
+
+export interface RowProps {
+    theme?: "light" | "dark";
+    children?: React.ReactNode;
+    className?: string;
+    ref?: React.Ref<HTMLTableRowElement> | null;
+}
+
+export interface RowNumberCellProps {
+    theme?: "light" | "dark";
+    children?: React.ReactNode;
+    className?: string;
+    onClick?: () => void;
+    ref?: React.Ref<HTMLTableRowElement> | null;
+}
+
+export interface SelectAllTableCellProps extends TableCellProps {
+    theme?: "light" | "dark";
+    selectAll: boolean;
+    toggleSelectAll: () => void;
+    iconSize?: number;
+}
+
+export interface TableProps {
+    theme?: "light" | "dark";
+    children?: React.ReactNode;
+    className?: string;
+    onPaste?: (event: React.ClipboardEvent<HTMLDivElement>) => void;
+}
+
+export interface SpreadsheetProps {
+    theme?: "light" | "dark";
 }

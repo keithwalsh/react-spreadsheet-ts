@@ -2,7 +2,18 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { TableCell } from "@mui/material";
 import { CellProps } from "@types";
 
-const Cell: React.FC<CellProps> = ({ rowIndex, colIndex, align, selectedCells, selectedCell, handleCellSelection, handleCellChange, style, cellData }) => {
+const Cell: React.FC<CellProps> = ({
+    theme = "light",
+    rowIndex,
+    colIndex,
+    align,
+    selectedCells,
+    selectedCell,
+    handleCellSelection,
+    handleCellChange,
+    style,
+    cellData,
+}) => {
     const [isEditing, setIsEditing] = useState(false);
     const cellRef = useRef<HTMLDivElement>(null);
     const isSelected = selectedCell !== null && selectedCell.row === rowIndex && selectedCell.col === colIndex;
@@ -53,10 +64,10 @@ const Cell: React.FC<CellProps> = ({ rowIndex, colIndex, align, selectedCells, s
             onDoubleClick={handleDoubleClick}
             sx={{
                 height: "37.02px",
-                borderRight: "1px solid #e0e0e0",
-                borderBottom: "1px solid #e0e0e0",
+                ...(theme === "light" ? { borderRight: "1px solid #e0e0e0" } : { borderRight: "1px solid #686868" }),
+                ...(theme === "light" ? { borderBottom: "1px solid #e0e0e0" } : { borderBottom: "1px solid #686868" }),
                 "&:last-child": {
-                    borderRight: "1px solid #e0e0e0",
+                    ...(theme === "light" ? { borderRight: "1px solid #e0e0e0" } : { borderRight: "1px solid #686868" }),
                 },
                 cursor: isEditing ? "text" : "pointer",
                 backgroundColor: selectedCells[rowIndex]?.[colIndex] && multipleCellsSelected ? "rgba(25, 118, 210, 0.12)" : "transparent",
