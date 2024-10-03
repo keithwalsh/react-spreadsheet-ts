@@ -13,6 +13,9 @@ const Cell: React.FC<CellProps> = ({
     handleCellChange,
     style,
     cellData,
+    onMouseDown,
+    onMouseEnter,
+    onMouseUp,
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [fontWeight, setFontWeight] = useState("normal");
@@ -21,6 +24,22 @@ const Cell: React.FC<CellProps> = ({
     const cellRef = useRef<HTMLDivElement>(null);
     const isSelected = selectedCell !== null && selectedCell.row === rowIndex && selectedCell.col === colIndex;
     const multipleCellsSelected = selectedCells.flat().filter(Boolean).length > 1;
+
+    const handleMouseDownEvent = (e: React.MouseEvent) => {
+        e.preventDefault();
+        onMouseDown(rowIndex, colIndex);
+        handleCellSelection(rowIndex, colIndex);
+    };
+
+    const handleMouseEnterEvent = (e: React.MouseEvent) => {
+        e.preventDefault();
+        onMouseEnter(rowIndex, colIndex);
+    };
+
+    const handleMouseUpEvent = (e: React.MouseEvent) => {
+        e.preventDefault();
+        onMouseUp();
+    };
 
     useEffect(() => {
         if (cellRef.current) {
@@ -85,6 +104,9 @@ const Cell: React.FC<CellProps> = ({
     return (
         <TableCell
             align={align}
+            onMouseDown={handleMouseDownEvent}
+            onMouseEnter={handleMouseEnterEvent}
+            onMouseUp={handleMouseUpEvent}
             onClick={handleClick}
             onDoubleClick={handleDoubleClick}
             sx={{

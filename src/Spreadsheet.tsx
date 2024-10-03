@@ -1,6 +1,6 @@
 // Spreadsheet.tsx
 
-import React, { useReducer, useRef, useCallback } from "react";
+import React, { useReducer, useRef, useCallback, useEffect } from "react";
 import { Box, CssBaseline, ThemeProvider, createTheme, TableBody, TableRow, TableHead } from "@mui/material";
 
 // Internal Components
@@ -102,6 +102,42 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
         },
     });
 
+    // Mouse event handlers
+    const handleMouseDown = useCallback(
+        (row: number, col: number) => {
+            dispatch({ type: "START_DRAG", payload: { row, col } });
+        },
+        [dispatch]
+    );
+
+    const handleMouseEnter = useCallback(
+        (row: number, col: number) => {
+            if (state.isDragging && state.dragStart) {
+                dispatch({ type: "UPDATE_DRAG", payload: { row, col } });
+            }
+        },
+        [state.isDragging, state.dragStart, dispatch]
+    );
+
+    const handleMouseUp = useCallback(() => {
+        if (state.isDragging) {
+            dispatch({ type: "END_DRAG" });
+        }
+    }, [state.isDragging, dispatch]);
+
+    // Add global mouse up listener to handle cases where mouse is released outside the table
+    useEffect(() => {
+        const handleGlobalMouseUp = () => {
+            if (state.isDragging) {
+                dispatch({ type: "END_DRAG" });
+            }
+        };
+        window.addEventListener("mouseup", handleGlobalMouseUp);
+        return () => {
+            window.removeEventListener("mouseup", handleGlobalMouseUp);
+        };
+    }, [state.isDragging, dispatch]);
+
     return (
         <ThemeProvider theme={themeMui}>
             <CssBaseline />
@@ -151,6 +187,9 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
                                         handleCellSelection={handleCellSelection}
                                         handleCellChange={handleCellChange}
                                         cellData={cell}
+                                        onMouseDown={handleMouseDown}
+                                        onMouseEnter={handleMouseEnter}
+                                        onMouseUp={handleMouseUp}
                                     />
                                 ))}
                             </Row>

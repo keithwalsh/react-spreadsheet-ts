@@ -17,6 +17,9 @@ const SpreadsheetMeta: Meta<SpreadsheetStoryArgs> = {
             },
             description: "Switch between light and dark mode.",
             defaultValue: "light",
+            table: {
+                type: { summary: `"light" | "dark"` },
+            },
         },
         initialRows: {
             control: { type: "number", min: 1, max: 100, step: 1 },
@@ -35,6 +38,9 @@ const SpreadsheetMeta: Meta<SpreadsheetStoryArgs> = {
             },
             description: "Select the orientation of the button toolbar.",
             defaultValue: "horizontal",
+            table: {
+                type: { summary: `"horizontal" | "vertical"` },
+            },
         },
     },
     decorators: [

@@ -15,6 +15,8 @@ export type State = {
     selectedCell: { row: number; col: number } | null;
     selectedCells: boolean[][];
     selectAll: boolean;
+    isDragging: boolean;
+    dragStart: { row: number; col: number } | null;
 };
 
 export type Action =
@@ -36,7 +38,10 @@ export type Action =
     | { type: "HANDLE_PASTE"; payload: { newData: string[][]; newAlignments: Alignment[][] } }
     | { type: "SET_BOLD" }
     | { type: "SET_ITALIC" }
-    | { type: "SET_CODE" };
+    | { type: "SET_CODE" }
+    | { type: "START_DRAG"; payload: { row: number; col: number } }
+    | { type: "UPDATE_DRAG"; payload: { row: number; col: number } }
+    | { type: "END_DRAG" };
 
 export interface ButtonGroupContextType {
     onClickUndo: () => void;
@@ -91,6 +96,9 @@ export interface CellProps {
     handleCellChange: (rowIndex: number, colIndex: number, value: string) => void;
     style?: CSSProperties;
     cellData?: string;
+    onMouseDown: (row: number, col: number) => void;
+    onMouseEnter: (row: number, col: number) => void;
+    onMouseUp: () => void;
 }
 
 export interface ColumnHeaderCellProps {

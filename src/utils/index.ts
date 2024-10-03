@@ -2,5 +2,6 @@ import { addRow, removeRow, addColumn, removeColumn } from "./spreadsheetOperati
 import { handlePaste } from "./handlePaste";
 import { reducer } from "./reducer";
 import { createInitialState } from "./createInitialState";
+import { markSelectedCells } from "./markSelectedCells";
 
-export { addRow, removeRow, addColumn, createInitialState, removeColumn, reducer, handlePaste };
+export { addRow, removeRow, addColumn, createInitialState, removeColumn, reducer, handlePaste, markSelectedCells };

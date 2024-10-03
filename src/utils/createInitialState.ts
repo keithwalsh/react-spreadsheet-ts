@@ -10,4 +10,6 @@ export const createInitialState = (rows: number, columns: number): State => ({
     selectedCell: null,
     selectedCells: Array.from({ length: rows }, () => Array(columns).fill(false)),
     selectAll: false,
+    isDragging: false,
+    dragStart: null,
 });

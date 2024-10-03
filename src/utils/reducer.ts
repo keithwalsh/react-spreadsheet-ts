@@ -1,5 +1,5 @@
 import { Action, State } from "@types";
-import { addRow, removeRow, addColumn, removeColumn } from "./spreadsheetOperations";
+import { addRow, removeRow, addColumn, removeColumn, markSelectedCells } from "@utils";
 
 /**
  * The reducer function to manage table state.
@@ -243,6 +243,26 @@ export function reducer(state: State, action: Action): State {
             return { ...state, data: newData };
         }
 
+        case "START_DRAG":
+            return {
+                ...state,
+                isDragging: true,
+                dragStart: action.payload,
+                selectedCells: markSelectedCells(state.data, action.payload.row, action.payload.col, action.payload.row, action.payload.col),
+            };
+        case "UPDATE_DRAG":
+            if (!state.dragStart) return state;
+            return {
+                ...state,
+                selectedCells: markSelectedCells(state.data, state.dragStart.row, state.dragStart.col, action.payload.row, action.payload.col),
+            };
+        case "END_DRAG":
+            return {
+                ...state,
+                isDragging: false,
+                dragStart: null,
+            };
+        // ... other cases
         default:
             return state;
     }
