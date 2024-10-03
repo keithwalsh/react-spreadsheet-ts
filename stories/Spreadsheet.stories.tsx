@@ -18,19 +18,41 @@ const SpreadsheetMeta: Meta<SpreadsheetStoryArgs> = {
             description: "Switch between light and dark mode.",
             defaultValue: "light",
         },
+        initialRows: {
+            control: { type: "number", min: 1, max: 100, step: 1 },
+            description: "The number of initial rows.",
+            defaultValue: 4,
+        },
+        initialColumns: {
+            control: { type: "number", min: 1, max: 100, step: 1 },
+            description: "The number of initial columns.",
+            defaultValue: 5,
+        },
+        toolbarOrientation: {
+            control: {
+                type: "select",
+                options: ["horizontal", "vertical"],
+            },
+            description: "Select the orientation of the button toolbar.",
+            defaultValue: "horizontal",
+        },
     },
     decorators: [
         (Story, context) => {
             const { theme } = context.args;
             const backgroundColor = theme === "dark" ? "#000" : "#fff";
 
+            // Create a unique key based on initialRows and initialColumns
+            const key = `rows-${context.args.initialRows}-cols-${context.args.initialColumns}`;
+
             return (
                 <div
                     style={{
                         display: "inline-block",
-                        padding: "30px",
+                        padding: 0,
                         backgroundColor, // Dynamically set based on theme
                     }}
+                    key={key} // Add the key here
                 >
                     <Story {...context.args} />
                 </div>
@@ -46,5 +68,8 @@ type Story = StoryObj<SpreadsheetStoryArgs>;
 export const Default: Story = {
     args: {
         theme: "light",
+        toolbarOrientation: "horizontal",
+        initialRows: 4,
+        initialColumns: 5,
     },
 };

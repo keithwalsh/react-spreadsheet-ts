@@ -1,7 +1,7 @@
 // src/components/toolbar/ButtonGroup.tsx
 
 import React, { createContext, useContext } from "react";
-import { Box, IconButton, ButtonGroup as MUIButtonGroup, Tooltip, Divider } from "@mui/material";
+import { Box, IconButton, ButtonGroup as MUIButtonGroup, Tooltip, Divider, Paper } from "@mui/material";
 import {
     RiAlignLeft,
     RiAlignJustify,
@@ -45,9 +45,8 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
     theme = "light",
     visibleButtons,
     orientation = "horizontal",
-    marginTop = 3,
     iconSize = 20,
-    iconMargin = 0.3,
+    iconMargin = 0.25,
     dividerMargin = 0.5,
     tooltipArrow = true,
     tooltipPlacement = "top",
@@ -77,13 +76,21 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
 
     return (
         <Box
+            component={theme === "light" ? Paper : "div"}
             sx={{
                 display: "flex",
                 alignItems: "center",
                 border: 1,
-                marginTop: marginTop,
                 borderRadius: 1,
                 maxWidth: "max-content",
+                ...(orientation === "horizontal"
+                    ? {
+                          marginTop: 3,
+                      }
+                    : {
+                          marginTop: 2,
+                          marginRight: 2,
+                      }),
                 ...(theme === "light"
                     ? {
                           borderColor: "divider",

@@ -16,8 +16,9 @@
         "outDir": "./dist",
         "paths": {
             "@components": ["./src/components"],
-            "@utils": ["./src/utils"],
-            "@types": ["./src/types.ts"]
+            "@hooks": ["./src/hooks"],
+            "@types": ["./src/types.ts"],
+            "@utils": ["./src/utils"]
         },
         "rootDir": ".",
         "skipLibCheck": true,

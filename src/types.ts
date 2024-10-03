@@ -38,21 +38,6 @@ export type Action =
     | { type: "SET_ITALIC" }
     | { type: "SET_CODE" };
 
-/**
- * The initial state of the table.
- */
-export const initialState: State = {
-    data: Array.from({ length: 4 }, () => Array(5).fill("")),
-    alignments: Array.from({ length: 4 }, () => Array(5).fill("left")),
-    past: [],
-    future: [],
-    selectedColumn: null,
-    selectedRow: null,
-    selectedCell: null,
-    selectedCells: Array.from({ length: 4 }, () => Array(5).fill(false)),
-    selectAll: false,
-};
-
 export interface ButtonGroupContextType {
     onClickUndo: () => void;
     onClickRedo: () => void;
@@ -76,7 +61,6 @@ export interface ButtonGroupProps {
     theme?: "light" | "dark";
     visibleButtons?: (string | "divider")[];
     orientation?: "horizontal" | "vertical";
-    marginTop?: number;
     iconSize?: number;
     iconMargin?: number;
     dividerMargin?: number;
@@ -147,4 +131,7 @@ export interface TableProps {
 
 export interface SpreadsheetProps {
     theme?: "light" | "dark";
+    toolbarOrientation?: "horizontal" | "vertical";
+    initialRows?: number;
+    initialColumns?: number;
 }

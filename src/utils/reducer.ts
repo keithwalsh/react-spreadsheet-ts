@@ -1,5 +1,5 @@
 import { Action, State } from "@types";
-import { addRow, removeRow, addColumn, removeColumn } from "./grid";
+import { addRow, removeRow, addColumn, removeColumn } from "./spreadsheetOperations";
 
 /**
  * The reducer function to manage table state.

@@ -1,117 +1,100 @@
-import React, { useReducer, useRef, useEffect } from "react";
-import { Box, CssBaseline, ThemeProvider, createTheme, TableBody, TableRow, TableHead } from "@mui/material";
-import { ButtonGroup, ButtonGroupProvider, Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, Table } from "@components";
-import { reducer, handlePaste } from "@utils";
-import { initialState, Alignment, SpreadsheetProps } from "@types";
+// Spreadsheet.tsx
 
-export const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light" }) => {
-    const [state, dispatch] = useReducer(reducer, initialState);
+import React, { useReducer, useRef, useCallback } from "react";
+import { Box, CssBaseline, ThemeProvider, createTheme, TableBody, TableRow, TableHead } from "@mui/material";
+
+// Internal Components
+import { ButtonGroup, ButtonGroupProvider, Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, Table } from "@components";
+
+// Hooks, Utilities, and Types
+import { useOutsideClick, useSpreadsheetActions } from "@hooks";
+import { createInitialState, reducer, handlePaste } from "@utils";
+import { SpreadsheetProps } from "@types";
+
+const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrientation = "horizontal", initialRows = 4, initialColumns = 5 }) => {
+    // Lazy initialization function for useReducer
+    const initializeState = useCallback(() => createInitialState(initialRows, initialColumns), [initialRows, initialColumns]);
+
+    const [state, dispatch] = useReducer(reducer, undefined, initializeState);
     const tableRef = useRef<HTMLTableElement>(null);
     const buttonGroupRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (
-                tableRef.current &&
-                !tableRef.current.contains(event.target as Node) &&
-                buttonGroupRef.current &&
-                !buttonGroupRef.current.contains(event.target as Node)
-            ) {
-                dispatch({ type: "CLEAR_SELECTION" });
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
+    // Use custom hooks
+    useOutsideClick([tableRef, buttonGroupRef], () => dispatch({ type: "CLEAR_SELECTION" }));
+    const actions = useSpreadsheetActions(dispatch);
 
-    const handleUndo = () => {
-        dispatch({ type: "UNDO" });
-    };
-    const handleRedo = () => {
-        dispatch({ type: "REDO" });
-    };
-    const handleSetBold = () => {
-        dispatch({ type: "SET_BOLD" });
-    };
-    const handleSetItalic = () => {
-        dispatch({ type: "SET_ITALIC" });
-    };
-    const handleSetCode = () => {
-        dispatch({ type: "SET_CODE" });
-    };
-    const handleAddRow = () => {
-        dispatch({ type: "ADD_ROW" });
-    };
-    const handleRemoveRow = () => {
-        dispatch({ type: "REMOVE_ROW" });
-    };
-    const handleAddColumn = () => {
-        dispatch({ type: "ADD_COLUMN" });
-    };
-    const handleRemoveColumn = () => {
-        dispatch({ type: "REMOVE_COLUMN" });
-    };
-    const clearSelection = () => {
-        dispatch({ type: "CLEAR_SELECTION" });
-    };
-    const setAlignment = (alignment: Alignment) => {
-        dispatch({ type: "SET_ALIGNMENT", payload: alignment });
-    };
-    const handleCellChange = (rowIndex: number, colIndex: number, value: string) => {
-        const newData = [...state.data];
-        newData[rowIndex] = [...newData[rowIndex]];
-        newData[rowIndex][colIndex] = value;
-        dispatch({ type: "SET_DATA", payload: newData });
-    };
+    // Handle cell changes
+    const handleCellChange = useCallback(
+        (rowIndex: number, colIndex: number, value: string) => {
+            const newData = state.data.map((row, rIdx) => (rIdx === rowIndex ? row.map((cell, cIdx) => (cIdx === colIndex ? value : cell)) : row));
+            dispatch({ type: "SET_DATA", payload: newData });
+        },
+        [state.data, dispatch]
+    );
 
-    const handlePasteEvent = (e: React.ClipboardEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        if (!state.selectedCell) return;
-        const clipboardText = e.clipboardData.getData("Text");
-        const { newData, newAlignments } = handlePaste(clipboardText, state.data, state.selectedCell, state.alignments);
-        dispatch({ type: "HANDLE_PASTE", payload: { newData, newAlignments } });
-    };
+    // Handle paste events
+    const handlePasteEvent = useCallback(
+        (e: React.ClipboardEvent<HTMLDivElement>) => {
+            e.preventDefault();
+            if (!state.selectedCell) return;
+            const clipboardText = e.clipboardData.getData("Text");
+            const { newData, newAlignments } = handlePaste(clipboardText, state.data, state.selectedCell, state.alignments);
+            dispatch({ type: "HANDLE_PASTE", payload: { newData, newAlignments } });
+        },
+        [state, dispatch]
+    );
 
-    const selectCells = (startRow: number, startCol: number, endRow: number, endCol: number) => {
-        clearSelection();
-        const newSelection = Array.from({ length: state.data.length }, () => Array(state.data[0].length).fill(false));
-        for (let i = Math.min(startRow, endRow); i <= Math.max(startRow, endRow); i++) {
-            for (let j = Math.min(startCol, endCol); j <= Math.max(startCol, endCol); j++) {
-                newSelection[i][j] = true;
-            }
-        }
-        dispatch({ type: "SET_SELECTED_CELLS", payload: newSelection });
-    };
+    // Selection handlers
+    const selectCells = useCallback(
+        (startRow: number, startCol: number, endRow: number, endCol: number) => {
+            actions.clearSelection();
+            const newSelection = state.data.map((_, i) =>
+                state.data[0].map(
+                    (_, j) =>
+                        i >= Math.min(startRow, endRow) && i <= Math.max(startRow, endRow) && j >= Math.min(startCol, endCol) && j <= Math.max(startCol, endCol)
+                )
+            );
+            dispatch({ type: "SET_SELECTED_CELLS", payload: newSelection });
+        },
+        [state.data, actions]
+    );
 
-    const toggleSelectAll = () => {
+    const toggleSelectAll = useCallback(() => {
         const newSelectAll = !state.selectAll;
         dispatch({ type: "SET_SELECT_ALL", payload: newSelectAll });
-        const newSelectedCells = Array.from({ length: state.data.length }, () => Array(state.data[0].length).fill(newSelectAll));
+        const newSelectedCells = state.data.map((row) => row.map(() => newSelectAll));
         dispatch({ type: "SET_SELECTED_CELLS", payload: newSelectedCells });
         dispatch({ type: "SET_SELECTED_COLUMN", payload: null });
         dispatch({ type: "SET_SELECTED_ROW", payload: null });
         dispatch({ type: "SET_SELECTED_CELL", payload: null });
-    };
+    }, [state.data, state.selectAll, dispatch]);
 
-    const handleRowSelection = (rowIndex: number) => {
-        clearSelection();
-        selectCells(rowIndex, 0, rowIndex, state.data[0].length - 1);
-        dispatch({ type: "SET_SELECTED_ROW", payload: rowIndex });
-    };
+    const handleRowSelection = useCallback(
+        (rowIndex: number) => {
+            actions.clearSelection();
+            selectCells(rowIndex, 0, rowIndex, state.data[0].length - 1);
+            dispatch({ type: "SET_SELECTED_ROW", payload: rowIndex });
+        },
+        [actions, selectCells, state.data, dispatch]
+    );
 
-    const handleColumnSelection = (colIndex: number) => {
-        clearSelection();
-        selectCells(0, colIndex, state.data.length - 1, colIndex);
-        dispatch({ type: "SET_SELECTED_COLUMN", payload: colIndex });
-    };
+    const handleColumnSelection = useCallback(
+        (colIndex: number) => {
+            actions.clearSelection();
+            selectCells(0, colIndex, state.data.length - 1, colIndex);
+            dispatch({ type: "SET_SELECTED_COLUMN", payload: colIndex });
+        },
+        [actions, selectCells, state.data, dispatch]
+    );
 
-    const handleCellSelection = (rowIndex: number, colIndex: number) => {
-        clearSelection();
-        selectCells(rowIndex, colIndex, rowIndex, colIndex);
-        dispatch({ type: "SET_SELECTED_CELL", payload: { row: rowIndex, col: colIndex } });
-    };
+    const handleCellSelection = useCallback(
+        (rowIndex: number, colIndex: number) => {
+            actions.clearSelection();
+            selectCells(rowIndex, colIndex, rowIndex, colIndex);
+            dispatch({ type: "SET_SELECTED_CELL", payload: { row: rowIndex, col: colIndex } });
+        },
+        [actions, selectCells, dispatch]
+    );
 
     const themeMui = createTheme({
         palette: {
@@ -122,23 +105,23 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light" }) => 
     return (
         <ThemeProvider theme={themeMui}>
             <CssBaseline />
-            <Box sx={{ p: 2 }}>
+            <Box sx={{ ...(toolbarOrientation === "horizontal" ? { p: 0 } : { p: 0, display: "flex" }) }}>
                 <ButtonGroupProvider
-                    onClickUndo={handleUndo}
-                    onClickRedo={handleRedo}
-                    onClickAlignLeft={() => setAlignment("left")}
-                    onClickAlignCenter={() => setAlignment("center")}
-                    onClickAlignRight={() => setAlignment("right")}
-                    onClickAddRow={handleAddRow}
-                    onClickRemoveRow={handleRemoveRow}
-                    onClickAddColumn={handleAddColumn}
-                    onClickRemoveColumn={handleRemoveColumn}
-                    onClickSetBold={handleSetBold}
-                    onClickSetItalic={handleSetItalic}
-                    onClickSetCode={handleSetCode}
+                    onClickUndo={actions.handleUndo}
+                    onClickRedo={actions.handleRedo}
+                    onClickAlignLeft={() => actions.setAlignment("left")}
+                    onClickAlignCenter={() => actions.setAlignment("center")}
+                    onClickAlignRight={() => actions.setAlignment("right")}
+                    onClickAddRow={actions.handleAddRow}
+                    onClickRemoveRow={actions.handleRemoveRow}
+                    onClickAddColumn={actions.handleAddColumn}
+                    onClickRemoveColumn={actions.handleRemoveColumn}
+                    onClickSetBold={actions.handleSetBold}
+                    onClickSetItalic={actions.handleSetItalic}
+                    onClickSetCode={actions.handleSetCode}
                 >
                     <div ref={buttonGroupRef}>
-                        <ButtonGroup theme={theme} />
+                        <ButtonGroup theme={theme} orientation={toolbarOrientation} />
                     </div>
                 </ButtonGroupProvider>
                 <Table theme={theme} onPaste={handlePasteEvent} ref={tableRef}>
@@ -168,7 +151,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light" }) => 
                                         handleCellSelection={handleCellSelection}
                                         handleCellChange={handleCellChange}
                                         cellData={cell}
-                                    ></Cell>
+                                    />
                                 ))}
                             </Row>
                         ))}
