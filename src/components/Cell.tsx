@@ -15,6 +15,9 @@ const Cell: React.FC<CellProps> = ({
     cellData,
 }) => {
     const [isEditing, setIsEditing] = useState(false);
+    const [fontWeight, setFontWeight] = useState("normal");
+    const [fontStyle, setFontStyle] = useState("normal");
+    const [isFontCode, setIsFontCode] = useState(false);
     const cellRef = useRef<HTMLDivElement>(null);
     const isSelected = selectedCell !== null && selectedCell.row === rowIndex && selectedCell.col === colIndex;
     const multipleCellsSelected = selectedCells.flat().filter(Boolean).length > 1;
@@ -22,6 +25,28 @@ const Cell: React.FC<CellProps> = ({
     useEffect(() => {
         if (cellRef.current) {
             cellRef.current.textContent = cellData || "";
+            // Regex to match content starting and ending with "**"
+            const regexBold = /^\*\*(.+)\*\*$/;
+            const regexItalic = /^\*?\*?_(.+)_\*?\*?$/;
+            const regexCode = /^\*?\*?\_?\`(.+)\`\_?\*?\*?$/;
+
+            if (regexBold.test(cellData || "")) {
+                setFontWeight("bold");
+            } else {
+                setFontWeight("normal");
+            }
+
+            if (regexItalic.test(cellData || "")) {
+                setFontStyle("italic");
+            } else {
+                setFontStyle("normal");
+            }
+
+            if (regexCode.test(cellData || "")) {
+                setIsFontCode(true);
+            } else {
+                setIsFontCode(false);
+            }
         }
     }, [cellData]);
 
@@ -93,6 +118,9 @@ const Cell: React.FC<CellProps> = ({
                     outline: "none",
                     cursor: "inherit",
                     userSelect: isEditing ? "text" : "none",
+                    fontWeight: fontWeight,
+                    fontStyle: fontStyle,
+                    fontFamily: isFontCode ? "'Courier New', Consolas, monospace" : "inherit",
                     ...style,
                 }}
             />
