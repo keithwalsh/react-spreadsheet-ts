@@ -1,4 +1,4 @@
-// Spreadsheet.tsx
+// src/components/Spreadsheet.tsx
 
 import React, { useReducer, useRef, useCallback, useEffect } from "react";
 import { Box, CssBaseline, ThemeProvider, createTheme, TableBody, TableRow, TableHead } from "@mui/material";
@@ -67,7 +67,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
         dispatch({ type: "SET_SELECTED_COLUMN", payload: null });
         dispatch({ type: "SET_SELECTED_ROW", payload: null });
         dispatch({ type: "SET_SELECTED_CELL", payload: null });
-    }, [state.data, state.selectAll, dispatch]);
+    }, [state.data, state.selectAll]);
 
     const handleRowSelection = useCallback(
         (rowIndex: number) => {
@@ -75,7 +75,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
             selectCells(rowIndex, 0, rowIndex, state.data[0].length - 1);
             dispatch({ type: "SET_SELECTED_ROW", payload: rowIndex });
         },
-        [actions, selectCells, state.data, dispatch]
+        [actions, selectCells, state.data]
     );
 
     const handleColumnSelection = useCallback(
@@ -84,16 +84,19 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
             selectCells(0, colIndex, state.data.length - 1, colIndex);
             dispatch({ type: "SET_SELECTED_COLUMN", payload: colIndex });
         },
-        [actions, selectCells, state.data, dispatch]
+        [actions, selectCells, state.data]
     );
 
     const handleCellSelection = useCallback(
         (rowIndex: number, colIndex: number) => {
             actions.clearSelection();
             selectCells(rowIndex, colIndex, rowIndex, colIndex);
-            dispatch({ type: "SET_SELECTED_CELL", payload: { row: rowIndex, col: colIndex } });
+            dispatch({
+                type: "SET_SELECTED_CELL",
+                payload: { row: rowIndex, col: colIndex },
+            });
         },
-        [actions, selectCells, dispatch]
+        [actions, selectCells]
     );
 
     const themeMui = createTheme({
@@ -116,14 +119,14 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
                 dispatch({ type: "UPDATE_DRAG", payload: { row, col } });
             }
         },
-        [state.isDragging, state.dragStart, dispatch]
+        [state.isDragging, state.dragStart]
     );
 
     const handleMouseUp = useCallback(() => {
         if (state.isDragging) {
             dispatch({ type: "END_DRAG" });
         }
-    }, [state.isDragging, dispatch]);
+    }, [state.isDragging]);
 
     // Add global mouse up listener to handle cases where mouse is released outside the table
     useEffect(() => {
@@ -136,12 +139,16 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
         return () => {
             window.removeEventListener("mouseup", handleGlobalMouseUp);
         };
-    }, [state.isDragging, dispatch]);
+    }, [state.isDragging]);
 
     return (
         <ThemeProvider theme={themeMui}>
             <CssBaseline />
-            <Box sx={{ ...(toolbarOrientation === "horizontal" ? { p: 0 } : { p: 0, display: "flex" }) }}>
+            <Box
+                sx={{
+                    ...(toolbarOrientation === "horizontal" ? { p: 0 } : { p: 0, display: "flex" }),
+                }}
+            >
                 <ButtonGroupProvider
                     onClickUndo={actions.handleUndo}
                     onClickRedo={actions.handleRedo}

@@ -1,46 +1,32 @@
-// src/components/toolbar/ButtonGroup.tsx
+// src/components/ButtonGroup.tsx
 
 import React, { createContext, useContext } from "react";
-import { Box, IconButton, ButtonGroup as MUIButtonGroup, Tooltip, Divider, Paper } from "@mui/material";
 import {
-    RiAlignLeft,
-    RiAlignJustify,
-    RiAlignRight,
-    RiBold,
-    RiItalic,
-    RiCodeSSlashFill,
-    RiInsertColumnRight,
-    RiDeleteColumn,
-    RiInsertRowBottom,
-    RiDeleteRow,
-} from "react-icons/ri";
-import { LuUndo2, LuRedo2 } from "react-icons/lu";
+    Box as BoxMui,
+    IconButton as IconButtonMui,
+    ButtonGroup as ButtonGroupMui,
+    Tooltip as TooltipMui,
+    Divider as DividerMui,
+    Paper as PaperMui,
+} from "@mui/material";
+import { buttonDefinitions, defaultVisibleButtons } from "@config";
 import { ButtonGroupContextType, ButtonGroupProviderProps, ButtonGroupProps } from "@types";
 
+/**
+ * Context for ButtonGroup
+ */
 const ButtonGroupContext = createContext<ButtonGroupContextType | undefined>(undefined);
 
+/**
+ * Provider for ButtonGroupContext
+ */
 export const ButtonGroupProvider: React.FC<ButtonGroupProviderProps> = ({ children, ...handlers }) => (
     <ButtonGroupContext.Provider value={handlers}>{children}</ButtonGroupContext.Provider>
 );
 
-const defaultVisibleButtons: (string | "divider")[] = [
-    "Undo",
-    "Redo",
-    "divider",
-    "Align Left",
-    "Align Center",
-    "Align Right",
-    "divider",
-    "Set Bold",
-    "Set Italic",
-    "Set Code",
-    "divider",
-    "Add Row",
-    "Remove Row",
-    "Add Column",
-    "Remove Column",
-];
-
+/**
+ * Main ButtonGroup component
+ */
 const ButtonGroup: React.FC<ButtonGroupProps> = ({
     theme = "light",
     visibleButtons,
@@ -57,94 +43,66 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
         throw new Error("ButtonGroup must be used within a ButtonGroupProvider");
     }
 
-    const allButtons = [
-        { title: "Undo", icon: LuUndo2, onClick: handlers.onClickUndo },
-        { title: "Redo", icon: LuRedo2, onClick: handlers.onClickRedo },
-        { title: "Align Left", icon: RiAlignLeft, onClick: handlers.onClickAlignLeft },
-        { title: "Align Center", icon: RiAlignJustify, onClick: handlers.onClickAlignCenter },
-        { title: "Align Right", icon: RiAlignRight, onClick: handlers.onClickAlignRight },
-        { title: "Set Bold", icon: RiBold, onClick: handlers.onClickSetBold },
-        { title: "Set Italic", icon: RiItalic, onClick: handlers.onClickSetItalic },
-        { title: "Set Code", icon: RiCodeSSlashFill, onClick: handlers.onClickSetCode },
-        { title: "Add Row", icon: RiInsertRowBottom, onClick: handlers.onClickAddRow },
-        { title: "Remove Row", icon: RiDeleteRow, onClick: handlers.onClickRemoveRow },
-        { title: "Add Column", icon: RiInsertColumnRight, onClick: handlers.onClickAddColumn },
-        { title: "Remove Column", icon: RiDeleteColumn, onClick: handlers.onClickRemoveColumn },
-    ];
-
     const buttonsToRender = visibleButtons && visibleButtons.length > 0 ? visibleButtons : defaultVisibleButtons;
 
+    const buttonConfig = (theme: string) => ({
+        borderColor: theme === "light" ? "divider" : "#686868",
+        svgStyle: theme === "light" ? {} : { color: "#BEBFC0" },
+        hoverStyle: theme !== "light" ? { backgroundColor: "#2F353D" } : {},
+    });
+
+    const config = buttonConfig(theme);
+
+    const renderButton = (item: string, index: number) => {
+        if (item === "divider") {
+            return <DividerMui key={`divider-${index}`} orientation={orientation === "horizontal" ? "vertical" : "horizontal"} flexItem />;
+        }
+
+        const btn = buttonDefinitions.find((btn) => btn.title === item);
+        if (!btn) return null;
+
+        const { title, icon: Icon, handlerKey } = btn;
+
+        return (
+            <TooltipMui key={title} title={title} placement={tooltipPlacement} arrow={tooltipArrow}>
+                <IconButtonMui
+                    onClick={handlers[handlerKey] || (() => console.warn(`Handler ${handlerKey} is not defined`))}
+                    disabled={!handlers[handlerKey]}
+                    sx={{
+                        borderRadius: 0,
+                        "&:hover": config.hoverStyle,
+                        "& .MuiTouchRipple-root .MuiTouchRipple-child": {
+                            borderRadius: 0,
+                        },
+                    }}
+                >
+                    <Icon size={iconSize} />
+                </IconButtonMui>
+            </TooltipMui>
+        );
+    };
+
     return (
-        <Box
-            component={theme === "light" ? Paper : "div"}
+        <BoxMui
+            component={theme === "light" ? PaperMui : "div"}
             sx={{
                 display: "flex",
                 alignItems: "center",
                 border: 1,
                 borderRadius: 1,
                 maxWidth: "max-content",
-                ...(orientation === "horizontal"
-                    ? {
-                          marginTop: 3,
-                      }
-                    : {
-                          marginTop: 2,
-                          marginRight: 2,
-                      }),
-                ...(theme === "light"
-                    ? {
-                          borderColor: "divider",
-                          "& svg": { m: iconMargin },
-                          "& .MuiDivider-root": {
-                              ...(orientation === "horizontal" ? { mx: dividerMargin } : { my: dividerMargin }),
-                          },
-                      }
-                    : {
-                          borderColor: "#686868",
-                          "& svg": { m: iconMargin, color: "#BEBFC0" },
-                          "& .MuiDivider-root": {
-                              borderColor: "#686868",
-                              ...(orientation === "horizontal" ? { mx: dividerMargin } : { my: dividerMargin }),
-                          },
-                      }),
+                marginTop: orientation === "horizontal" ? 3 : 2,
+                ...(orientation === "vertical" && { marginRight: 2 }),
+                borderColor: config.borderColor,
+                "& svg": { m: iconMargin, ...config.svgStyle },
+                "& .MuiDivider-root": {
+                    borderColor: config.borderColor,
+                    ...(orientation === "horizontal" ? { mx: dividerMargin } : { my: dividerMargin }),
+                },
             }}
         >
-            <MUIButtonGroup orientation={orientation}>
-                {buttonsToRender.map((buttonOrDivider, index) => {
-                    if (buttonOrDivider === "divider") {
-                        return <Divider key={`divider-${index}`} orientation={orientation === "horizontal" ? "vertical" : "horizontal"} flexItem />;
-                    } else {
-                        const button = allButtons.find((b) => b.title === buttonOrDivider);
-                        if (!button) return null;
-                        return (
-                            <Tooltip key={button.title} title={button.title} placement={tooltipPlacement} arrow={tooltipArrow}>
-                                <IconButton
-                                    onClick={button.onClick}
-                                    sx={{
-                                        ...(theme === "light"
-                                            ? {
-                                                  borderRadius: 0,
-                                                  "& .MuiTouchRipple-root .MuiTouchRipple-child": {
-                                                      borderRadius: 0,
-                                                  },
-                                              }
-                                            : {
-                                                  borderRadius: 0,
-                                                  "&:hover": { backgroundColor: "#2F353D" },
-                                                  "& .MuiTouchRipple-root .MuiTouchRipple-child": {
-                                                      borderRadius: 0,
-                                                  },
-                                              }),
-                                    }}
-                                >
-                                    <button.icon size={iconSize} />
-                                </IconButton>
-                            </Tooltip>
-                        );
-                    }
-                })}
-            </MUIButtonGroup>
-        </Box>
+            <ButtonGroupMui orientation={orientation}>{buttonsToRender.map(renderButton)}</ButtonGroupMui>
+        </BoxMui>
     );
 };
 

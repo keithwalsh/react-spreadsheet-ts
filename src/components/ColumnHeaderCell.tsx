@@ -1,31 +1,40 @@
 import * as React from "react";
-import { TableCell } from "@mui/material";
+import { TableCell as TableCellMui } from "@mui/material";
 import { ColumnHeaderCellProps } from "@types";
 
 const ColumnHeaderCell: React.FC<ColumnHeaderCellProps> = ({ theme = "light", index, handleColumnSelection, className }) => {
+    const lightThemeStyles = {
+        color: "rgba(0, 0, 0, 0.54)",
+        backgroundColor: "#f0f0f0",
+        borderRight: "1px solid #e0e0e0",
+        "&:hover": { backgroundColor: "#e0e0e0" },
+    };
+
+    const darkThemeStyles = {
+        color: "#BEBFC0",
+        backgroundColor: "#414547",
+        borderRight: "1px solid #686868",
+        "&:hover": { backgroundColor: "#686868" },
+    };
+
     return (
-        <TableCell
+        <TableCellMui
             sx={{
-                ...(theme === "light" ? { color: "rgba(0, 0, 0, 0.54)" } : { color: "#BEBFC0" }),
+                ...(theme === "light" ? lightThemeStyles : darkThemeStyles),
                 cursor: "pointer",
                 userSelect: "none",
-                ...(theme === "light" ? { backgroundColor: "#f0f0f0" } : { backgroundColor: "#414547" }),
                 fontWeight: "normal",
                 textAlign: "center",
                 padding: "2px 2px",
                 height: "1px",
                 lineHeight: "1",
                 fontSize: "0.8rem",
-                ...(theme === "light" ? { borderRight: "1px solid #e0e0e0" } : { borderRight: "1px solid #686868" }),
-                "&:hover": {
-                    ...(theme === "light" ? { backgroundColor: "#e0e0e0" } : { backgroundColor: "#686868" }),
-                },
             }}
             className={className}
             onClick={() => handleColumnSelection(index)}
         >
             {String.fromCharCode(65 + index)}
-        </TableCell>
+        </TableCellMui>
     );
 };
 

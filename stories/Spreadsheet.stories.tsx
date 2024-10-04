@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from "@storybook/react";
-import Spreadsheet from "../src/Spreadsheet"; // Adjust the import path as necessary
-import { SpreadsheetProps } from "../src/types";
+import Spreadsheet from "../src/Spreadsheet";
+import { SpreadsheetProps } from "@types";
 
 interface SpreadsheetStoryArgs extends SpreadsheetProps {}
 

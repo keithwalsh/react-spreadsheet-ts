@@ -1,5 +1,6 @@
 import { CSSProperties } from "react";
 import { TableCellProps } from "@mui/material";
+import { IconBaseProps } from "react-icons";
 
 // Type definitions
 
@@ -43,6 +44,28 @@ export type Action =
     | { type: "UPDATE_DRAG"; payload: { row: number; col: number } }
     | { type: "END_DRAG" };
 
+// ButtonGroup-related types
+
+export type ButtonHandlerKey =
+    | "onClickUndo"
+    | "onClickRedo"
+    | "onClickAlignLeft"
+    | "onClickAlignCenter"
+    | "onClickAlignRight"
+    | "onClickAddRow"
+    | "onClickRemoveRow"
+    | "onClickAddColumn"
+    | "onClickRemoveColumn"
+    | "onClickSetBold"
+    | "onClickSetItalic"
+    | "onClickSetCode";
+
+export interface ButtonDefinition {
+    title: string;
+    icon: React.ComponentType<IconBaseProps>;
+    handlerKey: ButtonHandlerKey;
+}
+
 export interface ButtonGroupContextType {
     onClickUndo: () => void;
     onClickRedo: () => void;
@@ -85,6 +108,7 @@ export interface ButtonGroupProps {
         | "top";
 }
 
+// Other UI-related types
 export interface CellProps {
     theme?: "light" | "dark";
     rowIndex: number;

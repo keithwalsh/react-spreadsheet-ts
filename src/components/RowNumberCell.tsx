@@ -1,22 +1,24 @@
 import * as React from "react";
-import { TableCell } from "@mui/material";
+import { TableCell as TableCellMui } from "@mui/material";
 import { RowNumberCellProps } from "@types";
 
 const RowNumberCell: React.FC<RowNumberCellProps> = ({ theme = "light", children, className, onClick, ref }) => {
+    const isLightTheme = theme === "light";
+
     return (
-        <TableCell
+        <TableCellMui
             sx={{
-                ...(theme === "light" ? { color: "rgba(0, 0, 0, 0.54)" } : { color: "#BEBFC0" }),
+                color: isLightTheme ? "rgba(0, 0, 0, 0.54)" : "#BEBFC0",
+                backgroundColor: isLightTheme ? "#f0f0f0" : "#414547",
+                borderRight: isLightTheme ? "1px solid #e0e0e0" : "1px solid #686868",
                 cursor: "pointer",
                 userSelect: "none",
-                ...(theme === "light" ? { backgroundColor: "#f0f0f0" } : { backgroundColor: "#414547" }),
                 fontWeight: "normal",
                 textAlign: "center",
-                padding: "2px 2px",
+                padding: "2px",
                 width: "1px",
-                ...(theme === "light" ? { borderRight: "1px solid #e0e0e0" } : { borderRight: "1px solid #686868" }),
                 "&:hover": {
-                    ...(theme === "light" ? { backgroundColor: "#e0e0e0" } : { backgroundColor: "#686868" }),
+                    backgroundColor: isLightTheme ? "#e0e0e0" : "#686868",
                 },
             }}
             className={className}
@@ -24,7 +26,7 @@ const RowNumberCell: React.FC<RowNumberCellProps> = ({ theme = "light", children
             onClick={onClick}
         >
             {children}
-        </TableCell>
+        </TableCellMui>
     );
 };
 
