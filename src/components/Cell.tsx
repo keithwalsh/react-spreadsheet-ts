@@ -30,6 +30,9 @@ const Cell: React.FC<CellProps> = ({
         e.preventDefault();
         onMouseDown(rowIndex, colIndex);
         handleCellSelection(rowIndex, colIndex);
+        if (isEditing) {
+            handleBlur();
+        }
     };
 
     const handleMouseEnterEvent = (e: React.MouseEvent) => {
@@ -74,6 +77,9 @@ const Cell: React.FC<CellProps> = ({
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         handleCellSelection(rowIndex, colIndex);
+        if (isEditing) {
+            handleBlur();
+        }
     };
 
     const handleDoubleClick = (e: React.MouseEvent) => {
@@ -87,6 +93,12 @@ const Cell: React.FC<CellProps> = ({
             handleCellChange(rowIndex, colIndex, cellRef.current.textContent || "");
         }
     };
+
+    useEffect(() => {
+        if (!isSelected && isEditing) {
+            handleBlur();
+        }
+    }, [isSelected, isEditing]);
 
     return (
         <TableCellMui
