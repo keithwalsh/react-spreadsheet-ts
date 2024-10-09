@@ -1,5 +1,5 @@
-import { Action, State } from "@types";
-import { addRow, removeRow, addColumn, removeColumn, markSelectedCells } from "@utils";
+import { Action, State } from "../types";
+import { addRow, removeRow, addColumn, removeColumn, markSelectedCells } from "../utils";
 
 /**
  * The reducer function to manage table state.

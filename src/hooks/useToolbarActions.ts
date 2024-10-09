@@ -1,6 +1,6 @@
 // hooks/useSpreadsheetActions.ts
 import { useCallback } from "react";
-import { Alignment } from "@types";
+import { Alignment } from "../types";
 
 const useSpreadsheetActions = (dispatch: React.Dispatch<any>) => {
     const handleUndo = useCallback(() => dispatch({ type: "UNDO" }), [dispatch]);

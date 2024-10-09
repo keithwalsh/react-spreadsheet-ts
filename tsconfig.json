@@ -14,13 +14,6 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "outDir": "./dist",
-        "paths": {
-            "@components": ["./src/components"],
-            "@config": ["./src/config"],
-            "@hooks": ["./src/hooks"],
-            "@types": ["./src/types.ts"],
-            "@utils": ["./src/utils"]
-        },
         "rootDir": ".",
         "skipLibCheck": true,
         "strict": true,

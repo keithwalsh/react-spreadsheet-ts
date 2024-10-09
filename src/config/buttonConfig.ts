@@ -13,7 +13,7 @@ import {
     RiInsertRowBottom,
     RiDeleteRow,
 } from "react-icons/ri";
-import { ButtonDefinition } from "@types";
+import { ButtonDefinition } from "../types";
 
 export const defaultVisibleButtons: (string | "divider")[] = [
     "Undo",

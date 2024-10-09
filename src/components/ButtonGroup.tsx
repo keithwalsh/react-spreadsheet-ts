@@ -9,8 +9,8 @@ import {
     Divider as DividerMui,
     Paper as PaperMui,
 } from "@mui/material";
-import { buttonDefinitions, defaultVisibleButtons } from "@config";
-import { ButtonGroupContextType, ButtonGroupProviderProps, ButtonGroupProps } from "@types";
+import { buttonDefinitions, defaultVisibleButtons } from "../config";
+import { ButtonGroupContextType, ButtonGroupProviderProps, ButtonGroupProps } from "../types";
 
 /**
  * Context for ButtonGroup

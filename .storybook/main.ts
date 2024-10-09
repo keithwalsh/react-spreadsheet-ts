@@ -1,6 +1,5 @@
 import type { StorybookConfig } from "@storybook/react-vite";
 import { mergeConfig } from "vite";
-import path from "path";
 
 const config: StorybookConfig = {
     stories: ["../stories/**/*.stories.mdx", "../stories/**/*.stories.@(js|jsx|ts|tsx)"],
@@ -18,16 +17,7 @@ const config: StorybookConfig = {
         options: {},
     },
     viteFinal: async (config) => {
-        return mergeConfig(config, {
-            resolve: {
-                alias: {
-                    "@components": path.resolve(__dirname, "../src/components"),
-                    "@config": path.resolve(__dirname, "../src/config"),
-                    "@hooks": path.resolve(__dirname, "../src/hooks"),
-                    "@types": path.resolve(__dirname, "../src/types"),
-                },
-            },
-        });
+        return mergeConfig(config, {});
     },
 };
 export default config;

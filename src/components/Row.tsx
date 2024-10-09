@@ -1,6 +1,6 @@
 import React from "react";
 import { TableRow as TableRowMui } from "@mui/material";
-import { RowProps } from "@types";
+import { RowProps } from "../types";
 
 const Row: React.FC<RowProps> = ({ theme = "light", children, className, ref }) => {
     const rowStyles = {

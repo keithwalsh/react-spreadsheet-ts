@@ -1,15 +1,13 @@
-// src/components/Spreadsheet.tsx
-
 import React, { useReducer, useRef, useCallback, useEffect } from "react";
 import { Box, CssBaseline, ThemeProvider, createTheme, TableBody, TableRow, TableHead } from "@mui/material";
 
 // Internal Components
-import { ButtonGroup, ButtonGroupProvider, Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, Table } from "@components";
+import { ButtonGroup, ButtonGroupProvider, Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, Table } from "./components";
 
 // Hooks, Utilities, and Types
-import { useOutsideClick, useSpreadsheetActions } from "@hooks";
-import { createInitialState, reducer, handlePaste } from "@utils";
-import { SpreadsheetProps } from "@types";
+import { useOutsideClick, useSpreadsheetActions } from "./hooks";
+import { createInitialState, reducer, handlePaste } from "./utils";
+import { SpreadsheetProps } from "./types";
 
 const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrientation = "horizontal", initialRows = 4, initialColumns = 5 }) => {
     // Lazy initialization function for useReducer
