@@ -139,6 +139,18 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
         };
     }, [state.isDragging]);
 
+    const selectedRows = new Set<number>();
+    const selectedColumns = new Set<number>();
+
+    state.selectedCells.forEach((rowSelection, rowIndex) => {
+        rowSelection.forEach((isSelected, colIndex) => {
+            if (isSelected) {
+                selectedRows.add(rowIndex);
+                selectedColumns.add(colIndex);
+            }
+        });
+    });
+
     return (
         <ThemeProvider theme={themeMui}>
             <CssBaseline />
@@ -170,14 +182,20 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
                         <TableRow>
                             <SelectAllCell theme={theme} selectAll={state.selectAll} toggleSelectAll={toggleSelectAll} />
                             {state.data[0].map((_, index) => (
-                                <ColumnHeaderCell key={index} index={index} theme={theme} handleColumnSelection={handleColumnSelection} />
+                                <ColumnHeaderCell
+                                    key={index}
+                                    index={index}
+                                    theme={theme}
+                                    handleColumnSelection={handleColumnSelection}
+                                    selectedColumns={selectedColumns}
+                                />
                             ))}
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {state.data.map((row, rowIndex) => (
                             <Row theme={theme} key={rowIndex}>
-                                <RowNumberCell theme={theme} onClick={() => handleRowSelection(rowIndex)}>
+                                <RowNumberCell theme={theme} onClick={() => handleRowSelection(rowIndex)} selectedRows={selectedRows} rowIndex={rowIndex}>
                                     {rowIndex + 1}
                                 </RowNumberCell>
                                 {row.map((cell, colIndex) => (

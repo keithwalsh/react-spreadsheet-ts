@@ -100,6 +100,36 @@ const Cell: React.FC<CellProps> = ({
         }
     }, [isSelected, isEditing]);
 
+    const lightThemeStyles = {
+        borderRight: "1px solid #e0e0e0",
+        borderBottom: "1px solid #e0e0e0",
+        "&:last-child": {
+            borderRight: "1px solid #e0e0e0",
+        },
+    };
+
+    const darkThemeStyles = {
+        borderRight: "1px solid #686868",
+        borderBottom: "1px solid #686868",
+        "&:last-child": {
+            borderRight: "1px solid #686868",
+        },
+    };
+
+    const dynamicStyles = {
+        height: "37.02px",
+        cursor: isEditing ? "text" : "pointer",
+        backgroundColor: selectedCells[rowIndex]?.[colIndex] && multipleCellsSelected ? "rgba(25, 118, 210, 0.12)" : "transparent",
+        p: 1,
+        outline: isSelected ? "#1976d2 solid 1px" : "none",
+        outlineOffset: isSelected ? "-1px" : "0",
+        ...(isEditing && {
+            boxShadow: "rgba(0, 0, 0, 0.2) 0px 3px 1px -2px, " + "rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, " + "rgba(0, 0, 0, 0.12) 0px 1px 5px 0px",
+            textIndent: "3px",
+            zIndex: 1,
+        }),
+    };
+
     return (
         <TableCellMui
             align={align}
@@ -109,22 +139,8 @@ const Cell: React.FC<CellProps> = ({
             onClick={handleClick}
             onDoubleClick={handleDoubleClick}
             sx={{
-                height: "37.02px",
-                borderRight: theme === "light" ? "1px solid #e0e0e0" : "1px solid #686868",
-                borderBottom: theme === "light" ? "1px solid #e0e0e0" : "1px solid #686868",
-                cursor: isEditing ? "text" : "pointer",
-                backgroundColor: selectedCells[rowIndex]?.[colIndex] && multipleCellsSelected ? "rgba(25, 118, 210, 0.12)" : "transparent",
-                p: 1,
-                outline: isSelected ? "#1976d2 solid 1px" : "none",
-                outlineOffset: isSelected ? "-1px" : "0",
-                ...(isEditing && {
-                    boxShadow: "rgba(0, 0, 0, 0.2) 0px 3px 1px -2px, rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px",
-                    textIndent: "3px",
-                    zIndex: 1,
-                }),
-                "&:last-child": {
-                    borderRight: theme === "light" ? "1px solid #e0e0e0" : "1px solid #686868",
-                },
+                ...(theme === "light" ? lightThemeStyles : darkThemeStyles),
+                ...dynamicStyles,
             }}
         >
             <div

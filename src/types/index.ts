@@ -128,7 +128,8 @@ export interface CellProps {
 export interface ColumnHeaderCellProps {
     theme?: "light" | "dark";
     index: number;
-    handleColumnSelection: (colIndex: number) => void;
+    handleColumnSelection: (index: number) => void;
+    selectedColumns?: Set<number>;
     className?: string;
 }
 
@@ -144,6 +145,8 @@ export interface RowNumberCellProps {
     children?: React.ReactNode;
     className?: string;
     onClick?: () => void;
+    selectedRows?: Set<number>;
+    rowIndex: number;
     ref?: React.Ref<HTMLTableRowElement> | null;
 }
 
