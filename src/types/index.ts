@@ -44,7 +44,8 @@ export type Action =
     | { type: "UPDATE_DRAG"; payload: { row: number; col: number } }
     | { type: "END_DRAG" }
     | { type: "SET_TABLE_SIZE"; payload: { row: number; col: number } }
-    | { type: "CLEAR_TABLE" };
+    | { type: "CLEAR_TABLE" }
+    | { type: "TRANSPOSE_TABLE" };
 
 // ButtonGroup-related types
 
@@ -85,6 +86,7 @@ export interface ButtonGroupContextType {
     currentRows: number;
     currentCols: number;
     clearTable: () => void;
+    transposeTable: () => void;
 }
 
 export interface ButtonGroupProviderProps extends ButtonGroupContextType {

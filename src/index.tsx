@@ -132,6 +132,10 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
         [state.isDragging, state.dragStart]
     );
 
+    const transposeTable = useCallback(() => {
+        dispatch({ type: "TRANSPOSE_TABLE" });
+    }, [dispatch]);
+
     const handleMouseUp = useCallback(() => {
         if (state.isDragging) {
             dispatch({ type: "END_DRAG" });
@@ -190,6 +194,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
                     currentRows={state.data.length}
                     currentCols={state.data[0].length}
                     clearTable={clearTable}
+                    transposeTable={transposeTable}
                 >
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                         <TableMenu />

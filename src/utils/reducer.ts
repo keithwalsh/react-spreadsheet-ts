@@ -286,7 +286,23 @@ export function reducer(state: State, action: Action): State {
                 future: [],
             };
         }
-        // ... other cases
+        case "TRANSPOSE_TABLE": {
+            const newData = state.data[0].map((_, colIndex) => state.data.map((row) => row[colIndex]));
+            const newAlignments = state.alignments[0].map((_, colIndex) => state.alignments.map((row) => row[colIndex]));
+            const newSelectedCells = Array.from({ length: newData.length }, () => Array(newData[0].length).fill(false));
+            return {
+                ...state,
+                data: newData,
+                alignments: newAlignments,
+                selectedCells: newSelectedCells,
+                past: [[state.data, state.alignments], ...state.past.slice(0, 9)],
+                future: [],
+                selectedCell: null,
+                selectedRow: null,
+                selectedColumn: null,
+                selectAll: false,
+            };
+        }
         default:
             return state;
     }

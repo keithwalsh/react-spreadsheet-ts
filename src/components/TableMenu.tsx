@@ -1,6 +1,6 @@
 import React, { useState, useContext, useRef } from "react";
-import { Button, Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
-import { KeyboardArrowDown, BorderAll, KeyboardArrowRight, ClearAll } from "@mui/icons-material";
+import { Button, Divider, Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
+import { KeyboardArrowDown, BorderAll, KeyboardArrowRight, ClearAll, SwapVert } from "@mui/icons-material";
 import { ButtonGroupContext } from "./ButtonGroup";
 import TableSizeChooser from "./TableSizeChooser";
 
@@ -61,6 +61,11 @@ const TableMenu: React.FC = () => {
         handleMenuClose();
     };
 
+    const handleTransposeTable = () => {
+        handlers.transposeTable();
+        handleMenuClose();
+    };
+
     return (
         <>
             <Button
@@ -100,9 +105,10 @@ const TableMenu: React.FC = () => {
                     <ListItemIcon>
                         <BorderAll fontSize="small" sx={{ marginLeft: -0.75 }} />
                     </ListItemIcon>
-                    <ListItemText sx={{ paddingRight: 2, marginLeft: -1.75 }}>Set Size</ListItemText>
+                    <ListItemText sx={{ paddingRight: 2, marginLeft: -1.75 }}>Set size</ListItemText>
                     <KeyboardArrowRight fontSize="small" sx={{ marginRight: -1.5 }} />
                 </MenuItem>
+                <Divider />
                 <MenuItem
                     onClick={handleClearTable}
                     disableRipple
@@ -117,6 +123,22 @@ const TableMenu: React.FC = () => {
                         <ClearAll fontSize="small" sx={{ marginLeft: -0.75 }} />
                     </ListItemIcon>
                     <ListItemText sx={{ paddingRight: 2, marginLeft: -1.75 }}>Clear table</ListItemText>
+                </MenuItem>
+                <Divider />
+                <MenuItem
+                    onClick={handleTransposeTable}
+                    disableRipple
+                    dense
+                    sx={{
+                        "&:hover": {
+                            backgroundColor: "action.hover",
+                        },
+                    }}
+                >
+                    <ListItemIcon>
+                        <SwapVert fontSize="small" sx={{ marginLeft: -0.75 }} />
+                    </ListItemIcon>
+                    <ListItemText sx={{ paddingRight: 2, marginLeft: -1.75 }}>Transpose table</ListItemText>
                 </MenuItem>
             </Menu>
             <Menu
