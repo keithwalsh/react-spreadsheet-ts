@@ -17,6 +17,9 @@ const TableMenu: React.FC = () => {
 
     const open = Boolean(anchorEl);
 
+    // Get current table size from context
+    const { currentRows, currentCols } = handlers;
+
     const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -79,6 +82,7 @@ const TableMenu: React.FC = () => {
                 }}
             >
                 <MenuItem
+                    disableRipple
                     dense
                     ref={setSizeRef}
                     onMouseEnter={handleSetSizeHover}
@@ -115,8 +119,8 @@ const TableMenu: React.FC = () => {
                     pointerEvents: "none",
                     "& .MuiPaper-root": {
                         pointerEvents: "auto",
-                        marginLeft: "-2px", // Add some space between main menu and submenu
-                        marginTop: "-8px", // Move submenu up slightly
+                        marginLeft: "-2px",
+                        marginTop: "-8px",
                     },
                     "& .MuiMenu-list": {
                         padding: "0",
@@ -143,8 +147,15 @@ const TableMenu: React.FC = () => {
                     },
                 }}
             >
-                <MenuItem>
-                    <TableSizeChooser onSizeSelect={handleSizeSelect} />
+                <MenuItem
+                    disableRipple
+                    sx={{
+                        "&:hover": {
+                            backgroundColor: "action.hover",
+                        },
+                    }}
+                >
+                    <TableSizeChooser onSizeSelect={handleSizeSelect} currentRows={currentRows} currentCols={currentCols} />
                 </MenuItem>
             </Menu>
         </>

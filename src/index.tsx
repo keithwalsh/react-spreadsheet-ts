@@ -183,6 +183,8 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
                     onClickSetItalic={actions.handleSetItalic}
                     onClickSetCode={actions.handleSetCode}
                     setTableSize={setTableSize}
+                    currentRows={state.data.length}
+                    currentCols={state.data[0].length}
                 >
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                         <TableMenu />

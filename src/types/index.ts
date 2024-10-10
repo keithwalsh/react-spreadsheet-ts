@@ -81,6 +81,8 @@ export interface ButtonGroupContextType {
     onClickSetItalic: () => void;
     onClickSetCode: () => void;
     setTableSize: (row: number, col: number) => void;
+    currentRows: number;
+    currentCols: number;
 }
 
 export interface ButtonGroupProviderProps extends ButtonGroupContextType {
@@ -110,7 +112,14 @@ export interface ButtonGroupProps {
         | "top";
 }
 
-// Other UI-related types
+export interface TableSizeChooserProps {
+    maxRows?: number;
+    maxCols?: number;
+    currentRows: number;
+    currentCols: number;
+    onSizeSelect: (rows: number, cols: number) => void;
+}
+
 export interface CellProps {
     theme?: "light" | "dark";
     rowIndex: number;
