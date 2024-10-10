@@ -277,6 +277,15 @@ export function reducer(state: State, action: Action): State {
                 // Reset any other state as needed
             };
         }
+        case "CLEAR_TABLE": {
+            const newData = state.data.map((row) => row.map(() => ""));
+            return {
+                ...state,
+                data: newData,
+                past: [[state.data, state.alignments], ...state.past.slice(0, 9)],
+                future: [],
+            };
+        }
         // ... other cases
         default:
             return state;

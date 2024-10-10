@@ -1,6 +1,6 @@
 import React, { useState, useContext, useRef } from "react";
 import { Button, Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
-import { KeyboardArrowDown, BorderAll, KeyboardArrowRight } from "@mui/icons-material";
+import { KeyboardArrowDown, BorderAll, KeyboardArrowRight, ClearAll } from "@mui/icons-material";
 import { ButtonGroupContext } from "./ButtonGroup";
 import TableSizeChooser from "./TableSizeChooser";
 
@@ -56,6 +56,11 @@ const TableMenu: React.FC = () => {
         handleMenuClose();
     };
 
+    const handleClearTable = () => {
+        handlers.clearTable();
+        handleMenuClose();
+    };
+
     return (
         <>
             <Button
@@ -97,6 +102,21 @@ const TableMenu: React.FC = () => {
                     </ListItemIcon>
                     <ListItemText sx={{ paddingRight: 2, marginLeft: -1.75 }}>Set Size</ListItemText>
                     <KeyboardArrowRight fontSize="small" sx={{ marginRight: -1.5 }} />
+                </MenuItem>
+                <MenuItem
+                    onClick={handleClearTable}
+                    disableRipple
+                    dense
+                    sx={{
+                        "&:hover": {
+                            backgroundColor: "action.hover",
+                        },
+                    }}
+                >
+                    <ListItemIcon>
+                        <ClearAll fontSize="small" sx={{ marginLeft: -0.75 }} />
+                    </ListItemIcon>
+                    <ListItemText sx={{ paddingRight: 2, marginLeft: -1.75 }}>Clear table</ListItemText>
                 </MenuItem>
             </Menu>
             <Menu

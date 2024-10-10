@@ -43,7 +43,8 @@ export type Action =
     | { type: "START_DRAG"; payload: { row: number; col: number } }
     | { type: "UPDATE_DRAG"; payload: { row: number; col: number } }
     | { type: "END_DRAG" }
-    | { type: "SET_TABLE_SIZE"; payload: { row: number; col: number } };
+    | { type: "SET_TABLE_SIZE"; payload: { row: number; col: number } }
+    | { type: "CLEAR_TABLE" };
 
 // ButtonGroup-related types
 
@@ -83,6 +84,7 @@ export interface ButtonGroupContextType {
     setTableSize: (row: number, col: number) => void;
     currentRows: number;
     currentCols: number;
+    clearTable: () => void;
 }
 
 export interface ButtonGroupProviderProps extends ButtonGroupContextType {

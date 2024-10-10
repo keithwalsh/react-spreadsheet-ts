@@ -50,6 +50,10 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
         [state, dispatch]
     );
 
+    const clearTable = useCallback(() => {
+        dispatch({ type: "CLEAR_TABLE" });
+    }, [dispatch]);
+
     // Selection handlers
     const selectCells = useCallback(
         (startRow: number, startCol: number, endRow: number, endCol: number) => {
@@ -185,6 +189,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
                     setTableSize={setTableSize}
                     currentRows={state.data.length}
                     currentCols={state.data[0].length}
+                    clearTable={clearTable}
                 >
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                         <TableMenu />
