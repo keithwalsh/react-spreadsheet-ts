@@ -15,6 +15,12 @@ import {
 } from "react-icons/ri";
 import { ButtonDefinition } from "../types";
 
+export const buttonConfig = (theme: string) => ({
+    borderColor: theme === "light" ? "divider" : "#686868",
+    svgStyle: theme === "light" ? {} : { color: "#BEBFC0" },
+    hoverStyle: theme !== "light" ? { backgroundColor: "#2F353D" } : {},
+});
+
 export const defaultVisibleButtons: (string | "divider")[] = [
     "Undo",
     "Redo",

@@ -1,2 +1,2 @@
-import { buttonDefinitions, defaultVisibleButtons } from "./buttonConfig";
-export { buttonDefinitions, defaultVisibleButtons };
+import { buttonConfig, buttonDefinitions, defaultVisibleButtons } from "./buttonConfig";
+export { buttonConfig, buttonDefinitions, defaultVisibleButtons };

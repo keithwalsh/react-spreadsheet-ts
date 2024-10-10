@@ -1,11 +1,11 @@
-import React, { useState, useContext, useRef } from "react";
+import React, { useState, useContext, useRef, useCallback } from "react";
 import { Button, Divider, Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import { KeyboardArrowDown, BorderAll, KeyboardArrowRight, ClearAll, SwapVert } from "@mui/icons-material";
-import { ButtonGroupContext } from "./ButtonGroup";
+import { ToolbarContext } from "./ToolbarProvider";
 import TableSizeChooser from "./TableSizeChooser";
 
 const TableMenu: React.FC = () => {
-    const handlers = useContext(ButtonGroupContext);
+    const handlers = useContext(ToolbarContext);
     if (!handlers) {
         throw new Error("TableMenu must be used within a ButtonGroupProvider");
     }
@@ -20,41 +20,44 @@ const TableMenu: React.FC = () => {
     // Get current table size from context
     const { currentRows, currentCols } = handlers;
 
-    const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    const handleMenuClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
-    };
+    }, []);
 
-    const handleMenuClose = () => {
+    const handleMenuClose = useCallback(() => {
         setAnchorEl(null);
         setSubMenuOpen(false);
-    };
+    }, []);
 
-    const handleSetSizeHover = () => {
+    const handleSetSizeHover = useCallback(() => {
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
         }
         setSubMenuOpen(true);
-    };
+    }, []);
 
-    const handleMenuMouseLeave = () => {
+    const handleMenuMouseLeave = useCallback(() => {
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
         }
         timeoutRef.current = setTimeout(() => {
             setSubMenuOpen(false);
         }, 100);
-    };
+    }, []);
 
-    const handleSubMenuMouseEnter = () => {
+    const handleSubMenuMouseEnter = useCallback(() => {
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
         }
-    };
+    }, []);
 
-    const handleSizeSelect = (row: number, col: number) => {
-        handlers.setTableSize(row, col);
-        handleMenuClose();
-    };
+    const handleSizeSelect = useCallback(
+        (row: number, col: number) => {
+            handlers.setTableSize(row, col);
+            handleMenuClose();
+        },
+        [handlers, handleMenuClose]
+    );
 
     const handleClearTable = () => {
         handlers.clearTable();

@@ -1,13 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Box, Typography, TextField } from "@mui/material";
-
-interface TableSizeChooserProps {
-    maxRows?: number;
-    maxCols?: number;
-    currentRows: number;
-    currentCols: number;
-    onSizeSelect: (rows: number, cols: number) => void;
-}
+import { TableSizeChooserProps } from "../types";
 
 const TableSizeChooser: React.FC<TableSizeChooserProps> = ({ maxRows = 20, maxCols = 20, currentRows, currentCols, onSizeSelect }) => {
     const [hoveredRow, setHoveredRow] = useState(0);
@@ -21,43 +14,43 @@ const TableSizeChooser: React.FC<TableSizeChooserProps> = ({ maxRows = 20, maxCo
         setInputCols(currentCols.toString());
     }, [currentRows, currentCols]);
 
-    const handleMouseEnter = (rowIndex: number, colIndex: number) => {
+    const handleMouseEnter = useCallback((rowIndex: number, colIndex: number) => {
         setHoveredRow(rowIndex);
         setHoveredCol(colIndex);
         setInputRows((rowIndex + 1).toString());
         setInputCols((colIndex + 1).toString());
-    };
+    }, []);
 
-    const handleClick = () => {
+    const handleClick = useCallback(() => {
         onSizeSelect(hoveredRow + 1, hoveredCol + 1);
-    };
+    }, [onSizeSelect, hoveredRow, hoveredCol]);
 
-    const handleInputChange = (type: "rows" | "cols", value: string) => {
-        const numValue = parseInt(value, 10);
-        if (isNaN(numValue)) return;
+    const handleInputChange = useCallback(
+        (type: "rows" | "cols", value: string) => {
+            const numValue = parseInt(value, 10);
+            if (isNaN(numValue)) return;
 
-        if (type === "rows") {
-            setInputRows(value);
-            setHoveredRow(Math.min(numValue - 1, maxRows - 1));
-        } else {
-            setInputCols(value);
-            setHoveredCol(Math.min(numValue - 1, maxCols - 1));
-        }
-    };
+            if (type === "rows") {
+                setInputRows(value);
+                setHoveredRow(Math.min(numValue - 1, maxRows - 1));
+            } else {
+                setInputCols(value);
+                setHoveredCol(Math.min(numValue - 1, maxCols - 1));
+            }
+        },
+        [maxRows, maxCols]
+    );
 
-    const handleInputBlur = () => {
-        // Clear any existing timeout
+    const handleInputBlur = useCallback(() => {
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
         }
-
-        // Set a new timeout
         timeoutRef.current = setTimeout(() => {
             const rows = Math.max(1, Math.min(parseInt(inputRows, 10), maxRows));
             const cols = Math.max(1, Math.min(parseInt(inputCols, 10), maxCols));
             onSizeSelect(rows, cols);
-        }, 200); // 200ms delay
-    };
+        }, 200);
+    }, [inputRows, inputCols, maxRows, maxCols, onSizeSelect]);
 
     const handleInputFocus = () => {
         // Clear the timeout if user focuses on an input

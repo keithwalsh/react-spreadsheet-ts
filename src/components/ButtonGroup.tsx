@@ -1,6 +1,6 @@
 // src/components/ButtonGroup.tsx
 
-import React, { createContext, useContext } from "react";
+import React, { useContext, useCallback } from "react";
 import {
     Box as BoxMui,
     IconButton as IconButtonMui,
@@ -9,24 +9,10 @@ import {
     Divider as DividerMui,
     Paper as PaperMui,
 } from "@mui/material";
-import { buttonDefinitions, defaultVisibleButtons } from "../config";
-import { ButtonGroupContextType, ButtonGroupProviderProps, ButtonGroupProps } from "../types";
+import { buttonConfig, buttonDefinitions, defaultVisibleButtons } from "../config";
+import { ButtonGroupProps } from "../types";
+import { ToolbarContext } from "./ToolbarProvider";
 
-/**
- * Context for ButtonGroup
- */
-export const ButtonGroupContext = createContext<ButtonGroupContextType | undefined>(undefined);
-
-/**
- * Provider for ButtonGroupContext
- */
-export const ButtonGroupProvider: React.FC<ButtonGroupProviderProps> = ({ children, ...handlers }) => (
-    <ButtonGroupContext.Provider value={handlers}>{children}</ButtonGroupContext.Provider>
-);
-
-/**
- * Main ButtonGroup component
- */
 const ButtonGroup: React.FC<ButtonGroupProps> = ({
     theme = "light",
     visibleButtons,
@@ -37,50 +23,47 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
     tooltipArrow = true,
     tooltipPlacement = "top",
 }) => {
-    const handlers = useContext(ButtonGroupContext);
+    const handlers = useContext(ToolbarContext);
 
     if (!handlers) {
-        throw new Error("ButtonGroup must be used within a ButtonGroupProvider");
+        throw new Error("ButtonGroup must be used within a ToolbarProvider");
     }
 
     const buttonsToRender = visibleButtons && visibleButtons.length > 0 ? visibleButtons : defaultVisibleButtons;
 
-    const buttonConfig = (theme: string) => ({
-        borderColor: theme === "light" ? "divider" : "#686868",
-        svgStyle: theme === "light" ? {} : { color: "#BEBFC0" },
-        hoverStyle: theme !== "light" ? { backgroundColor: "#2F353D" } : {},
-    });
-
     const config = buttonConfig(theme);
 
-    const renderButton = (item: string, index: number) => {
-        if (item === "divider") {
-            return <DividerMui key={`divider-${index}`} orientation={orientation === "horizontal" ? "vertical" : "horizontal"} flexItem />;
-        }
+    const renderButton = useCallback(
+        (item: string, index: number) => {
+            if (item === "divider") {
+                return <DividerMui key={`divider-${index}`} orientation={orientation === "horizontal" ? "vertical" : "horizontal"} flexItem />;
+            }
 
-        const btn = buttonDefinitions.find((btn) => btn.title === item);
-        if (!btn) return null;
+            const btn = buttonDefinitions.find((btn) => btn.title === item);
+            if (!btn) return null;
 
-        const { title, icon: Icon, handlerKey } = btn;
+            const { title, icon: Icon, handlerKey } = btn;
 
-        return (
-            <TooltipMui key={title} title={title} placement={tooltipPlacement} arrow={tooltipArrow}>
-                <IconButtonMui
-                    onClick={handlers[handlerKey] || (() => console.warn(`Handler ${handlerKey} is not defined`))}
-                    disabled={!handlers[handlerKey]}
-                    sx={{
-                        borderRadius: 0,
-                        "&:hover": config.hoverStyle,
-                        "& .MuiTouchRipple-root .MuiTouchRipple-child": {
+            return (
+                <TooltipMui key={title} title={title} placement={tooltipPlacement} arrow={tooltipArrow}>
+                    <IconButtonMui
+                        onClick={handlers[handlerKey] || (() => console.warn(`Handler ${handlerKey} is not defined`))}
+                        disabled={!handlers[handlerKey]}
+                        sx={{
                             borderRadius: 0,
-                        },
-                    }}
-                >
-                    <Icon size={iconSize} />
-                </IconButtonMui>
-            </TooltipMui>
-        );
-    };
+                            "&:hover": config.hoverStyle,
+                            "& .MuiTouchRipple-root .MuiTouchRipple-child": {
+                                borderRadius: 0,
+                            },
+                        }}
+                    >
+                        <Icon size={iconSize} />
+                    </IconButtonMui>
+                </TooltipMui>
+            );
+        },
+        [orientation, tooltipPlacement, tooltipArrow, handlers, config.hoverStyle, iconSize]
+    );
 
     return (
         <BoxMui

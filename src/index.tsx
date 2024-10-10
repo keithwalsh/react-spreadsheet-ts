@@ -2,7 +2,7 @@ import React, { useReducer, useRef, useCallback, useEffect } from "react";
 import { Box, CssBaseline, ThemeProvider, createTheme, TableBody, TableRow, TableHead } from "@mui/material";
 
 // Internal Components
-import { ButtonGroup, ButtonGroupProvider, Cell, ColumnHeaderCell, FileMenu, Row, RowNumberCell, SelectAllCell, Table, TableMenu } from "./components";
+import { ButtonGroup, ToolbarProvider, Cell, ColumnHeaderCell, FileMenu, Row, RowNumberCell, SelectAllCell, Table, TableMenu } from "./components";
 
 // Hooks, Utilities, and Types
 import { useOutsideClick, useSpreadsheetActions } from "./hooks";
@@ -16,14 +16,23 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
     const [state, dispatch] = useReducer(reducer, undefined, initializeState);
     const tableRef = useRef<HTMLTableElement>(null);
     const buttonGroupRef = useRef<HTMLDivElement>(null);
-
-    const setTableSize = (row: number, col: number) => {
-        const minRows = 1;
-        const minCols = 1;
-        const newRows = Math.max(row, minRows);
-        const newCols = Math.max(col, minCols);
-        dispatch({ type: "SET_TABLE_SIZE", payload: { row: newRows, col: newCols } });
-    };
+    const selectedRows = new Set<number>();
+    const selectedColumns = new Set<number>();
+    const themeMui = createTheme({
+        palette: {
+            mode: theme,
+        },
+    });
+    const setTableSize = useCallback(
+        (row: number, col: number) => {
+            const minRows = 1;
+            const minCols = 1;
+            const newRows = Math.max(row, minRows);
+            const newCols = Math.max(col, minCols);
+            dispatch({ type: "SET_TABLE_SIZE", payload: { row: newRows, col: newCols } });
+        },
+        [dispatch]
+    );
 
     // Use custom hooks
     useOutsideClick([tableRef, buttonGroupRef], () => dispatch({ type: "CLEAR_SELECTION" }));
@@ -49,10 +58,6 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
         },
         [state, dispatch]
     );
-
-    const clearTable = useCallback(() => {
-        dispatch({ type: "CLEAR_TABLE" });
-    }, [dispatch]);
 
     // Selection handlers
     const selectCells = useCallback(
@@ -109,12 +114,6 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
         [actions, selectCells]
     );
 
-    const themeMui = createTheme({
-        palette: {
-            mode: theme,
-        },
-    });
-
     // Mouse event handlers
     const handleMouseDown = useCallback(
         (row: number, col: number) => {
@@ -142,7 +141,18 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
         }
     }, [state.isDragging]);
 
-    // Add global mouse up listener to handle cases where mouse is released outside the table
+    const clearTable = useCallback(() => {
+        dispatch({ type: "CLEAR_TABLE" });
+    }, [dispatch]);
+
+    const handleCreateNewTable = useCallback(
+        (rows: number, columns: number) => {
+            setTableSize(rows, columns);
+            clearTable();
+        },
+        [setTableSize, clearTable]
+    );
+
     useEffect(() => {
         const handleGlobalMouseUp = () => {
             if (state.isDragging) {
@@ -154,17 +164,6 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
             window.removeEventListener("mouseup", handleGlobalMouseUp);
         };
     }, [state.isDragging]);
-
-    const selectedRows = new Set<number>();
-    const selectedColumns = new Set<number>();
-
-    const handleCreateNewTable = useCallback(
-        (rows: number, columns: number) => {
-            setTableSize(rows, columns);
-            clearTable();
-        },
-        [setTableSize, clearTable]
-    );
 
     state.selectedCells.forEach((rowSelection, rowIndex) => {
         rowSelection.forEach((isSelected, colIndex) => {
@@ -185,7 +184,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
                     ...(toolbarOrientation === "horizontal" ? { p: 0 } : { p: 0 }),
                 }}
             >
-                <ButtonGroupProvider
+                <ToolbarProvider
                     onClickUndo={actions.handleUndo}
                     onClickRedo={actions.handleRedo}
                     onClickAlignLeft={() => actions.setAlignment("left")}
@@ -211,7 +210,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
                     <div ref={buttonGroupRef}>
                         <ButtonGroup theme={theme} orientation={toolbarOrientation} />
                     </div>
-                </ButtonGroupProvider>
+                </ToolbarProvider>
                 <Table theme={theme} onPaste={handlePasteEvent} ref={tableRef}>
                     <TableHead>
                         <TableRow>

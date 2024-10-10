@@ -47,29 +47,7 @@ export type Action =
     | { type: "CLEAR_TABLE" }
     | { type: "TRANSPOSE_TABLE" };
 
-// ButtonGroup-related types
-
-export type ButtonHandlerKey =
-    | "onClickUndo"
-    | "onClickRedo"
-    | "onClickAlignLeft"
-    | "onClickAlignCenter"
-    | "onClickAlignRight"
-    | "onClickAddRow"
-    | "onClickRemoveRow"
-    | "onClickAddColumn"
-    | "onClickRemoveColumn"
-    | "onClickSetBold"
-    | "onClickSetItalic"
-    | "onClickSetCode";
-
-export interface ButtonDefinition {
-    title: string;
-    icon: React.ComponentType<IconBaseProps>;
-    handlerKey: ButtonHandlerKey;
-}
-
-export interface ButtonGroupContextType {
+export interface ToolbarContextType {
     onClickUndo: () => void;
     onClickRedo: () => void;
     onClickAlignLeft: () => void;
@@ -89,8 +67,28 @@ export interface ButtonGroupContextType {
     transposeTable: () => void;
 }
 
-export interface ButtonGroupProviderProps extends ButtonGroupContextType {
+export interface ToolbarProviderProps extends ToolbarContextType {
     children: React.ReactNode;
+}
+
+export type ButtonHandlerKey =
+    | "onClickUndo"
+    | "onClickRedo"
+    | "onClickAlignLeft"
+    | "onClickAlignCenter"
+    | "onClickAlignRight"
+    | "onClickAddRow"
+    | "onClickRemoveRow"
+    | "onClickAddColumn"
+    | "onClickRemoveColumn"
+    | "onClickSetBold"
+    | "onClickSetItalic"
+    | "onClickSetCode";
+
+export interface ButtonDefinition {
+    title: string;
+    icon: React.ComponentType<IconBaseProps>;
+    handlerKey: ButtonHandlerKey;
 }
 
 export interface ButtonGroupProps {
@@ -177,6 +175,20 @@ export interface TableProps {
     children?: React.ReactNode;
     className?: string;
     onPaste?: (event: React.ClipboardEvent<HTMLDivElement>) => void;
+}
+
+export interface NewTableModalProps {
+    open: boolean;
+    onClose: () => void;
+    onCreateNewTable: (rows: number, columns: number) => void;
+}
+
+export interface TableSizeChooserProps {
+    maxRows?: number;
+    maxCols?: number;
+    currentRows: number;
+    currentCols: number;
+    onSizeSelect: (rows: number, cols: number) => void;
 }
 
 export interface SpreadsheetProps {
