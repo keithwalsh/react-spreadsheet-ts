@@ -116,7 +116,6 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
                 border: 1,
                 borderRadius: 1,
                 maxWidth: "max-content",
-                marginTop: orientation === "horizontal" ? 3 : 2,
                 ...(orientation === "vertical" && { marginRight: 2 }),
                 borderColor: config.borderColor,
                 "& svg": { m: iconMargin, ...config.svgStyle },

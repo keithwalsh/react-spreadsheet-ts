@@ -184,7 +184,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
                     onClickSetCode={actions.handleSetCode}
                     setTableSize={setTableSize}
                 >
-                    <Box sx={{ display: "flex", alignItems: "center", mb: -2.75 }}>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
                         <TableMenu />
                     </Box>
                     <div ref={buttonGroupRef}>
