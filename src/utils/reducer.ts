@@ -1,5 +1,5 @@
 import { Action, State } from "../types";
-import { addRow, removeRow, addColumn, removeColumn, markSelectedCells } from "../utils";
+import { adjustTableSize, addRow, removeRow, addColumn, removeColumn, markSelectedCells } from "../utils";
 
 /**
  * The reducer function to manage table state.
@@ -262,6 +262,21 @@ export function reducer(state: State, action: Action): State {
                 isDragging: false,
                 dragStart: null,
             };
+        case "SET_TABLE_SIZE": {
+            const { row, col } = action.payload;
+            const { data, alignments, selectedCells } = adjustTableSize(state.data, state.alignments, row, col);
+            return {
+                ...state,
+                data,
+                alignments,
+                selectedCells,
+                selectedCell: null,
+                selectedRow: null,
+                selectedColumn: null,
+                selectAll: false,
+                // Reset any other state as needed
+            };
+        }
         // ... other cases
         default:
             return state;

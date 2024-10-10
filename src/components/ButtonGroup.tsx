@@ -1,6 +1,6 @@
 // src/components/ButtonGroup.tsx
 
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useState } from "react";
 import {
     Box as BoxMui,
     IconButton as IconButtonMui,
@@ -8,14 +8,17 @@ import {
     Tooltip as TooltipMui,
     Divider as DividerMui,
     Paper as PaperMui,
+    Menu as MenuMui,
+    MenuItem as MenuItemMui,
 } from "@mui/material";
 import { buttonDefinitions, defaultVisibleButtons } from "../config";
 import { ButtonGroupContextType, ButtonGroupProviderProps, ButtonGroupProps } from "../types";
+import TableSizeChooser from "./TableSizeChooser"; // Import the TableSizeChooser component
 
 /**
  * Context for ButtonGroup
  */
-const ButtonGroupContext = createContext<ButtonGroupContextType | undefined>(undefined);
+export const ButtonGroupContext = createContext<ButtonGroupContextType | undefined>(undefined);
 
 /**
  * Provider for ButtonGroupContext
@@ -42,6 +45,28 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
     if (!handlers) {
         throw new Error("ButtonGroup must be used within a ButtonGroupProvider");
     }
+
+    // State variables for menu anchor elements
+    const [tableMenuAnchorEl, setTableMenuAnchorEl] = useState<null | HTMLElement>(null);
+    const [sizeChooserAnchorEl, setSizeChooserAnchorEl] = useState<null | HTMLElement>(null);
+
+    // Boolean values indicating whether the menus are open
+    const openTableMenu = Boolean(tableMenuAnchorEl);
+    const openSizeChooser = Boolean(sizeChooserAnchorEl);
+
+    const handleTableMenuClose = () => {
+        setTableMenuAnchorEl(null);
+        setSizeChooserAnchorEl(null); // Close the size chooser when the table menu closes
+    };
+
+    // Handlers for opening and closing the Size Chooser submenu
+    const handleSizeChooserOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setSizeChooserAnchorEl(event.currentTarget);
+    };
+
+    const handleSizeChooserClose = () => {
+        setSizeChooserAnchorEl(null);
+    };
 
     const buttonsToRender = visibleButtons && visibleButtons.length > 0 ? visibleButtons : defaultVisibleButtons;
 
@@ -102,6 +127,58 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
             }}
         >
             <ButtonGroupMui orientation={orientation}>{buttonsToRender.map(renderButton)}</ButtonGroupMui>
+
+            {/* Table Menu */}
+            <MenuMui
+                anchorEl={tableMenuAnchorEl}
+                open={openTableMenu}
+                onClose={handleTableMenuClose}
+                MenuListProps={{
+                    "aria-labelledby": "table-menu-button",
+                    onMouseLeave: handleTableMenuClose,
+                }}
+            >
+                <MenuItemMui
+                    onMouseEnter={handleSizeChooserOpen}
+                    onMouseLeave={handleSizeChooserClose}
+                    aria-haspopup="true"
+                    aria-controls={openSizeChooser ? "size-chooser-menu" : undefined}
+                    aria-expanded={openSizeChooser ? "true" : undefined}
+                >
+                    Set Size
+                    {/* Nested Menu */}
+                    <MenuMui
+                        id="size-chooser-menu"
+                        anchorEl={sizeChooserAnchorEl}
+                        open={openSizeChooser}
+                        onClose={handleSizeChooserClose}
+                        anchorOrigin={{
+                            vertical: "top",
+                            horizontal: "right",
+                        }}
+                        transformOrigin={{
+                            vertical: "top",
+                            horizontal: "left",
+                        }}
+                        MenuListProps={{
+                            onMouseEnter: handleSizeChooserOpen,
+                            onMouseLeave: handleSizeChooserClose,
+                        }}
+                    >
+                        <MenuItemMui disableRipple>
+                            <TableSizeChooser
+                                onSizeSelect={(row, col) => {
+                                    // Call the handler from context
+                                    handlers.setTableSize(row, col);
+                                    handleSizeChooserClose();
+                                    handleTableMenuClose();
+                                }}
+                            />
+                        </MenuItemMui>
+                    </MenuMui>
+                </MenuItemMui>
+                {/* You can add more menu items here if needed */}
+            </MenuMui>
         </BoxMui>
     );
 };

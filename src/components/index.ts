@@ -5,4 +5,5 @@ import Row from "./Row";
 import RowNumberCell from "./RowNumberCell";
 import SelectAllCell from "./SelectAllCell";
 import Table from "./Table";
-export { ButtonGroup, ButtonGroupProvider, Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, Table };
+import TableMenu from "./TableMenu";
+export { ButtonGroup, ButtonGroupProvider, Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, Table, TableMenu };

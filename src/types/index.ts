@@ -42,7 +42,8 @@ export type Action =
     | { type: "SET_CODE" }
     | { type: "START_DRAG"; payload: { row: number; col: number } }
     | { type: "UPDATE_DRAG"; payload: { row: number; col: number } }
-    | { type: "END_DRAG" };
+    | { type: "END_DRAG" }
+    | { type: "SET_TABLE_SIZE"; payload: { row: number; col: number } };
 
 // ButtonGroup-related types
 
@@ -79,6 +80,7 @@ export interface ButtonGroupContextType {
     onClickSetBold: () => void;
     onClickSetItalic: () => void;
     onClickSetCode: () => void;
+    setTableSize: (row: number, col: number) => void;
 }
 
 export interface ButtonGroupProviderProps extends ButtonGroupContextType {

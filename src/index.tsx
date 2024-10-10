@@ -2,7 +2,7 @@ import React, { useReducer, useRef, useCallback, useEffect } from "react";
 import { Box, CssBaseline, ThemeProvider, createTheme, TableBody, TableRow, TableHead } from "@mui/material";
 
 // Internal Components
-import { ButtonGroup, ButtonGroupProvider, Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, Table } from "./components";
+import { ButtonGroup, ButtonGroupProvider, Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, Table, TableMenu } from "./components";
 
 // Hooks, Utilities, and Types
 import { useOutsideClick, useSpreadsheetActions } from "./hooks";
@@ -16,6 +16,14 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
     const [state, dispatch] = useReducer(reducer, undefined, initializeState);
     const tableRef = useRef<HTMLTableElement>(null);
     const buttonGroupRef = useRef<HTMLDivElement>(null);
+
+    const setTableSize = (row: number, col: number) => {
+        const minRows = 1;
+        const minCols = 1;
+        const newRows = Math.max(row, minRows);
+        const newCols = Math.max(col, minCols);
+        dispatch({ type: "SET_TABLE_SIZE", payload: { row: newRows, col: newCols } });
+    };
 
     // Use custom hooks
     useOutsideClick([tableRef, buttonGroupRef], () => dispatch({ type: "CLEAR_SELECTION" }));
@@ -156,7 +164,9 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
             <CssBaseline />
             <Box
                 sx={{
-                    ...(toolbarOrientation === "horizontal" ? { p: 0 } : { p: 0, display: "flex" }),
+                    display: "flex",
+                    flexDirection: "column",
+                    ...(toolbarOrientation === "horizontal" ? { p: 0 } : { p: 0 }),
                 }}
             >
                 <ButtonGroupProvider
@@ -172,7 +182,11 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
                     onClickSetBold={actions.handleSetBold}
                     onClickSetItalic={actions.handleSetItalic}
                     onClickSetCode={actions.handleSetCode}
+                    setTableSize={setTableSize}
                 >
+                    <Box sx={{ display: "flex", alignItems: "center", mb: -2.75 }}>
+                        <TableMenu />
+                    </Box>
                     <div ref={buttonGroupRef}>
                         <ButtonGroup theme={theme} orientation={toolbarOrientation} />
                     </div>
