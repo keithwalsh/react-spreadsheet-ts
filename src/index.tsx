@@ -2,7 +2,7 @@ import React, { useReducer, useRef, useCallback, useEffect } from "react";
 import { Box, CssBaseline, ThemeProvider, createTheme, TableBody, TableRow, TableHead } from "@mui/material";
 
 // Internal Components
-import { ButtonGroup, ButtonGroupProvider, Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, Table, TableMenu } from "./components";
+import { ButtonGroup, ButtonGroupProvider, Cell, ColumnHeaderCell, FileMenu, Row, RowNumberCell, SelectAllCell, Table, TableMenu } from "./components";
 
 // Hooks, Utilities, and Types
 import { useOutsideClick, useSpreadsheetActions } from "./hooks";
@@ -158,6 +158,14 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
     const selectedRows = new Set<number>();
     const selectedColumns = new Set<number>();
 
+    const handleCreateNewTable = useCallback(
+        (rows: number, columns: number) => {
+            setTableSize(rows, columns);
+            clearTable();
+        },
+        [setTableSize, clearTable]
+    );
+
     state.selectedCells.forEach((rowSelection, rowIndex) => {
         rowSelection.forEach((isSelected, colIndex) => {
             if (isSelected) {
@@ -197,6 +205,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
                     transposeTable={transposeTable}
                 >
                     <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <FileMenu onCreateNewTable={handleCreateNewTable} />
                         <TableMenu />
                     </Box>
                     <div ref={buttonGroupRef}>
