@@ -1,5 +1,4 @@
-import { Alignment } from "../types";
-
+import { Alignment } from "../store/types";
 /**
  * Adds a new row to the data, alignments, and selectedCells arrays.
  */
