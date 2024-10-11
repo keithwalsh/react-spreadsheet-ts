@@ -1,3 +1,3 @@
 import useOutsideClick from "./useOutsideClick";
-import useSpreadsheetActions from "./useToolbarActions";
+import useSpreadsheetActions from "./useSpreadsheetActions";
 export { useOutsideClick, useSpreadsheetActions };
