@@ -14,12 +14,26 @@ export function reducer(state: State, action: Action): State {
                 future: [],
             };
         }
-        case "SET_ALIGNMENTS": {
+        case "SET_ALIGNMENT": {
+            const alignment = action.payload;
+            const newAlignments = state.alignments.map((row, rowIndex) =>
+                row.map((cellAlignment, colIndex) => {
+                    if (
+                        state.selectAll ||
+                        (state.selectedColumn !== null && colIndex === state.selectedColumn) ||
+                        (state.selectedRow !== null && rowIndex === state.selectedRow) ||
+                        (state.selectedCell !== null && rowIndex === state.selectedCell.row && colIndex === state.selectedCell.col) ||
+                        state.selectedCells[rowIndex][colIndex]
+                    ) {
+                        return alignment;
+                    }
+                    return cellAlignment;
+                })
+            );
+
             return {
                 ...state,
-                alignments: action.payload,
-                past: [[state.data, state.alignments], ...state.past.slice(0, 9)],
-                future: [],
+                alignments: newAlignments,
             };
         }
         case "UNDO": {
