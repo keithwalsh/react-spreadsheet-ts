@@ -1,16 +1,15 @@
-// src/components/ButtonGroup.tsx
-
 import React, { createContext } from "react";
 import { ToolbarContextType, ToolbarProviderProps } from "../types";
 
-/**
- * Context for ButtonGroup
- */
 export const ToolbarContext = createContext<ToolbarContextType | undefined>(undefined);
 
-/**
- * Provider for ButtonGroupContext
- */
-export const ToolbarProvider: React.FC<ToolbarProviderProps> = ({ children, ...handlers }) => (
-    <ToolbarContext.Provider value={handlers}>{children}</ToolbarContext.Provider>
-);
+export const ToolbarProvider: React.FC<ToolbarProviderProps> = ({ children, ...handlers }) => {
+    const contextValue: ToolbarContextType = {
+        ...handlers,
+        onClickSetBold: () => handlers.onClickSetBold(),
+        onClickSetItalic: () => handlers.onClickSetItalic(),
+        onClickSetCode: () => handlers.onClickSetCode(),
+    };
+
+    return <ToolbarContext.Provider value={contextValue}>{children}</ToolbarContext.Provider>;
+};

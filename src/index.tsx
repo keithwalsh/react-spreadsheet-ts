@@ -12,8 +12,11 @@ import { SpreadsheetProps } from "./types";
 const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrientation = "horizontal", initialRows = 4, initialColumns = 5 }) => {
     // Lazy initialization function for useReducer
     const initializeState = useCallback(() => createInitialState(initialRows, initialColumns), [initialRows, initialColumns]);
-
     const [state, dispatch] = useReducer(reducer, undefined, initializeState);
+    const handleSetBold = useCallback(() => dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "BOLD" } }), [dispatch]);
+    const handleSetItalic = useCallback(() => dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "ITALIC" } }), [dispatch]);
+    const handleSetCode = useCallback(() => dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "CODE" } }), [dispatch]);
+
     const tableRef = useRef<HTMLTableElement>(null);
     const buttonGroupRef = useRef<HTMLDivElement>(null);
     const selectedRows = new Set<number>();
@@ -194,9 +197,9 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ theme = "light", toolbarOrien
                     onClickRemoveRow={actions.handleRemoveRow}
                     onClickAddColumn={actions.handleAddColumn}
                     onClickRemoveColumn={actions.handleRemoveColumn}
-                    onClickSetBold={actions.handleSetBold}
-                    onClickSetItalic={actions.handleSetItalic}
-                    onClickSetCode={actions.handleSetCode}
+                    onClickSetBold={handleSetBold}
+                    onClickSetItalic={handleSetItalic}
+                    onClickSetCode={handleSetCode}
                     setTableSize={setTableSize}
                     currentRows={state.data.length}
                     currentCols={state.data[0].length}

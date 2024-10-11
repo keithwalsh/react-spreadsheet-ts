@@ -37,15 +37,14 @@ export type Action =
     | { type: "REMOVE_COLUMN" }
     | { type: "SET_ALIGNMENT"; payload: Alignment }
     | { type: "HANDLE_PASTE"; payload: { newData: string[][]; newAlignments: Alignment[][] } }
-    | { type: "SET_BOLD" }
-    | { type: "SET_ITALIC" }
-    | { type: "SET_CODE" }
+    | { type: "APPLY_TEXT_FORMATTING"; payload: { operation: "BOLD" | "ITALIC" | "CODE" } }
     | { type: "START_DRAG"; payload: { row: number; col: number } }
     | { type: "UPDATE_DRAG"; payload: { row: number; col: number } }
     | { type: "END_DRAG" }
     | { type: "SET_TABLE_SIZE"; payload: { row: number; col: number } }
     | { type: "CLEAR_TABLE" }
-    | { type: "TRANSPOSE_TABLE" };
+    | { type: "TRANSPOSE_TABLE" }
+    | { type: "APPLY_TEXT_FORMATTING"; payload: { operation: "BOLD" | "ITALIC" | "CODE" } };
 
 export interface ToolbarContextType {
     onClickUndo: () => void;

@@ -1,5 +1,3 @@
-// src/components/ButtonGroup.tsx
-
 import React, { useContext, useCallback } from "react";
 import {
     Box as BoxMui,
@@ -29,8 +27,6 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
         throw new Error("ButtonGroup must be used within a ToolbarProvider");
     }
 
-    const buttonsToRender = visibleButtons && visibleButtons.length > 0 ? visibleButtons : defaultVisibleButtons;
-
     const config = buttonConfig(theme);
 
     const renderButton = useCallback(
@@ -44,11 +40,23 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
 
             const { title, icon: Icon, handlerKey } = btn;
 
+            const handleClick = () => {
+                if (title === "Set Bold") {
+                    handlers.onClickSetBold();
+                } else if (title === "Set Italic") {
+                    handlers.onClickSetItalic();
+                } else if (title === "Set Code") {
+                    handlers.onClickSetCode();
+                } else {
+                    handlers[handlerKey]?.();
+                }
+            };
+
             return (
                 <TooltipMui key={title} title={title} placement={tooltipPlacement} arrow={tooltipArrow}>
                     <IconButtonMui
-                        onClick={handlers[handlerKey] || (() => console.warn(`Handler ${handlerKey} is not defined`))}
-                        disabled={!handlers[handlerKey]}
+                        onClick={handleClick}
+                        disabled={!handlers[handlerKey] && !["Set Bold", "Set Italic", "Set Code"].includes(title)}
                         sx={{
                             borderRadius: 0,
                             "&:hover": config.hoverStyle,
@@ -64,6 +72,8 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
         },
         [orientation, tooltipPlacement, tooltipArrow, handlers, config.hoverStyle, iconSize]
     );
+
+    const buttonsToRender = visibleButtons && visibleButtons.length > 0 ? visibleButtons : defaultVisibleButtons;
 
     return (
         <BoxMui

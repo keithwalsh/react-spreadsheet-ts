@@ -1,4 +1,4 @@
-import { Action, State } from "../types";
+import { Action, State, Alignment } from "../types";
 import { adjustTableSize, addRow, removeRow, addColumn, removeColumn, markSelectedCells } from "../utils";
 
 /**
@@ -14,6 +14,7 @@ export function reducer(state: State, action: Action): State {
                 future: [],
             };
         }
+
         case "SET_ALIGNMENT": {
             const alignment = action.payload;
             const newAlignments = state.alignments.map((row, rowIndex) =>
@@ -36,91 +37,86 @@ export function reducer(state: State, action: Action): State {
                 alignments: newAlignments,
             };
         }
-        case "UNDO": {
-            if (state.past.length === 0) return state;
-            const [previousData, previousAlignments] = state.past[0];
-            const newPast = state.past.slice(1);
-            return {
-                ...state,
-                data: previousData,
-                alignments: previousAlignments,
-                past: newPast,
-                future: [[state.data, state.alignments], ...state.future],
-            };
-        }
+
+        case "UNDO":
         case "REDO": {
-            if (state.future.length === 0) return state;
-            const [nextData, nextAlignments] = state.future[0];
-            const newFuture = state.future.slice(1);
+            const isUndo = action.type === "UNDO";
+            const sourceStack = isUndo ? state.past : state.future;
+            const targetStack = isUndo ? state.future : state.past;
+
+            if (sourceStack.length === 0) {
+                return state;
+            }
+
+            const [newData, newAlignments] = sourceStack[0];
+            const newPresent: [string[][], Alignment[][]] = [state.data, state.alignments];
+
             return {
                 ...state,
-                data: nextData,
-                alignments: nextAlignments,
-                past: [[state.data, state.alignments], ...state.past],
-                future: newFuture,
-            };
-        }
-        case "SET_SELECTED_COLUMN":
-            return { ...state, selectedColumn: action.payload };
-        case "SET_SELECTED_ROW":
-            return { ...state, selectedRow: action.payload };
-        case "SET_SELECTED_CELL":
-            return { ...state, selectedCell: action.payload };
-        case "SET_SELECTED_CELLS":
-            return { ...state, selectedCells: action.payload };
-        case "SET_SELECT_ALL":
-            return { ...state, selectAll: action.payload };
-        case "CLEAR_SELECTION":
-            return {
-                ...state,
-                selectedCells: Array.from({ length: state.data.length }, () => Array(state.data[0].length).fill(false)),
-                selectAll: false,
+                data: newData,
+                alignments: newAlignments,
+                past: isUndo ? sourceStack.slice(1) : ([newPresent, ...targetStack] as [string[][], Alignment[][]][]),
+                future: isUndo ? ([newPresent, ...targetStack] as [string[][], Alignment[][]][]) : sourceStack.slice(1),
+                // Clear selection states
                 selectedColumn: null,
                 selectedRow: null,
                 selectedCell: null,
-            };
-        case "ADD_ROW": {
-            const { newData, newAlignments, newSelectedCells } = addRow(state.data, state.alignments, state.selectedCells);
-            return {
-                ...state,
-                data: newData,
-                alignments: newAlignments,
-                selectedCells: newSelectedCells,
+                selectedCells: Array.from({ length: newData.length }, () => Array(newData[0].length).fill(false)),
+                selectAll: false,
             };
         }
-        case "REMOVE_ROW": {
-            const { newData, newAlignments, newSelectedCells } = removeRow(state.data, state.alignments, state.selectedCells);
+
+        case "SET_SELECTED_COLUMN":
+        case "SET_SELECTED_ROW":
+        case "SET_SELECTED_CELL":
+        case "SET_SELECTED_CELLS":
+        case "SET_SELECT_ALL":
+        case "CLEAR_SELECTION":
             return {
                 ...state,
-                data: newData,
-                alignments: newAlignments,
-                selectedCells: newSelectedCells,
+                selectedColumn: action.type === "SET_SELECTED_COLUMN" ? action.payload : null,
+                selectedRow: action.type === "SET_SELECTED_ROW" ? action.payload : null,
+                selectedCell: action.type === "SET_SELECTED_CELL" ? action.payload : null,
+                selectedCells:
+                    action.type === "SET_SELECTED_CELLS"
+                        ? action.payload
+                        : action.type === "CLEAR_SELECTION"
+                        ? Array.from({ length: state.data.length }, () => Array(state.data[0].length).fill(false))
+                        : state.selectedCells,
+                selectAll: action.type === "SET_SELECT_ALL" ? action.payload : false,
             };
-        }
-        case "ADD_COLUMN": {
-            const { newData, newAlignments, newSelectedCells } = addColumn(state.data, state.alignments, state.selectedCells);
-            return {
-                ...state,
-                data: newData,
-                alignments: newAlignments,
-                selectedCells: newSelectedCells,
-            };
-        }
+
+        case "ADD_ROW":
+        case "REMOVE_ROW":
+        case "ADD_COLUMN":
         case "REMOVE_COLUMN": {
-            const { newData, newAlignments, newSelectedCells } = removeColumn(state.data, state.alignments, state.selectedCells);
+            const operationMap = {
+                ADD_ROW: addRow,
+                REMOVE_ROW: removeRow,
+                ADD_COLUMN: addColumn,
+                REMOVE_COLUMN: removeColumn,
+            };
+
+            const operation = operationMap[action.type];
+            const { newData, newAlignments, newSelectedCells } = operation(state.data, state.alignments, state.selectedCells);
+
             return {
                 ...state,
                 data: newData,
                 alignments: newAlignments,
                 selectedCells: newSelectedCells,
+                selectedColumn: null,
+                selectedRow: null,
+                selectedCell: null,
+                selectAll: false,
             };
         }
+
         case "SET_ALIGNMENT": {
             const alignment = action.payload;
             const newAlignments = state.alignments.map((row) => [...row]);
 
             if (state.selectAll) {
-                // Apply alignment to all cells
                 for (let i = 0; i < newAlignments.length; i++) {
                     for (let j = 0; j < newAlignments[i].length; j++) {
                         newAlignments[i][j] = alignment;
@@ -139,12 +135,12 @@ export function reducer(state: State, action: Action): State {
             } else if (state.selectedCell !== null) {
                 newAlignments[state.selectedCell.row][state.selectedCell.col] = alignment;
             }
-
             return {
                 ...state,
                 alignments: newAlignments,
             };
         }
+
         case "HANDLE_PASTE": {
             const { newData, newAlignments } = action.payload;
             const newSelectedCells = Array.from({ length: newData.length }, () => Array(newData[0].length).fill(false));
@@ -155,7 +151,9 @@ export function reducer(state: State, action: Action): State {
                 selectedCells: newSelectedCells,
             };
         }
-        case "SET_BOLD": {
+
+        case "APPLY_TEXT_FORMATTING": {
+            const { operation } = action.payload;
             const newData = state.data.map((row, rowIndex) =>
                 row.map((cell, colIndex) => {
                     if (
@@ -164,92 +162,47 @@ export function reducer(state: State, action: Action): State {
                             (state.selectedRow !== null && rowIndex === state.selectedRow) ||
                             (state.selectedCell !== null && rowIndex === state.selectedCell.row && colIndex === state.selectedCell.col) ||
                             state.selectedCells[rowIndex][colIndex]) &&
-                        cell.trim() !== "" // Check if the cell has non-empty content
+                        cell.trim() !== ""
                     ) {
-                        // If the cell is already bold, remove the asterisks
-                        if (cell.startsWith("**") && cell.endsWith("**")) {
-                            return cell.slice(2, -2);
-                        }
-                        // Otherwise, add asterisks to make it bold
-                        return `**${cell}**`;
-                    }
-                    return cell;
-                })
-            );
-            return { ...state, data: newData };
-        }
-        case "SET_ITALIC": {
-            const newData = state.data.map((row, rowIndex) =>
-                row.map((cell, colIndex) => {
-                    if (
-                        (state.selectAll ||
-                            (state.selectedColumn !== null && colIndex === state.selectedColumn) ||
-                            (state.selectedRow !== null && rowIndex === state.selectedRow) ||
-                            (state.selectedCell !== null && rowIndex === state.selectedCell.row && colIndex === state.selectedCell.col) ||
-                            state.selectedCells[rowIndex][colIndex]) &&
-                        cell.trim() !== "" // Check if the cell has non-empty content
-                    ) {
-                        if (cell.startsWith("**_") && cell.endsWith("_**")) {
-                            return cell.slice(0, 2) + cell.slice(3, -3) + cell.slice(-2);
-                        }
-                        // If the string already begins and ends with "_", remove them
-                        else if (cell.startsWith("_") && cell.endsWith("_")) {
-                            return cell.slice(1, -1);
-                        }
-                        // If the string begins and ends with "**", add "_" after the first "**" and before the last "**"
-                        else if (cell.startsWith("**") && cell.endsWith("**")) {
-                            return cell.replace(/^\*\*/, "**_").replace(/\*\*$/, "_**");
-                        }
-                        // Otherwise, add "_" at the start and end of the string
-                        else {
-                            return `_${cell}_`;
-                        }
-                    }
-                    return cell;
-                })
-            );
-            return { ...state, data: newData };
-        }
-        case "SET_CODE": {
-            const newData = state.data.map((row, rowIndex) =>
-                row.map((cell, colIndex) => {
-                    if (
-                        (state.selectAll ||
-                            (state.selectedColumn !== null && colIndex === state.selectedColumn) ||
-                            (state.selectedRow !== null && rowIndex === state.selectedRow) ||
-                            (state.selectedCell !== null && rowIndex === state.selectedCell.row && colIndex === state.selectedCell.col) ||
-                            state.selectedCells[rowIndex][colIndex]) &&
-                        cell.trim() !== "" // Check if the cell has non-empty content
-                    ) {
-                        let content = cell;
-                        let prefix = "";
-                        let suffix = "";
+                        switch (operation) {
+                            case "BOLD":
+                                return cell.startsWith("**") && cell.endsWith("**") ? cell.slice(2, -2) : `**${cell}**`;
+                            case "ITALIC":
+                                if (cell.startsWith("**_") && cell.endsWith("_**")) {
+                                    return cell.slice(0, 2) + cell.slice(3, -3) + cell.slice(-2);
+                                } else if (cell.startsWith("_") && cell.endsWith("_")) {
+                                    return cell.slice(1, -1);
+                                } else if (cell.startsWith("**") && cell.endsWith("**")) {
+                                    return cell.replace(/^\*\*/, "**_").replace(/\*\*$/, "_**");
+                                } else {
+                                    return `_${cell}_`;
+                                }
+                            case "CODE":
+                                let content = cell;
+                                let prefix = "";
+                                let suffix = "";
+                                if (content.startsWith("**") && content.endsWith("**")) {
+                                    prefix = "**";
+                                    suffix = "**";
+                                    content = content.slice(2, -2);
+                                }
+                                if (content.startsWith("_") && content.endsWith("_")) {
+                                    prefix = prefix + "_";
+                                    suffix = "_" + suffix;
+                                    content = content.slice(1, -1);
+                                }
 
-                        // Extract bold and italic markers
-                        if (content.startsWith("**") && content.endsWith("**")) {
-                            prefix = "**";
-                            suffix = "**";
-                            content = content.slice(2, -2);
+                                if (content.startsWith("```") && content.endsWith("```")) {
+                                    content = content.slice(3, -3);
+                                } else if (content.startsWith("`") && content.endsWith("`")) {
+                                    content = content.slice(1, -1);
+                                } else if (content.includes("\n")) {
+                                    content = "```\n" + content + "\n```";
+                                } else {
+                                    content = "`" + content + "`";
+                                }
+                                return prefix + content + suffix;
                         }
-                        if (content.startsWith("_") && content.endsWith("_")) {
-                            prefix = prefix + "_";
-                            suffix = "_" + suffix;
-                            content = content.slice(1, -1);
-                        }
-
-                        // Handle code block formatting
-                        if (content.startsWith("```") && content.endsWith("```")) {
-                            content = content.slice(3, -3);
-                        } else if (content.startsWith("`") && content.endsWith("`")) {
-                            content = content.slice(1, -1);
-                        } else if (content.includes("\n")) {
-                            content = "```\n" + content + "\n```";
-                        } else {
-                            content = "`" + content + "`";
-                        }
-
-                        // Reapply bold and italic markers
-                        return prefix + content + suffix;
                     }
                     return cell;
                 })
@@ -258,24 +211,23 @@ export function reducer(state: State, action: Action): State {
         }
 
         case "START_DRAG":
-            return {
-                ...state,
-                isDragging: true,
-                dragStart: action.payload,
-                selectedCells: markSelectedCells(state.data, action.payload.row, action.payload.col, action.payload.row, action.payload.col),
-            };
         case "UPDATE_DRAG":
-            if (!state.dragStart) return state;
-            return {
-                ...state,
-                selectedCells: markSelectedCells(state.data, state.dragStart.row, state.dragStart.col, action.payload.row, action.payload.col),
-            };
         case "END_DRAG":
+            let updatedSelectedCells = state.selectedCells;
+            if (action.type === "START_DRAG" || action.type === "UPDATE_DRAG") {
+                const startRow = action.type === "START_DRAG" ? action.payload.row : state.dragStart!.row;
+                const startCol = action.type === "START_DRAG" ? action.payload.col : state.dragStart!.col;
+                const endRow = action.type === "UPDATE_DRAG" ? action.payload.row : action.payload.row;
+                const endCol = action.type === "UPDATE_DRAG" ? action.payload.col : action.payload.col;
+                updatedSelectedCells = markSelectedCells(state.data, startRow, startCol, endRow, endCol);
+            }
             return {
                 ...state,
-                isDragging: false,
-                dragStart: null,
+                isDragging: action.type !== "END_DRAG",
+                dragStart: action.type === "START_DRAG" ? action.payload : action.type === "END_DRAG" ? null : state.dragStart,
+                selectedCells: updatedSelectedCells,
             };
+
         case "SET_TABLE_SIZE": {
             const { row, col } = action.payload;
             const { data, alignments, selectedCells } = adjustTableSize(state.data, state.alignments, row, col);
@@ -288,9 +240,9 @@ export function reducer(state: State, action: Action): State {
                 selectedRow: null,
                 selectedColumn: null,
                 selectAll: false,
-                // Reset any other state as needed
             };
         }
+
         case "CLEAR_TABLE": {
             const newData = state.data.map((row) => row.map(() => ""));
             return {
@@ -300,6 +252,7 @@ export function reducer(state: State, action: Action): State {
                 future: [],
             };
         }
+
         case "TRANSPOSE_TABLE": {
             const newData = state.data[0].map((_, colIndex) => state.data.map((row) => row[colIndex]));
             const newAlignments = state.alignments[0].map((_, colIndex) => state.alignments.map((row) => row[colIndex]));
@@ -317,6 +270,7 @@ export function reducer(state: State, action: Action): State {
                 selectAll: false,
             };
         }
+
         default:
             return state;
     }
