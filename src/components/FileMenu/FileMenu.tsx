@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Button, Menu, MenuItem } from "@mui/material";
+import { Button, Divider, Menu, MenuItem } from "@mui/material";
 import { KeyboardArrowDown } from "@mui/icons-material";
 import NewTableModal from "../NewTableModal/NewTableModal";
 import { FileMenuProps } from "./types";
 
-const FileMenu: React.FC<FileMenuProps> = ({ onCreateNewTable }) => {
+const FileMenu: React.FC<FileMenuProps> = ({ onCreateNewTable, onDownloadCSV }) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -19,6 +19,11 @@ const FileMenu: React.FC<FileMenuProps> = ({ onCreateNewTable }) => {
     const handleNewTable = () => {
         handleClose();
         setIsModalOpen(true);
+    };
+
+    const handleDownloadCSV = () => {
+        handleClose();
+        onDownloadCSV();
     };
 
     const handleModalClose = () => {
@@ -50,6 +55,10 @@ const FileMenu: React.FC<FileMenuProps> = ({ onCreateNewTable }) => {
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
                 <MenuItem dense onClick={handleNewTable}>
                     New table...
+                </MenuItem>
+                <Divider />
+                <MenuItem dense onClick={handleDownloadCSV}>
+                    Download as CSV
                 </MenuItem>
             </Menu>
             <NewTableModal open={isModalOpen} onClose={handleModalClose} onCreateNewTable={handleCreateNewTable} />

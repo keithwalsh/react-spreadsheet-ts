@@ -1,12 +1,12 @@
 import React, { useReducer, useRef, useCallback, useEffect, useState, useMemo } from "react";
-import { Box, CssBaseline, ThemeProvider, createTheme, TableBody, TableRow, TableHead } from "@mui/material";
+import { Box, CssBaseline, ThemeProvider, createTheme, Snackbar, TableBody, TableRow, TableHead } from "@mui/material";
 
 // Internal Components
 import { ButtonGroup, ToolbarProvider, Cell, ColumnHeaderCell, FileMenu, Row, RowNumberCell, SelectAllCell, Table, TableMenu } from "./components";
 
 // Hooks, Utilities, Store and Types
 import { useOutsideClick, useSpreadsheetActions } from "./hooks";
-import { handlePaste } from "./utils";
+import { handlePaste, downloadCSV } from "./utils";
 import { initialState, reducer } from "./store";
 import { SpreadsheetProps } from "./types";
 
@@ -24,6 +24,8 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
     const [state, dispatch] = useReducer(reducer, undefined, initializeState);
     const [scrollTop, setScrollTop] = useState(0);
     const [containerHeight, setContainerHeight] = useState(0);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState("");
 
     const handleSetBold = useCallback(() => dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "BOLD" } }), [dispatch]);
     const handleSetItalic = useCallback(() => dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "ITALIC" } }), [dispatch]);
@@ -55,6 +57,22 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
 
     useOutsideClick([tableRef, buttonGroupRef], () => dispatch({ type: "CLEAR_SELECTION" }));
     const actions = useSpreadsheetActions(dispatch);
+
+    const handleDownloadCSV = useCallback(() => {
+        try {
+            downloadCSV(state.data);
+            setSnackbarMessage("Table.csv has been downloaded successfully.");
+            setSnackbarOpen(true);
+        } catch (error) {
+            console.error("Failed to download CSV:", error);
+            setSnackbarMessage("Failed to download CSV. Please try again.");
+            setSnackbarOpen(true);
+        }
+    }, [state.data]);
+
+    const handleSnackbarClose = useCallback(() => {
+        setSnackbarOpen(false);
+    }, []);
 
     const handleCellChange = useCallback(
         (rowIndex: number, colIndex: number, value: string) => {
@@ -245,7 +263,8 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
                     transposeTable={transposeTable}
                 >
                     <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <FileMenu onCreateNewTable={handleCreateNewTable} />
+                        <FileMenu onCreateNewTable={handleCreateNewTable} onDownloadCSV={handleDownloadCSV} />
+
                         <TableMenu />
                     </Box>
                     <div ref={buttonGroupRef}>
@@ -326,6 +345,13 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
                     </div>
                 </div>
             </Box>
+            <Snackbar
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={handleSnackbarClose}
+                message={snackbarMessage}
+            />
         </ThemeProvider>
     );
 };
