@@ -174,6 +174,7 @@ export interface TableProps {
     children?: React.ReactNode;
     className?: string;
     onPaste?: (event: React.ClipboardEvent<HTMLDivElement>) => void;
+    style?: React.CSSProperties;
 }
 
 export interface NewTableModalProps {
@@ -195,4 +196,5 @@ export interface SpreadsheetProps {
     toolbarOrientation?: "horizontal" | "vertical";
     initialRows?: number;
     initialColumns?: number;
+    tableHeight?: string;
 }
