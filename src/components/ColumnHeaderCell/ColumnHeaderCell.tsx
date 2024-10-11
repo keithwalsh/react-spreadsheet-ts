@@ -1,6 +1,6 @@
 import * as React from "react";
 import { TableCell as TableCellMui } from "@mui/material";
-import { ColumnHeaderCellProps } from "../types";
+import { ColumnHeaderCellProps } from "./types";
 
 const ColumnHeaderCell: React.FC<ColumnHeaderCellProps> = ({ theme = "light", index, handleColumnSelection, selectedColumns }) => {
     const isSelected = selectedColumns?.has(index);

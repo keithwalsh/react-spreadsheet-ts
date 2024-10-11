@@ -7,9 +7,9 @@ import {
     Divider as DividerMui,
     Paper as PaperMui,
 } from "@mui/material";
-import { buttonConfig, buttonDefinitions, defaultVisibleButtons } from "../config";
-import { ButtonGroupProps } from "../types";
-import { ToolbarContext } from "./ToolbarProvider";
+import { buttonConfig, buttonDefinitions, defaultVisibleButtons } from "../../config";
+import { ButtonGroupProps } from "./types";
+import { ToolbarContext } from "../ToolbarProvider/ToolbarProvider";
 
 const ButtonGroup: React.FC<ButtonGroupProps> = ({
     theme = "light",

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Box, Typography, Button, TextField, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { NewTableModalProps } from "../types";
+import { NewTableModalProps } from "./types";
 
 const NewTableModal: React.FC<NewTableModalProps> = ({ open, onClose, onCreateNewTable }) => {
     const [rows, setRows] = useState("");

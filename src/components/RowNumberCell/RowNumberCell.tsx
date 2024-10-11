@@ -1,6 +1,6 @@
 import * as React from "react";
 import { TableCell as TableCellMui } from "@mui/material";
-import { RowNumberCellProps } from "../types";
+import { RowNumberCellProps } from "./types";
 
 const RowNumberCell: React.FC<RowNumberCellProps> = ({ theme = "light", children, className, onClick, selectedRows, rowIndex }) => {
     const isSelected = selectedRows?.has(rowIndex);

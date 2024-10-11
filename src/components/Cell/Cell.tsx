@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { TableCell as TableCellMui } from "@mui/material";
-import { CellProps } from "../types";
+import { CellProps } from "./types";
 
 const Cell: React.FC<CellProps> = React.memo(
     ({

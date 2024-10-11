@@ -1,9 +1,9 @@
 import React from "react";
 import { IconButton as IconButtonMui, TableCell as TableCellMui } from "@mui/material";
 import { FaRegSquare, FaCheckSquare } from "react-icons/fa";
-import { SelectAllTableCellProps } from "../types";
+import { SelectAllCellProps } from "./types";
 
-const SelectAllCell: React.FC<SelectAllTableCellProps> = ({ theme = "light", selectAll, toggleSelectAll, size = "small", sx = {} }) => {
+const SelectAllCell: React.FC<SelectAllCellProps> = ({ theme = "light", selectAll, toggleSelectAll, size = "small", sx = {} }) => {
     const isLightTheme = theme === "light";
 
     const tableCellStyles = {

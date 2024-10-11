@@ -1,11 +1,8 @@
 import React, { useState } from "react";
 import { Button, Menu, MenuItem } from "@mui/material";
 import { KeyboardArrowDown } from "@mui/icons-material";
-import NewTableModal from "./NewTableModal";
-
-interface FileMenuProps {
-    onCreateNewTable: (rows: number, columns: number) => void;
-}
+import NewTableModal from "../NewTableModal/NewTableModal";
+import { FileMenuProps } from "./types";
 
 const FileMenu: React.FC<FileMenuProps> = ({ onCreateNewTable }) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

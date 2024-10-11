@@ -1,5 +1,5 @@
 import React, { createContext } from "react";
-import { ToolbarContextType, ToolbarProviderProps } from "../types";
+import { ToolbarContextType, ToolbarProviderProps } from "./types";
 
 export const ToolbarContext = createContext<ToolbarContextType | undefined>(undefined);
 

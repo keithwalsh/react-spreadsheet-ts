@@ -1,4 +1,4 @@
-import { Action, State, Alignment } from "../types";
+import { Action, State, Alignment } from "./types";
 import { adjustTableSize, addRow, removeRow, addColumn, removeColumn, markSelectedCells } from "../utils";
 
 /**
@@ -66,6 +66,19 @@ export function reducer(state: State, action: Action): State {
             };
         }
 
+        case "SET_SELECT_ALL": {
+            const newSelectAll = action.payload;
+            const newSelectedCells = state.data.map((row) => row.map(() => newSelectAll));
+            return {
+                ...state,
+                selectAll: newSelectAll,
+                selectedCells: newSelectedCells,
+                selectedRow: null,
+                selectedColumn: null,
+                selectedCell: null,
+            };
+        }
+
         case "SET_SELECTED_COLUMN":
         case "SET_SELECTED_ROW":
         case "SET_SELECTED_CELL":
@@ -109,35 +122,6 @@ export function reducer(state: State, action: Action): State {
                 selectedRow: null,
                 selectedCell: null,
                 selectAll: false,
-            };
-        }
-
-        case "SET_ALIGNMENT": {
-            const alignment = action.payload;
-            const newAlignments = state.alignments.map((row) => [...row]);
-
-            if (state.selectAll) {
-                for (let i = 0; i < newAlignments.length; i++) {
-                    for (let j = 0; j < newAlignments[i].length; j++) {
-                        newAlignments[i][j] = alignment;
-                    }
-                }
-            } else if (state.selectedColumn !== null) {
-                for (let i = 0; i < newAlignments.length; i++) {
-                    newAlignments[i][state.selectedColumn] = alignment;
-                }
-            } else if (state.selectedRow !== null) {
-                for (let j = 0; j < newAlignments[state.selectedRow].length; j++) {
-                    if (state.selectedCells[state.selectedRow][j]) {
-                        newAlignments[state.selectedRow][j] = alignment;
-                    }
-                }
-            } else if (state.selectedCell !== null) {
-                newAlignments[state.selectedCell.row][state.selectedCell.col] = alignment;
-            }
-            return {
-                ...state,
-                alignments: newAlignments,
             };
         }
 

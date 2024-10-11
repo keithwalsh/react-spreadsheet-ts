@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { TableRow as TableRowMui } from "@mui/material";
-import { RowProps } from "../types";
+import { RowProps } from "./types";
 
 const Row: React.FC<RowProps> = React.memo(({ theme = "light", children, className }) => {
     const rowStyles = useMemo(

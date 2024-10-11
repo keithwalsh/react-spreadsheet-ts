@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Box, Typography, TextField } from "@mui/material";
-import { TableSizeChooserProps } from "../types";
+import { TableSizeChooserProps } from "./types";
 
 const TableSizeChooser: React.FC<TableSizeChooserProps> = ({ maxRows = 20, maxCols = 20, currentRows, currentCols, onSizeSelect }) => {
     const [hoveredRow, setHoveredRow] = useState(0);

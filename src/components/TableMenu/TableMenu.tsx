@@ -1,8 +1,8 @@
 import React, { useState, useContext, useRef, useCallback } from "react";
 import { Button, Divider, Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import { KeyboardArrowDown, BorderAll, KeyboardArrowRight, ClearAll, SwapVert } from "@mui/icons-material";
-import { ToolbarContext } from "./ToolbarProvider";
-import TableSizeChooser from "./TableSizeChooser";
+import { ToolbarContext } from "../ToolbarProvider/ToolbarProvider";
+import TableSizeChooser from "../TableSizeChooser/TableSizeChooser";
 
 const TableMenu: React.FC = () => {
     const handlers = useContext(ToolbarContext);

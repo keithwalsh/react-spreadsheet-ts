@@ -4,9 +4,10 @@ import { Box, CssBaseline, ThemeProvider, createTheme, TableBody, TableRow, Tabl
 // Internal Components
 import { ButtonGroup, ToolbarProvider, Cell, ColumnHeaderCell, FileMenu, Row, RowNumberCell, SelectAllCell, Table, TableMenu } from "./components";
 
-// Hooks, Utilities, and Types
+// Hooks, Utilities, Store and Types
 import { useOutsideClick, useSpreadsheetActions } from "./hooks";
-import { createInitialState, reducer, handlePaste } from "./utils";
+import { handlePaste } from "./utils";
+import { initialState, reducer } from "./store";
 import { SpreadsheetProps } from "./types";
 
 const ROW_HEIGHT = 37; // Adjust this value based on your actual row height
@@ -19,7 +20,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
     initialColumns = 10,
     tableHeight = "250px", // New prop for table height
 }) => {
-    const initializeState = useCallback(() => createInitialState(initialRows, initialColumns), [initialRows, initialColumns]);
+    const initializeState = useCallback(() => initialState(initialRows, initialColumns), [initialRows, initialColumns]);
     const [state, dispatch] = useReducer(reducer, undefined, initializeState);
     const [scrollTop, setScrollTop] = useState(0);
     const [containerHeight, setContainerHeight] = useState(0);
@@ -91,12 +92,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
     const toggleSelectAll = useCallback(() => {
         const newSelectAll = !state.selectAll;
         dispatch({ type: "SET_SELECT_ALL", payload: newSelectAll });
-        const newSelectedCells = state.data.map((row) => row.map(() => newSelectAll));
-        dispatch({ type: "SET_SELECTED_CELLS", payload: newSelectedCells });
-        dispatch({ type: "SET_SELECTED_COLUMN", payload: null });
-        dispatch({ type: "SET_SELECTED_ROW", payload: null });
-        dispatch({ type: "SET_SELECTED_CELL", payload: null });
-    }, [state.data, state.selectAll]);
+    }, [state.selectAll]);
 
     const handleRowSelection = useCallback(
         (rowIndex: number) => {
