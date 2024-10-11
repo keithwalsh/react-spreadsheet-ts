@@ -1,9 +1,14 @@
 import { Alignment } from "../store/types";
 
-/**
- * Adds a new row to the data, alignments, and selectedCells arrays.
- */
-export const addRow = (data: string[][], alignments: Alignment[][], selectedCells: boolean[][]) => {
+type OperationParams = {
+    data: string[][];
+    alignments: Alignment[][];
+    selectedCells: boolean[][];
+    index?: number;
+    position?: "left" | "right";
+};
+
+export const addRow = ({ data, alignments, selectedCells }: OperationParams) => {
     const newRow = Array(data[0].length).fill("");
     const newAlignmentRow = Array(alignments[0].length).fill("left" as Alignment);
     const newSelectedCellsRow = Array(selectedCells[0].length).fill(false);
@@ -14,11 +19,7 @@ export const addRow = (data: string[][], alignments: Alignment[][], selectedCell
     };
 };
 
-/**
- * Removes the last row from the data, alignments, and selectedCells arrays.
- * Prevents removing all rows.
- */
-export const removeRow = (data: string[][], alignments: Alignment[][], selectedCells: boolean[][]) => {
+export const removeRow = ({ data, alignments, selectedCells }: OperationParams) => {
     if (data.length > 1) {
         return {
             newData: data.slice(0, -1),
@@ -29,25 +30,43 @@ export const removeRow = (data: string[][], alignments: Alignment[][], selectedC
     return { newData: data, newAlignments: alignments, newSelectedCells: selectedCells };
 };
 
-/**
- * Adds a new column to the data, alignments, and selectedCells arrays.
- */
-export const addColumn = (data: string[][], alignments: Alignment[][], selectedCells: boolean[][]) => {
-    const newData = data.map((row) => [...row, ""]);
-    const newAlignments = alignments.map((row) => [...row, "left" as Alignment]);
-    const newSelectedCells = selectedCells.map((row) => [...row, false]);
+export const addColumn = ({ data, alignments, selectedCells, index = 0, position = "right" }: OperationParams) => {
+    const insertIndex = position === "left" ? index : index + 1;
+    const newData = data.map((row) => {
+        const newRow = [...row];
+        newRow.splice(insertIndex, 0, "");
+        return newRow;
+    });
+    const newAlignments = alignments.map((row) => {
+        const newRow = [...row];
+        newRow.splice(insertIndex, 0, "left" as Alignment);
+        return newRow;
+    });
+    const newSelectedCells = selectedCells.map((row) => {
+        const newRow = [...row];
+        newRow.splice(insertIndex, 0, false);
+        return newRow;
+    });
     return { newData, newAlignments, newSelectedCells };
 };
 
-/**
- * Removes the last column from the data, alignments, and selectedCells arrays.
- * Prevents removing all columns.
- */
-export const removeColumn = (data: string[][], alignments: Alignment[][], selectedCells: boolean[][]) => {
+export const removeColumn = ({ data, alignments, selectedCells, index = 0 }: OperationParams) => {
     if (data[0].length > 1) {
-        const newData = data.map((row) => row.slice(0, -1));
-        const newAlignments = alignments.map((row) => row.slice(0, -1));
-        const newSelectedCells = selectedCells.map((row) => row.slice(0, -1));
+        const newData = data.map((row) => {
+            const newRow = [...row];
+            newRow.splice(index, 1);
+            return newRow;
+        });
+        const newAlignments = alignments.map((row) => {
+            const newRow = [...row];
+            newRow.splice(index, 1);
+            return newRow;
+        });
+        const newSelectedCells = selectedCells.map((row) => {
+            const newRow = [...row];
+            newRow.splice(index, 1);
+            return newRow;
+        });
         return { newData, newAlignments, newSelectedCells };
     }
     return { newData: data, newAlignments: alignments, newSelectedCells: selectedCells };

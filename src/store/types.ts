@@ -27,8 +27,8 @@ export type Action =
     | { type: "CLEAR_SELECTION" }
     | { type: "ADD_ROW" }
     | { type: "REMOVE_ROW" }
-    | { type: "ADD_COLUMN" }
-    | { type: "REMOVE_COLUMN" }
+    | { type: "ADD_COLUMN"; payload: { index: number; position: "left" | "right" } }
+    | { type: "REMOVE_COLUMN"; payload: { index: number } }
     | { type: "SET_ALIGNMENT"; payload: Alignment }
     | { type: "HANDLE_PASTE"; payload: { newData: string[][]; newAlignments: Alignment[][] } }
     | { type: "START_DRAG"; payload: { row: number; col: number } }

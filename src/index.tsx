@@ -1,5 +1,20 @@
 import React, { useReducer, useRef, useCallback, useEffect, useState, useMemo } from "react";
-import { Box, CssBaseline, ThemeProvider, createTheme, Snackbar, TableBody, TableRow, TableHead } from "@mui/material";
+import {
+    Box,
+    CssBaseline,
+    ThemeProvider,
+    createTheme,
+    Snackbar,
+    TableBody,
+    TableRow,
+    TableHead,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Button,
+} from "@mui/material";
 
 // Internal Components
 import { ButtonGroup, ToolbarProvider, Cell, ColumnHeaderCell, FileMenu, Row, RowNumberCell, SelectAllCell, Table, TableMenu } from "./components";
@@ -10,15 +25,15 @@ import { handlePaste, downloadCSV } from "./utils";
 import { initialState, reducer } from "./store";
 import { SpreadsheetProps } from "./types";
 
-const ROW_HEIGHT = 37; // Adjust this value based on your actual row height
-const BUFFER_SIZE = 10; // Number of extra rows to render above and below the visible area
+const ROW_HEIGHT = 37;
+const BUFFER_SIZE = 10;
 
 const Spreadsheet: React.FC<SpreadsheetProps> = ({
     theme = "light",
     toolbarOrientation = "horizontal",
     initialRows = 4,
     initialColumns = 10,
-    tableHeight = "250px", // New prop for table height
+    tableHeight = "250px",
 }) => {
     const initializeState = useCallback(() => initialState(initialRows, initialColumns), [initialRows, initialColumns]);
     const [state, dispatch] = useReducer(reducer, undefined, initializeState);
@@ -26,6 +41,8 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
     const [containerHeight, setContainerHeight] = useState(0);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+    const [confirmDialogAction, setConfirmDialogAction] = useState<(() => void) | null>(null);
 
     const handleSetBold = useCallback(() => dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "BOLD" } }), [dispatch]);
     const handleSetItalic = useCallback(() => dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "ITALIC" } }), [dispatch]);
@@ -91,6 +108,46 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
             dispatch({ type: "HANDLE_PASTE", payload: { newData, newAlignments } });
         },
         [state, dispatch]
+    );
+
+    const handleAddColumnLeft = useCallback(
+        (index: number) => {
+            dispatch({ type: "ADD_COLUMN", payload: { index, position: "left" } });
+            setSnackbarMessage("Column added successfully.");
+            setSnackbarOpen(true);
+        },
+        [dispatch]
+    );
+
+    const handleAddColumnRight = useCallback(
+        (index: number) => {
+            dispatch({ type: "ADD_COLUMN", payload: { index, position: "right" } });
+            setSnackbarMessage("Column added successfully.");
+            setSnackbarOpen(true);
+        },
+        [dispatch]
+    );
+
+    const handleRemoveColumn = useCallback(
+        (index: number) => {
+            setConfirmDialogAction(() => () => {
+                dispatch({ type: "REMOVE_COLUMN", payload: { index } });
+                setSnackbarMessage("Column removed successfully.");
+                setSnackbarOpen(true);
+            });
+            setConfirmDialogOpen(true);
+        },
+        [dispatch]
+    );
+
+    const handleConfirmDialogClose = useCallback(
+        (confirmed: boolean) => {
+            setConfirmDialogOpen(false);
+            if (confirmed && confirmDialogAction) {
+                confirmDialogAction();
+            }
+        },
+        [confirmDialogAction]
     );
 
     const selectCells = useCallback(
@@ -303,6 +360,9 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
                                             theme={theme}
                                             handleColumnSelection={handleColumnSelection}
                                             selectedColumns={selectedColumns}
+                                            onAddColumnLeft={handleAddColumnLeft}
+                                            onAddColumnRight={handleAddColumnRight}
+                                            onRemoveColumn={handleRemoveColumn}
                                         />
                                     ))}
                                 </TableRow>
@@ -352,6 +412,25 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
                 onClose={handleSnackbarClose}
                 message={snackbarMessage}
             />
+            <Dialog
+                open={confirmDialogOpen}
+                onClose={() => handleConfirmDialogClose(false)}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">{"Confirm Column Removal"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Are you sure you want to remove this column? This action cannot be undone.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => handleConfirmDialogClose(false)}>Cancel</Button>
+                    <Button onClick={() => handleConfirmDialogClose(true)} autoFocus>
+                        Confirm
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </ThemeProvider>
     );
 };

@@ -111,7 +111,15 @@ export function reducer(state: State, action: Action): State {
             };
 
             const operation = operationMap[action.type];
-            const { newData, newAlignments, newSelectedCells } = operation(state.data, state.alignments, state.selectedCells);
+            const operationParams = {
+                data: state.data,
+                alignments: state.alignments,
+                selectedCells: state.selectedCells,
+                ...(action.type === "ADD_COLUMN" && { index: action.payload.index, position: action.payload.position }),
+                ...(action.type === "REMOVE_COLUMN" && { index: action.payload.index }),
+            };
+
+            const { newData, newAlignments, newSelectedCells } = operation(operationParams);
 
             return {
                 ...state,
@@ -122,6 +130,8 @@ export function reducer(state: State, action: Action): State {
                 selectedRow: null,
                 selectedCell: null,
                 selectAll: false,
+                past: [[state.data, state.alignments], ...state.past.slice(0, 9)],
+                future: [],
             };
         }
 

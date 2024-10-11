@@ -10,8 +10,12 @@ const useSpreadsheetActions = (dispatch: React.Dispatch<any>) => {
     const handleSetCode = useCallback(() => dispatch({ type: "SET_CODE" }), [dispatch]);
     const handleAddRow = useCallback(() => dispatch({ type: "ADD_ROW" }), [dispatch]);
     const handleRemoveRow = useCallback(() => dispatch({ type: "REMOVE_ROW" }), [dispatch]);
-    const handleAddColumn = useCallback(() => dispatch({ type: "ADD_COLUMN" }), [dispatch]);
-    const handleRemoveColumn = useCallback(() => dispatch({ type: "REMOVE_COLUMN" }), [dispatch]);
+    const handleAddColumn = useCallback(() => {
+        dispatch({ type: "ADD_COLUMN", payload: { index: -1, position: "right" } });
+    }, [dispatch]);
+    const handleRemoveColumn = useCallback(() => {
+        dispatch({ type: "REMOVE_COLUMN", payload: { index: -1 } });
+    }, [dispatch]);
     const clearSelection = useCallback(() => dispatch({ type: "CLEAR_SELECTION" }), [dispatch]);
     const setAlignment = useCallback((alignment: Alignment) => dispatch({ type: "SET_ALIGNMENT", payload: alignment }), [dispatch]);
 
