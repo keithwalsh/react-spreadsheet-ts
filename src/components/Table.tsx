@@ -14,7 +14,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(({ theme = "light",
     };
 
     const commonStyles = {
-        mt: 2,
+        mt: 0,
         width: "auto",
         display: "inline-block",
         backgroundColor: "transparent",

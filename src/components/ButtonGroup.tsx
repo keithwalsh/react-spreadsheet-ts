@@ -84,7 +84,7 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
                 border: 1,
                 borderRadius: 1,
                 maxWidth: "max-content",
-                ...(orientation === "vertical" && { marginRight: 2 }),
+                ...(orientation === "vertical" ? { marginRight: 2 } : { marginBottom: 2 }),
                 borderColor: config.borderColor,
                 "& svg": { m: iconMargin, ...config.svgStyle },
                 "& .MuiDivider-root": {
