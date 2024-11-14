@@ -18,7 +18,10 @@
         "skipLibCheck": true,
         "strict": true,
         "target": "es5",
-        "types": ["jest", "@testing-library/jest-dom"]
+        "types": ["jest", "@testing-library/jest-dom"],
+        "importHelpers": true,
+        "sourceMap": true,
+        "declarationMap": true
     },
     "include": ["src", "stories", "test", "jest.setup.js", "vite.config.ts"],
     "exclude": ["node_modules", "dist"]
