@@ -27,7 +27,7 @@ jobs:
             - name: Set up Node.js
               uses: actions/setup-node@v3
               with:
-                  node-version: "16"
+                  node-version: "18"
 
             # Set Git user identity (necessary for commits by GitHub Actions)
             - name: Set Git identity
@@ -37,7 +37,9 @@ jobs:
 
             # Install dependencies
             - name: Install dependencies
-              run: npm install
+              run: |
+                  npm install -D vite-plugin-dts
+                  npm install
 
             # Bump the version using standard-version (semver)
             - name: Bump version with standard-version
