@@ -28,15 +28,41 @@ import { SpreadsheetProps } from "./types";
 const ROW_HEIGHT = 37;
 const BUFFER_SIZE = 10;
 
-const Spreadsheet: React.FC<SpreadsheetProps> = ({
-    theme = "light",
-    toolbarOrientation = "horizontal",
+export const Spreadsheet: React.FC<SpreadsheetProps> = ({
+    theme = 'light',
+    toolbarOrientation = 'horizontal',
     initialRows = 4,
     initialColumns = 10,
-    tableHeight = "250px",
+    tableHeight = '250px',
+    value,
+    onChange,
 }) => {
-    const initializeState = useCallback(() => initialState(initialRows, initialColumns), [initialRows, initialColumns]);
-    const [state, dispatch] = useReducer(reducer, undefined, initializeState);
+    const initializeState = useCallback(() => {
+        if (value) {
+            // Use provided value for controlled component
+            return {
+                ...initialState(value.length, value[0]?.length || 0),
+                data: value
+            }
+        }
+        // Use default initialization for uncontrolled component
+        return initialState(initialRows, initialColumns)
+    }, [value, initialRows, initialColumns])
+
+    const [state, dispatch] = useReducer(reducer, undefined, initializeState)
+
+    // Sync with external value prop if provided
+    useEffect(() => {
+        if (value && JSON.stringify(value) !== JSON.stringify(state.data)) {
+            dispatch({ type: 'SET_DATA', payload: value })
+        }
+    }, [value])
+
+    // Notify parent of changes
+    useEffect(() => {
+        onChange?.(state.data)
+    }, [state.data, onChange])
+
     const [scrollTop, setScrollTop] = useState(0);
     const [containerHeight, setContainerHeight] = useState(0);
     const [snackbarOpen, setSnackbarOpen] = useState(false);

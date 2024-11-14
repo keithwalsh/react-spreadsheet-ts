@@ -1,7 +1,9 @@
 export interface SpreadsheetProps {
-    theme?: "light" | "dark";
-    toolbarOrientation?: "horizontal" | "vertical";
-    initialRows?: number;
-    initialColumns?: number;
-    tableHeight?: string;
+    theme?: 'light' | 'dark'
+    toolbarOrientation?: 'horizontal' | 'vertical'
+    initialRows?: number
+    initialColumns?: number
+    tableHeight?: string
+    value?: string[][]
+    onChange?: (data: string[][]) => void
 }
