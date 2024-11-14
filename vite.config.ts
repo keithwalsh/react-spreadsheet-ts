@@ -8,6 +8,8 @@ export default defineConfig({
     react(),
     dts({
       insertTypesEntry: true,
+      include: ["src"],
+      exclude: ["**/*.test.ts", "**/*.test.tsx"]
     }),
   ],
   build: {
@@ -15,28 +17,13 @@ export default defineConfig({
       entry: resolve(__dirname, "src/index.tsx"),
       name: "ReactSpreadsheetTs",
       formats: ["es", "cjs"],
-      fileName: (format) => `index.${format}.js`
+      fileName: (format) => `index.${format === "es" ? "esm" : format}.js`
     },
     rollupOptions: {
-      external: [
-        "react", 
-        "react-dom", 
-        "@emotion/react", 
-        "@emotion/styled",
-        "@mui/material",
-        "react-icons",
-        "@mui/icons-material"
-      ],
+      external: ["react", "react-dom", "@emotion/react", "@emotion/styled", "@mui/material", "react-icons", "@mui/icons-material"],
       output: {
-        globals: {
-          react: "React",
-          "react-dom": "ReactDOM",
-          "@emotion/react": "emotionReact",
-          "@emotion/styled": "emotionStyled",
-          "@mui/material": "MuiMaterial",
-          "react-icons": "ReactIcons",
-          "@mui/icons-material": "MuiIcons"
-        }
+        preserveModules: true,
+        exports: 'named'
       }
     }
   }
