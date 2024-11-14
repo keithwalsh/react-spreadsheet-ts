@@ -1,7 +1,6 @@
 export interface ButtonGroupProps {
-    theme?: "light" | "dark";
-    visibleButtons?: (string | "divider")[];
-    orientation?: "horizontal" | "vertical";
+    visibleButtons?: string[];
+    orientation?: 'horizontal' | 'vertical';
     iconSize?: number;
     iconMargin?: number;
     dividerMargin?: number;

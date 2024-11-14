@@ -1,7 +1,6 @@
 import { CSSProperties } from "react";
 
 export interface CellProps {
-    theme?: "light" | "dark";
     rowIndex: number;
     colIndex: number;
     align: "inherit" | "left" | "center" | "right" | "justify";

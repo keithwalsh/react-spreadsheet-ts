@@ -1,10 +1,11 @@
 import * as React from "react";
-import { TableCell as TableCellMui } from "@mui/material";
+import { TableCell as TableCellMui, useTheme } from "@mui/material";
 import { RowNumberCellProps } from "./types";
 
-const RowNumberCell: React.FC<RowNumberCellProps> = ({ theme = "light", children, className, onClick, selectedRows, rowIndex }) => {
+const RowNumberCell: React.FC<RowNumberCellProps> = ({ children, className, onClick, selectedRows, rowIndex }) => {
+    const theme = useTheme();
+    const isDarkMode = theme.palette.mode === 'dark';
     const isSelected = selectedRows?.has(rowIndex);
-    const isLightTheme = theme === "light";
 
     const lightThemeStyles = {
         color: "rgba(0, 0, 0, 0.54)",
@@ -24,7 +25,7 @@ const RowNumberCell: React.FC<RowNumberCellProps> = ({ theme = "light", children
     return (
         <TableCellMui
             sx={{
-                ...(isLightTheme ? lightThemeStyles : darkThemeStyles),
+                ...(isDarkMode ? darkThemeStyles : lightThemeStyles),
                 cursor: "pointer",
                 userSelect: "none",
                 textAlign: "center",

@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { TableCell as TableCellMui } from "@mui/material";
+import { TableCell as TableCellMui, useTheme } from "@mui/material";
 import { CellProps } from "./types";
 
 const Cell: React.FC<CellProps> = React.memo(
     ({
-        theme = "light",
         rowIndex,
         colIndex,
         align,
@@ -18,6 +17,8 @@ const Cell: React.FC<CellProps> = React.memo(
         onMouseEnter,
         onMouseUp,
     }) => {
+        const theme = useTheme();
+        const isDarkMode = theme.palette.mode === 'dark';
         const [isEditing, setIsEditing] = useState(false);
         const [fontWeight, setFontWeight] = useState("normal");
         const [fontStyle, setFontStyle] = useState("normal");
@@ -117,22 +118,21 @@ const Cell: React.FC<CellProps> = React.memo(
         }, [isSelected, isEditing, handleBlur]);
 
         const cellStyles = useMemo(() => {
-            const themeStyles =
-                theme === "light"
-                    ? {
-                          borderRight: "1px solid #e0e0e0",
-                          borderBottom: "1px solid #e0e0e0",
-                          "&:last-child": {
-                              borderRight: "1px solid #e0e0e0",
-                          },
-                      }
-                    : {
+            const themeStyles = isDarkMode
+                ? {
+                      borderRight: "1px solid #686868",
+                      borderBottom: "1px solid #686868",
+                      "&:last-child": {
                           borderRight: "1px solid #686868",
-                          borderBottom: "1px solid #686868",
-                          "&:last-child": {
-                              borderRight: "1px solid #686868",
-                          },
-                      };
+                      },
+                  }
+                : {
+                      borderRight: "1px solid #e0e0e0",
+                      borderBottom: "1px solid #e0e0e0",
+                      "&:last-child": {
+                          borderRight: "1px solid #e0e0e0",
+                      },
+                  };
 
             return {
                 ...themeStyles,
@@ -148,7 +148,7 @@ const Cell: React.FC<CellProps> = React.memo(
                     zIndex: 1,
                 }),
             };
-        }, [theme, isEditing, selectedCells, rowIndex, colIndex, multipleCellsSelected, isSelected]);
+        }, [isDarkMode, isEditing, selectedCells, rowIndex, colIndex, multipleCellsSelected, isSelected]);
 
         return (
             <TableCellMui

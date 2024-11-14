@@ -1,10 +1,9 @@
 import * as React from "react";
-import { TableCell as TableCellMui } from "@mui/material";
+import { TableCell as TableCellMui, useTheme } from "@mui/material";
 import ColumnContextMenu from "../ColumnContextMenu/ColumnContextMenu";
 import { ColumnHeaderCellProps } from "./types";
 
 const ColumnHeaderCell: React.FC<ColumnHeaderCellProps> = ({
-    theme = "light",
     index,
     handleColumnSelection,
     selectedColumns,
@@ -12,6 +11,8 @@ const ColumnHeaderCell: React.FC<ColumnHeaderCellProps> = ({
     onAddColumnRight,
     onRemoveColumn,
 }) => {
+    const theme = useTheme();
+    const isDarkMode = theme.palette.mode === 'dark';
     const isSelected = selectedColumns?.has(index);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [isHovered, setIsHovered] = React.useState(false);
@@ -60,7 +61,7 @@ const ColumnHeaderCell: React.FC<ColumnHeaderCellProps> = ({
         <>
             <TableCellMui
                 sx={{
-                    ...(theme === "light" ? lightThemeStyles : darkThemeStyles),
+                    ...(isDarkMode ? darkThemeStyles : lightThemeStyles),
                     cursor: "pointer",
                     userSelect: "none",
                     textAlign: "center",

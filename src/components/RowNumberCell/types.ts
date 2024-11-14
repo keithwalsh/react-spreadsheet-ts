@@ -1,5 +1,4 @@
 export interface RowNumberCellProps {
-    theme?: "light" | "dark";
     children?: React.ReactNode;
     className?: string;
     onClick?: () => void;

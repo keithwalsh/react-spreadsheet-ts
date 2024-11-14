@@ -10,9 +10,9 @@ import {
 import { buttonConfig, buttonDefinitions, defaultVisibleButtons } from "../../config";
 import { ButtonGroupProps } from "./types";
 import { ToolbarContext } from "../ToolbarProvider/ToolbarProvider";
+import { useTheme } from '@mui/material/styles';
 
 const ButtonGroup: React.FC<ButtonGroupProps> = ({
-    theme = "light",
     visibleButtons,
     orientation = "horizontal",
     iconSize = 20,
@@ -21,13 +21,16 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
     tooltipArrow = true,
     tooltipPlacement = "top",
 }) => {
+    const theme = useTheme();
+    const isDarkMode = theme.palette.mode === 'dark';
+    
     const handlers = useContext(ToolbarContext);
 
     if (!handlers) {
         throw new Error("ButtonGroup must be used within a ToolbarProvider");
     }
 
-    const config = buttonConfig(theme);
+    const config = buttonConfig(isDarkMode ? 'dark' : 'light');
 
     const renderButton = useCallback(
         (item: string, index: number) => {
@@ -77,7 +80,7 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
 
     return (
         <BoxMui
-            component={theme === "light" ? PaperMui : "div"}
+            component={isDarkMode ? PaperMui : "div"}
             sx={{
                 display: "flex",
                 alignItems: "center",

@@ -1,8 +1,12 @@
 import { Meta, StoryObj } from "@storybook/react";
+import { fn } from '@storybook/test'
+import { ThemeProvider, createTheme } from '@mui/material';
 import Spreadsheet from "../src/Spreadsheet";
 import { SpreadsheetProps } from "../src/types";
 
-interface SpreadsheetStoryArgs extends SpreadsheetProps {}
+interface SpreadsheetStoryArgs extends SpreadsheetProps {
+    mode?: 'light' | 'dark';
+}
 
 // Use a more specific name for the meta object
 const SpreadsheetMeta: Meta<SpreadsheetStoryArgs> = {
@@ -10,7 +14,7 @@ const SpreadsheetMeta: Meta<SpreadsheetStoryArgs> = {
     component: Spreadsheet,
     tags: ["autodocs"],
     argTypes: {
-        theme: {
+        mode: {
             control: {
                 type: "select",
                 options: ["light", "dark"],
@@ -42,26 +46,35 @@ const SpreadsheetMeta: Meta<SpreadsheetStoryArgs> = {
                 type: { summary: `"horizontal" | "vertical"` },
             },
         },
+        onChange: {
+            description: 'Callback fired when spreadsheet data changes'
+        }
     },
     decorators: [
         (Story, context) => {
-            const { theme } = context.args;
-            const backgroundColor = theme === "dark" ? "#000" : "#fff";
+            const { mode = 'light' } = context.args;
+            const theme = createTheme({
+                palette: {
+                    mode,
+                },
+            });
 
             // Create a unique key based on initialRows and initialColumns
             const key = `rows-${context.args.initialRows}-cols-${context.args.initialColumns}`;
 
             return (
-                <div
-                    style={{
-                        display: "inline-block",
-                        padding: 0,
-                        backgroundColor, // Dynamically set based on theme
-                    }}
-                    key={key} // Add the key here
-                >
-                    <Story {...context.args} />
-                </div>
+                <ThemeProvider theme={theme}>
+                    <div
+                        style={{
+                            display: "inline-block",
+                            padding: 0,
+                            backgroundColor: mode === "dark" ? "#000" : "#fff",
+                        }}
+                        key={key}
+                    >
+                        <Story {...context.args} />
+                    </div>
+                </ThemeProvider>
             );
         },
     ],
@@ -73,9 +86,10 @@ type Story = StoryObj<SpreadsheetStoryArgs>;
 
 export const Default: Story = {
     args: {
-        theme: "light",
+        mode: "light",
         toolbarOrientation: "horizontal",
         initialRows: 4,
         initialColumns: 5,
+        onChange: fn()
     },
 };

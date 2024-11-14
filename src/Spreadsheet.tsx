@@ -1,9 +1,6 @@
 import React, { useReducer, useRef, useCallback, useEffect, useState, useMemo } from "react";
 import {
     Box,
-    CssBaseline,
-    ThemeProvider,
-    createTheme,
     Snackbar,
     TableBody,
     TableRow,
@@ -15,6 +12,7 @@ import {
     DialogTitle,
     Button,
 } from "@mui/material";
+import { useTheme } from '@mui/material/styles'
 
 // Internal Components
 import { ButtonGroup, ToolbarProvider, Cell, ColumnHeaderCell, FileMenu, Row, RowNumberCell, SelectAllCell, Table, TableMenu } from "./components";
@@ -29,7 +27,6 @@ const ROW_HEIGHT = 37;
 const BUFFER_SIZE = 10;
 
 export const Spreadsheet: React.FC<SpreadsheetProps> = ({
-    theme = 'light',
     toolbarOrientation = 'horizontal',
     initialRows = 4,
     initialColumns = 10,
@@ -37,6 +34,9 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     value,
     onChange,
 }) => {
+    const theme = useTheme()
+    const isDarkMode = theme.palette.mode === 'dark'
+
     const initializeState = useCallback(() => {
         if (value) {
             // Use provided value for controlled component
@@ -80,12 +80,6 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
 
     const selectedRows = new Set<number>();
     const selectedColumns = new Set<number>();
-
-    const themeMui = createTheme({
-        palette: {
-            mode: theme,
-        },
-    });
 
     const setTableSize = useCallback(
         (row: number, col: number) => {
@@ -316,121 +310,114 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     });
 
     return (
-        <ThemeProvider theme={themeMui}>
-            <CssBaseline />
-            <Box
-                sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    ...(toolbarOrientation === "horizontal" ? { p: 0 } : { p: 0 }),
-                    height: "100%",
-                }}
+        <Box
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                ...(toolbarOrientation === "horizontal" ? { p: 0 } : { p: 0 }),
+                height: "100%",
+            }}
+        >
+            <ToolbarProvider
+                onClickUndo={actions.handleUndo}
+                onClickRedo={actions.handleRedo}
+                onClickAlignLeft={() => actions.setAlignment("left")}
+                onClickAlignCenter={() => actions.setAlignment("center")}
+                onClickAlignRight={() => actions.setAlignment("right")}
+                onClickAddRow={actions.handleAddRow}
+                onClickRemoveRow={actions.handleRemoveRow}
+                onClickAddColumn={actions.handleAddColumn}
+                onClickRemoveColumn={actions.handleRemoveColumn}
+                onClickSetBold={handleSetBold}
+                onClickSetItalic={handleSetItalic}
+                onClickSetCode={handleSetCode}
+                setTableSize={setTableSize}
+                currentRows={state.data.length}
+                currentCols={state.data[0].length}
+                clearTable={clearTable}
+                transposeTable={transposeTable}
             >
-                <ToolbarProvider
-                    onClickUndo={actions.handleUndo}
-                    onClickRedo={actions.handleRedo}
-                    onClickAlignLeft={() => actions.setAlignment("left")}
-                    onClickAlignCenter={() => actions.setAlignment("center")}
-                    onClickAlignRight={() => actions.setAlignment("right")}
-                    onClickAddRow={actions.handleAddRow}
-                    onClickRemoveRow={actions.handleRemoveRow}
-                    onClickAddColumn={actions.handleAddColumn}
-                    onClickRemoveColumn={actions.handleRemoveColumn}
-                    onClickSetBold={handleSetBold}
-                    onClickSetItalic={handleSetItalic}
-                    onClickSetCode={handleSetCode}
-                    setTableSize={setTableSize}
-                    currentRows={state.data.length}
-                    currentCols={state.data[0].length}
-                    clearTable={clearTable}
-                    transposeTable={transposeTable}
-                >
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <FileMenu onCreateNewTable={handleCreateNewTable} onDownloadCSV={handleDownloadCSV} />
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <FileMenu onCreateNewTable={handleCreateNewTable} onDownloadCSV={handleDownloadCSV} />
 
-                        <TableMenu />
-                    </Box>
-                    <div ref={buttonGroupRef}>
-                        <ButtonGroup theme={theme} orientation={toolbarOrientation} />
-                    </div>
-                </ToolbarProvider>
-                <div
-                    ref={containerRef}
-                    style={{
-                        height: tableHeight, // Use height instead of maxHeight
-                        maxHeight: "100%", // Ensure it doesn't exceed the parent's height
-                        overflowY: "auto",
-                        position: "relative",
-                    }}
-                    onScroll={handleScroll}
-                >
-                    <div style={{ height: Math.max(totalHeight, parseFloat(tableHeight)) + "px", position: "relative" }}>
-                        <Table
-                            theme={theme}
-                            onPaste={handlePasteEvent}
-                            ref={tableRef}
-                            style={{
-                                position: "absolute",
-                                top: offsetY,
-                                left: 0,
-                                right: 0,
-                            }}
-                        >
-                            <TableHead style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: theme === "light" ? "#fff" : "#424242" }}>
-                                <TableRow>
-                                    <SelectAllCell theme={theme} selectAll={state.selectAll} toggleSelectAll={toggleSelectAll} />
-                                    {state.data[0].map((_, index) => (
-                                        <ColumnHeaderCell
-                                            key={index}
-                                            index={index}
-                                            theme={theme}
-                                            handleColumnSelection={handleColumnSelection}
-                                            selectedColumns={selectedColumns}
-                                            onAddColumnLeft={handleAddColumnLeft}
-                                            onAddColumnRight={handleAddColumnRight}
-                                            onRemoveColumn={handleRemoveColumn}
-                                        />
-                                    ))}
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {visibleRows.map((row, index) => {
-                                    const rowIndex = startIndex + index;
-                                    return (
-                                        <Row theme={theme} key={rowIndex}>
-                                            <RowNumberCell
-                                                theme={theme}
-                                                onClick={() => handleRowSelection(rowIndex)}
-                                                selectedRows={selectedRows}
-                                                rowIndex={rowIndex}
-                                            >
-                                                {rowIndex + 1}
-                                            </RowNumberCell>
-                                            {row.map((cell, colIndex) => (
-                                                <Cell
-                                                    theme={theme}
-                                                    key={colIndex}
-                                                    rowIndex={rowIndex}
-                                                    colIndex={colIndex}
-                                                    align={state.alignments[rowIndex][colIndex]}
-                                                    selectedCells={state.selectedCells}
-                                                    selectedCell={state.selectedCell}
-                                                    handleCellSelection={handleCellSelection}
-                                                    handleCellChange={handleCellChange}
-                                                    cellData={cell}
-                                                    onMouseDown={handleMouseDown}
-                                                    onMouseEnter={handleMouseEnter}
-                                                    onMouseUp={handleMouseUp}
-                                                />
-                                            ))}
-                                        </Row>
-                                    );
-                                })}
-                            </TableBody>
-                        </Table>
-                    </div>
+                    <TableMenu />
+                </Box>
+                <div ref={buttonGroupRef}>
+                    <ButtonGroup orientation={toolbarOrientation} />
                 </div>
-            </Box>
+            </ToolbarProvider>
+            <div
+                ref={containerRef}
+                style={{
+                    height: tableHeight, // Use height instead of maxHeight
+                    maxHeight: "100%", // Ensure it doesn't exceed the parent's height
+                    overflowY: "auto",
+                    position: "relative",
+                }}
+                onScroll={handleScroll}
+            >
+                <div style={{ height: Math.max(totalHeight, parseFloat(tableHeight)) + "px", position: "relative" }}>
+                    <Table
+                        onPaste={handlePasteEvent}
+                        ref={tableRef}
+                        style={{
+                            position: "absolute",
+                            top: offsetY,
+                            left: 0,
+                            right: 0,
+                        }}
+                    >
+                        <TableHead style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: isDarkMode ? "#424242" : "#fff" }}>
+                            <TableRow>
+                                <SelectAllCell selectAll={state.selectAll} toggleSelectAll={toggleSelectAll} />
+                                {state.data[0].map((_, index) => (
+                                    <ColumnHeaderCell
+                                        key={index}
+                                        index={index}
+                                        handleColumnSelection={handleColumnSelection}
+                                        selectedColumns={selectedColumns}
+                                        onAddColumnLeft={handleAddColumnLeft}
+                                        onAddColumnRight={handleAddColumnRight}
+                                        onRemoveColumn={handleRemoveColumn}
+                                    />
+                                ))}
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {visibleRows.map((row, index) => {
+                                const rowIndex = startIndex + index;
+                                return (
+                                    <Row key={rowIndex}>
+                                        <RowNumberCell
+                                            onClick={() => handleRowSelection(rowIndex)}
+                                            selectedRows={selectedRows}
+                                            rowIndex={rowIndex}
+                                        >
+                                            {rowIndex + 1}
+                                        </RowNumberCell>
+                                        {row.map((cell, colIndex) => (
+                                            <Cell
+                                                key={colIndex}
+                                                rowIndex={rowIndex}
+                                                colIndex={colIndex}
+                                                align={state.alignments[rowIndex][colIndex]}
+                                                selectedCells={state.selectedCells}
+                                                selectedCell={state.selectedCell}
+                                                handleCellSelection={handleCellSelection}
+                                                handleCellChange={handleCellChange}
+                                                cellData={cell}
+                                                onMouseDown={handleMouseDown}
+                                                onMouseEnter={handleMouseEnter}
+                                                onMouseUp={handleMouseUp}
+                                            />
+                                        ))}
+                                    </Row>
+                                );
+                            })}
+                        </TableBody>
+                    </Table>
+                </div>
+            </div>
             <Snackbar
                 anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
                 open={snackbarOpen}
@@ -457,7 +444,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                     </Button>
                 </DialogActions>
             </Dialog>
-        </ThemeProvider>
+        </Box>
     );
 };
 

@@ -1,9 +1,10 @@
 import * as React from "react";
-import { TableContainer as TableContainerMui, Table as TableMui, Paper as PaperMui } from "@mui/material";
+import { TableContainer as TableContainerMui, Table as TableMui, Paper as PaperMui, useTheme } from "@mui/material";
 import { TableProps } from "./types";
 
-const Table = React.forwardRef<HTMLTableElement, TableProps>(({ theme = "light", children, className, onPaste }, ref) => {
-    const isLightTheme = theme === "light";
+const Table = React.forwardRef<HTMLTableElement, TableProps>(({ children, className, onPaste }, ref) => {
+    const theme = useTheme();
+    const isDarkMode = theme.palette.mode === 'dark';
 
     const lightThemeStyles = {
         border: "1px solid #e0e0e0",
@@ -25,9 +26,9 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(({ theme = "light",
     return (
         <div className={className}>
             <TableContainerMui
-                component={isLightTheme ? PaperMui : "div"}
+                component={!isDarkMode ? PaperMui : "div"}
                 sx={{
-                    ...(isLightTheme ? lightThemeStyles : darkThemeStyles),
+                    ...(isDarkMode ? darkThemeStyles : lightThemeStyles),
                     ...commonStyles,
                 }}
                 onPaste={onPaste}
