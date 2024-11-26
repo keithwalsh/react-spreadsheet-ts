@@ -1,9 +1,18 @@
 import { CSSProperties } from "react";
 
+export type Alignment = 'left' | 'center' | 'right' | 'inherit' | 'justify'
+
+export interface CellFormat {
+    bold: boolean
+    italic: boolean
+    code: boolean
+    alignment: Alignment
+}
+
 export interface CellProps {
     rowIndex: number;
     colIndex: number;
-    align: "inherit" | "left" | "center" | "right" | "justify";
+    align: Alignment;
     selectedCells: boolean[][];
     selectedCell: { row: number; col: number } | null;
     handleCellSelection: (rowIndex: number, colIndex: number) => void;

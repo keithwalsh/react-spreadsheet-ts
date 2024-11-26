@@ -1,10 +1,13 @@
-export type Alignment = "left" | "center" | "right";
+export type Alignment = 'left' | 'center' | 'right' | 'inherit' | 'justify'
 
 export type State = {
     data: string[][];
     past: [string[][], Alignment[][]][]; // Each element is a tuple of [data, alignments]
     future: [string[][], Alignment[][]][];
     alignments: Alignment[][];
+    bold: boolean[][];
+    italic: boolean[][];
+    code: boolean[][];
     selectedColumn: number | null;
     selectedRow: number | null;
     selectedCell: { row: number; col: number } | null;
@@ -13,7 +16,12 @@ export type State = {
     isDragging: boolean;
     dragStart: { row: number; col: number } | null;
 };
-
+export interface CellFormat {
+    bold: boolean
+    italic: boolean
+    code: boolean
+    alignment: Alignment
+}
 export type Action =
     | { type: "SET_DATA"; payload: string[][] }
     | { type: "UNDO" }

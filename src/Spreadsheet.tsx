@@ -13,6 +13,7 @@ import {
     Button,
 } from "@mui/material";
 import { useTheme } from '@mui/material/styles'
+import { CellFormat } from "./store/types"
 
 // Internal Components
 import { ButtonGroup, ToolbarProvider, Cell, ColumnHeaderCell, FileMenu, Row, RowNumberCell, SelectAllCell, Table, TableMenu } from "./components";
@@ -33,6 +34,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     tableHeight = '250px',
     value,
     onChange,
+    onFormatChange,
 }) => {
     const theme = useTheme()
     const isDarkMode = theme.palette.mode === 'dark'
@@ -70,9 +72,45 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
     const [confirmDialogAction, setConfirmDialogAction] = useState<(() => void) | null>(null);
 
-    const handleSetBold = useCallback(() => dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "BOLD" } }), [dispatch]);
-    const handleSetItalic = useCallback(() => dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "ITALIC" } }), [dispatch]);
-    const handleSetCode = useCallback(() => dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "CODE" } }), [dispatch]);
+    const handleFormatChange = useCallback(
+        (operation: string, row: number, col: number) => {
+            if (!onFormatChange) return
+
+            const currentCell = state.data[row]?.[col]
+            if (currentCell === undefined) return
+
+            const format: CellFormat = {
+                bold: operation === 'BOLD' ? !state.bold[row]?.[col] : !!state.bold[row]?.[col],
+                italic: operation === 'ITALIC' ? !state.italic[row]?.[col] : !!state.italic[row]?.[col],
+                code: operation === 'CODE' ? !state.code[row]?.[col] : !!state.code[row]?.[col],
+                alignment: state.alignments[row]?.[col] || 'none'
+            }
+
+            onFormatChange(row, col, format)
+        },
+        [onFormatChange, state.bold, state.italic, state.code, state.alignments]
+    )
+
+    const handleSetBold = useCallback(() => {
+        dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "BOLD" } })
+        if (state.selectedCell) {
+            handleFormatChange('BOLD', state.selectedCell.row, state.selectedCell.col)
+        }
+    }, [dispatch, state.selectedCell, handleFormatChange])
+
+    const handleSetItalic = useCallback(() => {
+        dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "ITALIC" } })
+        if (state.selectedCell) {
+            handleFormatChange('ITALIC', state.selectedCell.row, state.selectedCell.col)
+        }
+    }, [dispatch, state.selectedCell, handleFormatChange])
+
+    const handleSetCode = useCallback(() => {
+        dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "CODE" } })
+        if (state.selectedCell) {
+            handleFormatChange('CODE', state.selectedCell.row, state.selectedCell.col)
+        }
+    }, [dispatch, state.selectedCell, handleFormatChange])
 
     const tableRef = useRef<HTMLTableElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -93,7 +131,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     );
 
     useOutsideClick([tableRef, buttonGroupRef], () => dispatch({ type: "CLEAR_SELECTION" }));
-    const actions = useSpreadsheetActions(dispatch);
+    const actions = useSpreadsheetActions(dispatch, handleFormatChange)
 
     const handleDownloadCSV = useCallback(() => {
         try {

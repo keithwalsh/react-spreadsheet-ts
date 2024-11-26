@@ -48,6 +48,9 @@ const SpreadsheetMeta: Meta<SpreadsheetStoryArgs> = {
         },
         onChange: {
             description: 'Callback fired when spreadsheet data changes'
+        },
+        onFormatChange: {
+            description: 'Callback fired when cell formatting changes'
         }
     },
     decorators: [
@@ -90,6 +93,7 @@ export const Default: Story = {
         toolbarOrientation: "horizontal",
         initialRows: 4,
         initialColumns: 5,
-        onChange: fn()
+        onChange: fn(),
+        onFormatChange: fn()
     },
 };
