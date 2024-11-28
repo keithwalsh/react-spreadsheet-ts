@@ -30,12 +30,12 @@ const Cell: React.FC<CellProps> = React.memo(
 
         const handleMouseDownEvent = useCallback(
             (e: React.MouseEvent) => {
+                if (isEditing) {
+                    return;
+                }
                 e.preventDefault();
                 onMouseDown(rowIndex, colIndex);
                 handleCellSelection(rowIndex, colIndex);
-                if (isEditing) {
-                    handleBlur();
-                }
             },
             [rowIndex, colIndex, onMouseDown, handleCellSelection, isEditing]
         );
@@ -88,9 +88,8 @@ const Cell: React.FC<CellProps> = React.memo(
         const handleClick = useCallback(
             (e: React.MouseEvent) => {
                 e.stopPropagation();
-                handleCellSelection(rowIndex, colIndex);
-                if (isEditing) {
-                    handleBlur();
+                if (!isEditing) {
+                    handleCellSelection(rowIndex, colIndex);
                 }
             },
             [rowIndex, colIndex, handleCellSelection, isEditing]
