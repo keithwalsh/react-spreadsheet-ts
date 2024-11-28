@@ -136,13 +136,23 @@ export function reducer(state: State, action: Action): State {
         }
 
         case "HANDLE_PASTE": {
-            const { newData, newAlignments } = action.payload;
-            const newSelectedCells = Array.from({ length: newData.length }, () => Array(newData[0].length).fill(false));
+            const { newData, newAlignments, dimensions } = action.payload;
             return {
                 ...state,
                 data: newData,
                 alignments: newAlignments,
-                selectedCells: newSelectedCells,
+                selectedCells: Array.from({ length: dimensions.rows }, () => 
+                    Array(dimensions.cols).fill(false)
+                ),
+                bold: Array.from({ length: dimensions.rows }, () => 
+                    Array(dimensions.cols).fill(false)
+                ),
+                italic: Array.from({ length: dimensions.rows }, () => 
+                    Array(dimensions.cols).fill(false)
+                ),
+                code: Array.from({ length: dimensions.rows }, () => 
+                    Array(dimensions.cols).fill(false)
+                ),
             };
         }
 

@@ -4,11 +4,23 @@ import { Alignment } from "../store/types";
  * Handles pasting clipboard data into the table.
  * Adjusts the table size if necessary and updates data and alignments.
  */
-export const handlePaste = (clipboardText: string, data: string[][], selectedCell: { row: number; col: number } | null, alignments: Alignment[][]) => {
+export const handlePaste = (
+    clipboardText: string,
+    data: string[][],
+    selectedCell: { row: number; col: number } | null,
+    alignments: Alignment[][]
+): {
+    newData: string[][];
+    newAlignments: Alignment[][];
+    dimensions: {
+        rows: number;
+        cols: number;
+    };
+} => {
     const rows = clipboardText.split(/\r?\n/).filter((row) => row.trim() !== "");
     const parsedData = rows.map((row) => row.split("\t"));
 
-    if (parsedData.length === 0) return { newData: data, newAlignments: alignments };
+    if (parsedData.length === 0) return { newData: data, newAlignments: alignments, dimensions: { rows: data.length, cols: data[0].length } };
 
     const startRow = selectedCell ? selectedCell.row : 0;
     const startCol = selectedCell ? selectedCell.col : 0;
@@ -41,5 +53,12 @@ export const handlePaste = (clipboardText: string, data: string[][], selectedCel
         });
     });
 
-    return { newData, newAlignments };
+    return {
+        newData,
+        newAlignments,
+        dimensions: {
+            rows: newData.length,
+            cols: newData[0].length
+        }
+    };
 };

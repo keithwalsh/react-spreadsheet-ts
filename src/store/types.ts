@@ -38,7 +38,17 @@ export type Action =
     | { type: "ADD_COLUMN"; payload: { index: number; position: "left" | "right" } }
     | { type: "REMOVE_COLUMN"; payload: { index: number } }
     | { type: "SET_ALIGNMENT"; payload: Alignment }
-    | { type: "HANDLE_PASTE"; payload: { newData: string[][]; newAlignments: Alignment[][] } }
+    | {
+        type: "HANDLE_PASTE";
+        payload: {
+            newData: string[][];
+            newAlignments: Alignment[][];
+            dimensions: {
+                rows: number;
+                cols: number;
+            };
+        };
+    }
     | { type: "START_DRAG"; payload: { row: number; col: number } }
     | { type: "UPDATE_DRAG"; payload: { row: number; col: number } }
     | { type: "END_DRAG" }

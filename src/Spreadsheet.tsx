@@ -162,8 +162,8 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
             e.preventDefault();
             if (!state.selectedCell) return;
             const clipboardText = e.clipboardData.getData("Text");
-            const { newData, newAlignments } = handlePaste(clipboardText, state.data, state.selectedCell, state.alignments);
-            dispatch({ type: "HANDLE_PASTE", payload: { newData, newAlignments } });
+            const result = handlePaste(clipboardText, state.data, state.selectedCell, state.alignments);
+            dispatch({ type: "HANDLE_PASTE", payload: result });
         },
         [state, dispatch]
     );
