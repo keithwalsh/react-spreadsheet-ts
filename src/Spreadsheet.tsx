@@ -347,6 +347,24 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
         });
     });
 
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Delete' && state.selectedCells) {
+                const newData = state.data.map((row, rowIndex) =>
+                    row.map((cell, colIndex) =>
+                        state.selectedCells[rowIndex]?.[colIndex] ? '' : cell
+                    )
+                )
+                dispatch({ type: 'SET_DATA', payload: newData })
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [state.data, state.selectedCells, dispatch])
+
     return (
         <Box
             sx={{
