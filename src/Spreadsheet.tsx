@@ -16,7 +16,7 @@ import { useTheme } from '@mui/material/styles'
 import { CellFormat } from "./store/types"
 
 // Internal Components
-import { ButtonGroup, ToolbarProvider, Cell, ColumnHeaderCell, FileMenu, Row, RowNumberCell, SelectAllCell, Table, TableMenu } from "./components";
+import { ButtonGroup, ToolbarProvider, Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, Table, TableMenu } from "./components";
 
 // Hooks, Utilities, Store and Types
 import { useOutsideClick, useSpreadsheetActions } from "./hooks";
@@ -394,9 +394,10 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                 transposeTable={transposeTable}
             >
                 <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <FileMenu onCreateNewTable={handleCreateNewTable} onDownloadCSV={handleDownloadCSV} />
-
-                    <TableMenu />
+                    <TableMenu 
+                        onCreateNewTable={handleCreateNewTable} 
+                        onDownloadCSV={handleDownloadCSV}
+                    />
                 </Box>
                 <div ref={buttonGroupRef}>
                     <ButtonGroup orientation={toolbarOrientation} />
