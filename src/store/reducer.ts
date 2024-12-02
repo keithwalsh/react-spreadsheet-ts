@@ -1,5 +1,6 @@
 import { Action, State, Alignment } from "../types";
 import { adjustTableSize, addRow, removeRow, addColumn, removeColumn, markSelectedCells } from "../utils";
+import { isCellSelected } from '../utils'
 
 /**
  * The reducer function to manage table state.
@@ -19,13 +20,7 @@ export function reducer(state: State, action: Action): State {
             const alignment = action.payload;
             const newAlignments = state.alignments.map((row, rowIndex) =>
                 row.map((cellAlignment, colIndex) => {
-                    if (
-                        state.selectAll ||
-                        (state.selectedColumn !== null && colIndex === state.selectedColumn) ||
-                        (state.selectedRow !== null && rowIndex === state.selectedRow) ||
-                        (state.selectedCell !== null && rowIndex === state.selectedCell.row && colIndex === state.selectedCell.col) ||
-                        state.selectedCells[rowIndex][colIndex]
-                    ) {
+                    if (isCellSelected({ state, rowIndex, colIndex })) {
                         return alignment;
                     }
                     return cellAlignment;
@@ -159,14 +154,7 @@ export function reducer(state: State, action: Action): State {
             const { operation } = action.payload;
             const newData = state.data.map((row, rowIndex) =>
                 row.map((cell, colIndex) => {
-                    if (
-                        (state.selectAll ||
-                            (state.selectedColumn !== null && colIndex === state.selectedColumn) ||
-                            (state.selectedRow !== null && rowIndex === state.selectedRow) ||
-                            (state.selectedCell !== null && rowIndex === state.selectedCell.row && colIndex === state.selectedCell.col) ||
-                            state.selectedCells[rowIndex][colIndex]) &&
-                        cell.trim() !== ""
-                    ) {
+                    if (isCellSelected({ state, rowIndex, colIndex }) && cell.trim() !== "") {
                         switch (operation) {
                             case "BOLD":
                                 return cell.startsWith("**") && cell.endsWith("**") ? cell.slice(2, -2) : `**${cell}**`;
