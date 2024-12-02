@@ -8,7 +8,7 @@ import { MenuBar } from "mui-menubar"
 import { createMenuConfig } from "../config/menuConfig"
 import TableSizeChooser from "./TableSizeChooser"
 import NewTableModal from "./NewTableModal"
-import { TableMenuProps } from "../types"
+import { TableMenuProps, TableSizeChooserProps } from "../types"
 import { ToolbarContext } from "./ToolbarProvider"
 
 interface ToolbarContextType {
@@ -48,6 +48,10 @@ export const TableMenu: React.FC<TableMenuProps> = ({ onCreateNewTable, onDownlo
         setNewTableModalOpen(false)
     }
 
+    const TableSizeChooserWithProps = (props: Omit<TableSizeChooserProps, 'maxRows' | 'maxCols'>) => (
+        <TableSizeChooser {...props} maxRows={20} maxCols={20} />
+    )
+
     const menuConfig = createMenuConfig({
         handleNewTable,
         onDownloadCSV,
@@ -56,7 +60,7 @@ export const TableMenu: React.FC<TableMenuProps> = ({ onCreateNewTable, onDownlo
         transposeTable: handlers.transposeTable,
         currentRows,
         currentCols,
-        TableSizeChooser
+        TableSizeChooser: TableSizeChooserWithProps
     })
 
     return (
