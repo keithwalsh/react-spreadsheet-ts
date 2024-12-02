@@ -20,7 +20,8 @@
         "test:watch": "jest --config jest.config.js --watch",
         "test:ci": "jest --config jest.config.js --coverage --ci",
         "chromatic": "npx chromatic --project-token=chpt_f27eb1096154ed4",
-        "prepare": "npm run build"
+        "prepare": "npm run build",
+        "release": "npm publish --access public"
     },
     "publishConfig": {
         "access": "public"

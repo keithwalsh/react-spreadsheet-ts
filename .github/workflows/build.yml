@@ -35,20 +35,8 @@ jobs:
             - name: Install dependencies
               run: npm install
 
-            - name: Run commit-and-tag-version
-              run: npm run release
-              env:
-                  GITHUB_TOKEN: ${{ secrets.PAT_TOKEN3 }}
-
-            - name: Push changes and tags
-              env:
-                  GITHUB_TOKEN: ${{ secrets.PAT_TOKEN3 }}
-              run: |
-                  git push origin main
-                  git push origin --tags
-
             - name: Publish to npm
-              run: npm publish --access public --force
+              run: npm run release
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN1 }}
 
