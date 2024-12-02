@@ -1,4 +1,4 @@
-import { Alignment } from "../types";
+import { Alignment, PasteOperationResult } from "../types";
 
 /**
  * Handles pasting clipboard data into the table.
@@ -9,14 +9,7 @@ export const handlePaste = (
     data: string[][],
     selectedCell: { row: number; col: number } | null,
     alignments: Alignment[][]
-): {
-    newData: string[][];
-    newAlignments: Alignment[][];
-    dimensions: {
-        rows: number;
-        cols: number;
-    };
-} => {
+): PasteOperationResult => {
     const rows = clipboardText.split(/\r?\n/).filter((row) => row.trim() !== "");
     const parsedData = rows.map((row) => row.split("\t"));
 
