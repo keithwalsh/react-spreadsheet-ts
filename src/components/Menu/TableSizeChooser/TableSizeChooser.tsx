@@ -7,7 +7,7 @@ const TableSizeChooser: React.FC<TableSizeChooserProps> = ({ maxRows = 20, maxCo
     const [hoveredCol, setHoveredCol] = useState(0);
     const [inputRows, setInputRows] = useState(currentRows.toString());
     const [inputCols, setInputCols] = useState(currentCols.toString());
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
         setInputRows(currentRows.toString());
