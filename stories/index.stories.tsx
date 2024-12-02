@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from "@storybook/react";
 import { fn } from '@storybook/test'
 import { ThemeProvider, createTheme } from '@mui/material';
-import Spreadsheet from "../src/Spreadsheet";
+import Spreadsheet from "../src/components/Spreadsheet";
 import { SpreadsheetProps } from "../src/types";
 
 interface SpreadsheetStoryArgs extends SpreadsheetProps {

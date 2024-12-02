@@ -13,19 +13,44 @@ import {
     Button,
 } from "@mui/material";
 import { useTheme } from '@mui/material/styles'
-import { CellFormat } from "./types"
+import { CellFormat } from "../types"
 
 // Internal Components
-import { ButtonGroup, ToolbarProvider, Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, Table, TableMenu } from "./components";
+import { ButtonGroup, ToolbarProvider, Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, Table, TableMenu } from ".";
 
 // Hooks, Utilities, Store and Types
-import { useOutsideClick, useSpreadsheetActions } from "./hooks";
-import { handlePaste, downloadCSV } from "./utils";
-import { initialState, reducer } from "./store";
-import { SpreadsheetProps } from "./types";
+import { useOutsideClick, useSpreadsheetActions } from "../hooks";
+import { handlePaste, downloadCSV } from "../utils";
+import { initialState, reducer } from "../store";
+import { SpreadsheetProps } from "../types";
 
 const ROW_HEIGHT = 37;
 const BUFFER_SIZE = 10;
+
+// Create a generic drag handler factory
+const createDragHandler = (
+    dragType: 'ROW' | 'COLUMN',
+    dispatch: React.Dispatch<any>,
+    dragStartValue: number | null
+) => (index: number) => {
+    if (dragStartValue !== null) {
+        dispatch({ 
+            type: `UPDATE_${dragType}_SELECTION`, 
+            payload: index 
+        })
+    }
+}
+
+// Add this factory function near the other one
+const createDragEndHandler = (
+    dragType: 'ROW' | 'COLUMN',
+    dispatch: React.Dispatch<any>,
+    dragStartValue: number | null
+) => () => {
+    if (dragStartValue !== null) {
+        dispatch({ type: `END_${dragType}_SELECTION` })
+    }
+}
 
 export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     toolbarOrientation = 'horizontal',
@@ -91,26 +116,16 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
         [onFormatChange, state.bold, state.italic, state.code, state.alignments]
     )
 
-    const handleSetBold = useCallback(() => {
-        dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "BOLD" } })
+    const handleTextFormatting = useCallback((operation: 'BOLD' | 'ITALIC' | 'CODE') => {
+        dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation } })
         if (state.selectedCell) {
-            handleFormatChange('BOLD', state.selectedCell.row, state.selectedCell.col)
+            handleFormatChange(operation, state.selectedCell.row, state.selectedCell.col)
         }
     }, [dispatch, state.selectedCell, handleFormatChange])
 
-    const handleSetItalic = useCallback(() => {
-        dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "ITALIC" } })
-        if (state.selectedCell) {
-            handleFormatChange('ITALIC', state.selectedCell.row, state.selectedCell.col)
-        }
-    }, [dispatch, state.selectedCell, handleFormatChange])
-
-    const handleSetCode = useCallback(() => {
-        dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "CODE" } })
-        if (state.selectedCell) {
-            handleFormatChange('CODE', state.selectedCell.row, state.selectedCell.col)
-        }
-    }, [dispatch, state.selectedCell, handleFormatChange])
+    const handleSetBold = useCallback(() => handleTextFormatting('BOLD'), [handleTextFormatting])
+    const handleSetItalic = useCallback(() => handleTextFormatting('ITALIC'), [handleTextFormatting])
+    const handleSetCode = useCallback(() => handleTextFormatting('CODE'), [handleTextFormatting])
 
     const tableRef = useRef<HTMLTableElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -174,22 +189,23 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
         [state.data, state.selectedCell, state.alignments, dispatch]
     );
 
-    const handleAddColumnLeft = useCallback(
-        (index: number) => {
-            dispatch({ type: "ADD_COLUMN", payload: { index, position: "left" } });
+    const handleAddColumn = useCallback(
+        (index: number, position: 'left' | 'right') => {
+            dispatch({ type: "ADD_COLUMN", payload: { index, position } });
             setSnackbarMessage("Column added successfully.");
             setSnackbarOpen(true);
         },
         [dispatch]
     );
 
+    const handleAddColumnLeft = useCallback(
+        (index: number) => handleAddColumn(index, 'left'),
+        [handleAddColumn]
+    );
+
     const handleAddColumnRight = useCallback(
-        (index: number) => {
-            dispatch({ type: "ADD_COLUMN", payload: { index, position: "right" } });
-            setSnackbarMessage("Column added successfully.");
-            setSnackbarOpen(true);
-        },
-        [dispatch]
+        (index: number) => handleAddColumn(index, 'right'),
+        [handleAddColumn]
     );
 
     const handleRemoveColumn = useCallback(
@@ -395,33 +411,29 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
         dispatch({ type: "START_ROW_SELECTION", payload: rowIndex });
     }, [dispatch]);
 
-    const handleRowDragEnter = useCallback((rowIndex: number) => {
-        if (state.dragStartRow !== null) {
-            dispatch({ type: "UPDATE_ROW_SELECTION", payload: rowIndex });
-        }
-    }, [state.dragStartRow, dispatch]);
+    const handleRowDragEnter = useCallback(
+        createDragHandler('ROW', dispatch, state.dragStartRow),
+        [state.dragStartRow, dispatch]
+    );
 
-    const handleRowDragEnd = useCallback(() => {
-        if (state.dragStartRow !== null) {
-            dispatch({ type: "END_ROW_SELECTION" });
-        }
-    }, [state.dragStartRow, dispatch]);
+    const handleRowDragEnd = useCallback(
+        createDragEndHandler('ROW', dispatch, state.dragStartRow),
+        [state.dragStartRow, dispatch]
+    );
 
     const handleColumnDragStart = useCallback((colIndex: number) => {
         dispatch({ type: "START_COLUMN_SELECTION", payload: colIndex });
     }, [dispatch]);
 
-    const handleColumnDragEnter = useCallback((colIndex: number) => {
-        if (state.dragStartColumn !== null) {
-            dispatch({ type: "UPDATE_COLUMN_SELECTION", payload: colIndex });
-        }
-    }, [state.dragStartColumn, dispatch]);
+    const handleColumnDragEnter = useCallback(
+        createDragHandler('COLUMN', dispatch, state.dragStartColumn),
+        [state.dragStartColumn, dispatch]
+    );
 
-    const handleColumnDragEnd = useCallback(() => {
-        if (state.dragStartColumn !== null) {
-            dispatch({ type: "END_COLUMN_SELECTION" });
-        }
-    }, [state.dragStartColumn, dispatch]);
+    const handleColumnDragEnd = useCallback(
+        createDragEndHandler('COLUMN', dispatch, state.dragStartColumn),
+        [state.dragStartColumn, dispatch]
+    );
 
     return (
         <Box
