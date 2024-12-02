@@ -1,5 +1,10 @@
 # react-spreadsheet-ts
 
+![Build](https://github.com/keithwalsh/react-spreadsheet-ts/actions/workflows/build.yml/badge.svg)
+[![NPM Version](https://img.shields.io/npm/v/react-spreadsheet-ts.svg)](https://www.npmjs.com/package/react-spreadsheet-ts)
+[![Code Climate](https://codeclimate.com/github/keithwalsh/react-spreadsheet-ts/badges/gpa.svg)](https://codeclimate.com/github/keithwalsh/react-spreadsheet-ts)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)
+
 A lightweight, fully-typed React spreadsheet component built with TypeScript and Material-UI (MUI). 
 
 ## Features
