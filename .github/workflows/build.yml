@@ -49,9 +49,16 @@ jobs:
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN2 }}
 
-            - name: Get latest tag
-              id: get_tag
-              run: echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+            - name: Get version from package.json
+              id: package_version
+              run: |
+                VERSION=$(node -p "require('./package.json').version")
+                echo "version=v${VERSION}" >> $GITHUB_OUTPUT
+
+            - name: Create Git tag
+              run: |
+                git tag ${{ steps.package_version.outputs.version }}
+                git push origin ${{ steps.package_version.outputs.version }}
 
             - name: Create GitHub Release
               id: create_release
@@ -59,10 +66,10 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.PAT_TOKEN3 }}
               with:
-                  tag_name: ${{ steps.get_tag.outputs.tag }}
-                  release_name: Release ${{ steps.get_tag.outputs.tag }}
+                  tag_name: ${{ steps.package_version.outputs.version }}
+                  release_name: Release ${{ steps.package_version.outputs.version }}
                   body: |
-                      Automated release for version ${{ steps.get_tag.outputs.tag }}.
+                      Automated release for version ${{ steps.package_version.outputs.version }}
                   draft: false
                   prerelease: false
 
