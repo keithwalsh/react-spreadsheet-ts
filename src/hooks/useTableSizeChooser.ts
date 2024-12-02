@@ -1,8 +1,8 @@
 /**
- * @fileoverview Custom hook for managing the table size chooser logic.
+ * @fileoverview Manages the logic for the table size chooser component.
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { UseTableSizeChooserProps, UseTableSizeChooserReturn } from '../types';
 
 export function useTableSizeChooser({
@@ -16,56 +16,53 @@ export function useTableSizeChooser({
   const [hoveredCol, setHoveredCol] = useState(0);
   const [inputRows, setInputRows] = useState(currentRows.toString());
   const [inputCols, setInputCols] = useState(currentCols.toString());
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeoutRef = useRef<number | undefined>();
 
   useEffect(() => {
     setInputRows(currentRows.toString());
     setInputCols(currentCols.toString());
   }, [currentRows, currentCols]);
 
-  const handleMouseEnter = useCallback((rowIndex: number, colIndex: number) => {
+  function handleMouseEnter(rowIndex: number, colIndex: number) {
     setHoveredRow(rowIndex);
     setHoveredCol(colIndex);
     setInputRows((rowIndex + 1).toString());
     setInputCols((colIndex + 1).toString());
-  }, []);
+  }
 
-  const handleClick = useCallback(() => {
+  function handleClick() {
     onSizeSelect(hoveredRow + 1, hoveredCol + 1);
-  }, [onSizeSelect, hoveredRow, hoveredCol]);
+  }
 
-  const handleInputChange = useCallback(
-    (type: 'rows' | 'cols', value: string) => {
-      const numValue = parseInt(value, 10);
-      if (isNaN(numValue)) return;
+  function handleInputChange(type: 'rows' | 'cols', value: string) {
+    const numValue = parseInt(value, 10);
+    if (isNaN(numValue)) return;
 
-      if (type === 'rows') {
-        setInputRows(value);
-        setHoveredRow(Math.min(numValue - 1, maxRows - 1));
-      } else {
-        setInputCols(value);
-        setHoveredCol(Math.min(numValue - 1, maxCols - 1));
-      }
-    },
-    [maxRows, maxCols]
-  );
+    if (type === 'rows') {
+      setInputRows(value);
+      setHoveredRow(Math.min(numValue - 1, maxRows - 1));
+    } else {
+      setInputCols(value);
+      setHoveredCol(Math.min(numValue - 1, maxCols - 1));
+    }
+  }
 
-  const handleInputBlur = useCallback(() => {
-    if (timeoutRef.current) {
+  function handleInputBlur() {
+    if (timeoutRef.current !== undefined) {
       clearTimeout(timeoutRef.current);
     }
-    timeoutRef.current = setTimeout(() => {
+    timeoutRef.current = window.setTimeout(() => {
       const rows = Math.max(1, Math.min(parseInt(inputRows, 10), maxRows));
       const cols = Math.max(1, Math.min(parseInt(inputCols, 10), maxCols));
       onSizeSelect(rows, cols);
     }, 200);
-  }, [inputRows, inputCols, maxRows, maxCols, onSizeSelect]);
+  }
 
-  const handleInputFocus = useCallback(() => {
-    if (timeoutRef.current) {
+  function handleInputFocus() {
+    if (timeoutRef.current !== undefined) {
       clearTimeout(timeoutRef.current);
     }
-  }, []);
+  }
 
   return {
     hoveredRow,
