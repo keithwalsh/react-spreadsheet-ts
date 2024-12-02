@@ -83,7 +83,6 @@ export function reducer(state: State, action: Action): State {
         case "SET_SELECTED_ROW":
         case "SET_SELECTED_CELL":
         case "SET_SELECTED_CELLS":
-        case "SET_SELECT_ALL":
         case "CLEAR_SELECTION":
             return {
                 ...state,
@@ -96,7 +95,7 @@ export function reducer(state: State, action: Action): State {
                         : action.type === "CLEAR_SELECTION"
                         ? Array.from({ length: state.data.length }, () => Array(state.data[0].length).fill(false))
                         : state.selectedCells,
-                selectAll: action.type === "SET_SELECT_ALL" ? action.payload : false,
+                selectAll: false,
             };
 
         case "ADD_ROW":
