@@ -72,6 +72,12 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
     const [confirmDialogAction, setConfirmDialogAction] = useState<(() => void) | null>(null);
 
+    const toggleFormat = (operation: string, currentState: boolean | undefined): boolean => {
+        return operation === 'BOLD' || operation === 'ITALIC' || operation === 'CODE'
+            ? !currentState
+            : !!currentState
+    }
+
     const handleFormatChange = useCallback(
         (operation: string, row: number, col: number) => {
             if (!onFormatChange) return
@@ -80,9 +86,9 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
             if (currentCell === undefined) return
 
             const format: CellFormat = {
-                bold: operation === 'BOLD' ? !state.bold[row]?.[col] : !!state.bold[row]?.[col],
-                italic: operation === 'ITALIC' ? !state.italic[row]?.[col] : !!state.italic[row]?.[col],
-                code: operation === 'CODE' ? !state.code[row]?.[col] : !!state.code[row]?.[col],
+                bold: toggleFormat(operation, state.bold[row]?.[col]),
+                italic: toggleFormat(operation, state.italic[row]?.[col]),
+                code: toggleFormat(operation, state.code[row]?.[col]),
                 alignment: state.alignments[row]?.[col] || 'none'
             }
 
