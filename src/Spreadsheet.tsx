@@ -158,14 +158,20 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     );
 
     const handlePasteEvent = useCallback(
-        (e: React.ClipboardEvent<HTMLDivElement>) => {
+        (e: React.ClipboardEvent<HTMLDivElement> | ClipboardEvent) => {
             e.preventDefault();
-            if (!state.selectedCell) return;
-            const clipboardText = e.clipboardData.getData("Text");
-            const result = handlePaste(clipboardText, state.data, state.selectedCell, state.alignments);
+            if (!state.selectedCell) {
+                dispatch({
+                    type: "SET_SELECTED_CELL",
+                    payload: { row: 0, col: 0 },
+                });
+            }
+            const clipboardText = (e as ClipboardEvent).clipboardData?.getData("Text") || 
+                                (e as React.ClipboardEvent<HTMLDivElement>).clipboardData.getData("Text");
+            const result = handlePaste(clipboardText, state.data, state.selectedCell || { row: 0, col: 0 }, state.alignments);
             dispatch({ type: "HANDLE_PASTE", payload: result });
         },
-        [state, dispatch]
+        [state.data, state.selectedCell, state.alignments, dispatch]
     );
 
     const handleAddColumnLeft = useCallback(
@@ -365,6 +371,26 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
         }
     }, [state.data, state.selectedCells, dispatch])
 
+    useEffect(() => {
+        if (containerRef.current) {
+            containerRef.current.focus();
+        }
+    }, []);
+
+    useEffect(() => {
+        const handleGlobalPaste = (e: ClipboardEvent) => {
+            if (document.activeElement === containerRef.current || 
+                containerRef.current?.contains(document.activeElement)) {
+                handlePasteEvent(e);
+            }
+        };
+
+        document.addEventListener('paste', handleGlobalPaste);
+        return () => {
+            document.removeEventListener('paste', handleGlobalPaste);
+        };
+    }, [handlePasteEvent]);
+
     return (
         <Box
             sx={{
@@ -406,12 +432,15 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
             <div
                 ref={containerRef}
                 style={{
-                    height: tableHeight, // Use height instead of maxHeight
-                    maxHeight: "100%", // Ensure it doesn't exceed the parent's height
+                    height: tableHeight,
+                    maxHeight: "100%",
                     overflowY: "auto",
                     position: "relative",
+                    outline: "none",
                 }}
                 onScroll={handleScroll}
+                tabIndex={0}
+                onPaste={handlePasteEvent}
             >
                 <div style={{ height: Math.max(totalHeight, parseFloat(tableHeight)) + "px", position: "relative" }}>
                     <Table
