@@ -8,6 +8,14 @@ type OperationParams = {
     position?: "left" | "right";
 };
 
+function spliceColumn<T>(matrix: T[][], index: number): T[][] {
+    return matrix.map((row) => {
+        const newRow = [...row]
+        newRow.splice(index, 1)
+        return newRow
+    })
+}
+
 export const addRow = ({ data, alignments, selectedCells }: OperationParams) => {
     const newRow = Array(data[0].length).fill("");
     const newAlignmentRow = Array(alignments[0].length).fill("left" as Alignment);
@@ -52,22 +60,11 @@ export const addColumn = ({ data, alignments, selectedCells, index = 0, position
 
 export const removeColumn = ({ data, alignments, selectedCells, index = 0 }: OperationParams) => {
     if (data[0].length > 1) {
-        const newData = data.map((row) => {
-            const newRow = [...row];
-            newRow.splice(index, 1);
-            return newRow;
-        });
-        const newAlignments = alignments.map((row) => {
-            const newRow = [...row];
-            newRow.splice(index, 1);
-            return newRow;
-        });
-        const newSelectedCells = selectedCells.map((row) => {
-            const newRow = [...row];
-            newRow.splice(index, 1);
-            return newRow;
-        });
-        return { newData, newAlignments, newSelectedCells };
+        return {
+            newData: spliceColumn(data, index),
+            newAlignments: spliceColumn(alignments, index),
+            newSelectedCells: spliceColumn(selectedCells, index),
+        }
     }
-    return { newData: data, newAlignments: alignments, newSelectedCells: selectedCells };
+    return { newData: data, newAlignments: alignments, newSelectedCells: selectedCells }
 };
