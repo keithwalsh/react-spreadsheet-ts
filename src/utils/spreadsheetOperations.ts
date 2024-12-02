@@ -1,4 +1,4 @@
-import { Alignment } from "../store/types";
+import { Alignment } from "../types";
 
 type OperationParams = {
     data: string[][];

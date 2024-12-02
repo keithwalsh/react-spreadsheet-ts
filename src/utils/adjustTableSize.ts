@@ -1,6 +1,6 @@
 // src/utils/adjustTableSize.ts
 
-import { Alignment } from "../store/types";
+import { Alignment } from "../types";
 
 export const adjustTableSize = (
     existingData: string[][],

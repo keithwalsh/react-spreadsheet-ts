@@ -1,4 +1,4 @@
-import { Action, State, Alignment } from "./types";
+import { Action, State, Alignment } from "../types";
 import { adjustTableSize, addRow, removeRow, addColumn, removeColumn, markSelectedCells } from "../utils";
 
 /**

@@ -1,6 +1,6 @@
 import React from "react";
 import { Menu, MenuItem } from "@mui/material";
-import { ColumnContextMenuProps } from "./types";
+import { ColumnContextMenuProps } from "../types";
 
 const ColumnContextMenu: React.FC<ColumnContextMenuProps> = ({ anchorEl, open, onClose, onAddLeft, onAddRight, onRemove }) => {
     return (

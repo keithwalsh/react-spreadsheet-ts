@@ -13,7 +13,7 @@ import {
     Button,
 } from "@mui/material";
 import { useTheme } from '@mui/material/styles'
-import { CellFormat } from "./store/types"
+import { CellFormat } from "./types"
 
 // Internal Components
 import { ButtonGroup, ToolbarProvider, Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, Table, TableMenu } from "./components";

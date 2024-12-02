@@ -1,6 +1,6 @@
 // hooks/useSpreadsheetActions.ts
 import { useCallback } from "react";
-import { Alignment, State } from "../store/types";
+import { Alignment, State } from "../types";
 
 const useSpreadsheetActions = (
     dispatch: React.Dispatch<any>,

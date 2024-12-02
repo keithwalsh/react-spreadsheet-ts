@@ -1,7 +1,7 @@
 import * as React from "react";
 import { TableCell as TableCellMui, useTheme } from "@mui/material";
-import ColumnContextMenu from "../ColumnContextMenu/ColumnContextMenu";
-import { ColumnHeaderCellProps } from "./types";
+import ColumnContextMenu from "./ColumnContextMenu";
+import { ColumnHeaderCellProps } from "../types";
 
 const ColumnHeaderCell: React.FC<ColumnHeaderCellProps> = ({
     index,

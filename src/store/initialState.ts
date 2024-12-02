@@ -1,4 +1,4 @@
-import { State } from "./types";
+import { State } from "../types";
 
 export const initialState = (rows: number, columns: number): State => ({
     data: Array.from({ length: rows }, () => Array(columns).fill("")),

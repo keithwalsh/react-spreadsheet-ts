@@ -1,6 +1,6 @@
 import * as React from "react";
 import { TableContainer as TableContainerMui, Table as TableMui, Paper as PaperMui, useTheme } from "@mui/material";
-import { TableProps } from "./types";
+import { TableProps } from "../types";
 
 const Table = React.forwardRef<HTMLTableElement, TableProps>(({ children, className, onPaste }, ref) => {
     const theme = useTheme();

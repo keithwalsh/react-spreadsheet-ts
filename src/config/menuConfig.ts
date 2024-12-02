@@ -68,7 +68,7 @@ export function createMenuConfig(params: MenuConfigParams): MenuConfig[] {
           label: "Set size",
           items: [
             {
-              kind: "component",
+              kind: "custom",
               component: React.createElement(TableSizeChooser, {
                 onSizeSelect: handleSizeSelect,
                 currentRows,

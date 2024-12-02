@@ -1,4 +1,4 @@
-import { Alignment } from "../store/types";
+import { Alignment } from "../types";
 
 /**
  * Handles pasting clipboard data into the table.

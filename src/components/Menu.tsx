@@ -5,11 +5,11 @@
 
 import React, { useContext, useCallback, useState } from "react"
 import { MenuBar } from "mui-menubar"
-import { createMenuConfig } from "../../config/menuConfig"
-import TableSizeChooser from "./TableSizeChooser/TableSizeChooser"
-import NewTableModal from "./NewTableModal/NewTableModal"
-import { TableMenuProps } from "./types"
-import { ToolbarContext } from "../ToolbarProvider/ToolbarProvider"
+import { createMenuConfig } from "../config/menuConfig"
+import TableSizeChooser from "./TableSizeChooser"
+import NewTableModal from "./NewTableModal"
+import { TableMenuProps } from "../types"
+import { ToolbarContext } from "./ToolbarProvider"
 
 interface ToolbarContextType {
     currentRows: number
