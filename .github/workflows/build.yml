@@ -35,10 +35,15 @@ jobs:
             - name: Install dependencies
               run: npm install
 
+            - name: Setup npm authentication
+              run: |
+                  echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN2 }}" > ~/.npmrc
+                  npm whoami
+
             - name: Publish to npm
               run: npm run release
               env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN1 }}
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN2 }}
 
             - name: Get latest tag
               id: get_tag
