@@ -4,4 +4,5 @@
 
 import useOutsideClick from "./useOutsideClick";
 import useSpreadsheetActions from "./useSpreadsheetActions";
-export { useOutsideClick, useSpreadsheetActions };
+import { useTableSizeChooser } from "./useTableSizeChooser";
+export { useOutsideClick, useSpreadsheetActions, useTableSizeChooser };

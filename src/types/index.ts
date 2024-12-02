@@ -241,3 +241,25 @@ export interface ToolbarContextType {
 export interface ToolbarProviderProps extends ToolbarContextType {
     children: React.ReactNode;
 }
+
+export interface UseTableSizeChooserProps {
+    maxRows: number;
+    maxCols: number;
+    currentRows: number;
+    currentCols: number;
+    onSizeSelect: (rows: number, cols: number) => void;
+  }
+  
+  export interface UseTableSizeChooserReturn {
+    hoveredRow: number;
+    hoveredCol: number;
+    inputRows: string;
+    inputCols: string;
+    handleMouseEnter: (rowIndex: number, colIndex: number) => void;
+    handleClick: () => void;
+    handleInputChange: (type: 'rows' | 'cols', value: string) => void;
+    handleInputBlur: () => void;
+    handleInputFocus: () => void;
+    setHoveredRow: React.Dispatch<React.SetStateAction<number>>;
+    setHoveredCol: React.Dispatch<React.SetStateAction<number>>;
+  }

@@ -3,5 +3,6 @@
  */
 
 import { useHeaderCellStyles } from "./useHeaderCellStyles";
+import { useTableSizeChooserStyles } from "./useTableSizeChooserStyles";
 
-export { useHeaderCellStyles };
+export { useHeaderCellStyles, useTableSizeChooserStyles };

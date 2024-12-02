@@ -2,18 +2,18 @@
  * @fileoverview Provides styles for header cells based on theme mode.
  */
 
-import { useTheme } from "@mui/material";
+import { useTheme } from "@mui/material"
 
-interface HeaderCellStylesParams {
-  isSelected: boolean;
-  isHovered: boolean;
-}
+const COLORS = {
+  dark: { text: "#BEBFC0", border: "#686868", bgSelected: "#686868", bgHover: "#515151", bgDefault: "#414547" },
+  light: { text: "rgba(0, 0, 0, 0.54)", border: "#e0e0e0", bgSelected: "#e0e0e0", bgHover: "#f5f5f5", bgDefault: "#f0f0f0" }
+} as const
 
-export function useHeaderCellStyles({ isSelected, isHovered }: HeaderCellStylesParams) {
-  const theme = useTheme();
-  const isDarkMode = theme.palette.mode === 'dark';
+export function useHeaderCellStyles({ isSelected, isHovered }: { isSelected: boolean, isHovered: boolean }) {
+  const { palette } = useTheme()
+  const colors = palette.mode === 'dark' ? COLORS.dark : COLORS.light
 
-  const baseStyles = {
+  return {
     cursor: "pointer",
     userSelect: "none",
     textAlign: "center",
@@ -21,24 +21,10 @@ export function useHeaderCellStyles({ isSelected, isHovered }: HeaderCellStylesP
     height: "1px",
     lineHeight: "1",
     fontSize: "0.8rem",
-  };
-
-  if (isDarkMode) {
-    return {
-      ...baseStyles,
-      color: "#BEBFC0",
-      backgroundColor: isSelected ? "#686868" : isHovered ? "#515151" : "#414547",
-      borderRight: "1px solid #686868",
-      borderBottom: "1px solid #686868",
-      "&:hover": { backgroundColor: "#686868" },
-    };
+    color: colors.text,
+    borderRight: `1px solid ${colors.border}`,
+    ...(palette.mode === 'dark' && { borderBottom: `1px solid ${colors.border}` }),
+    backgroundColor: isSelected ? colors.bgSelected : isHovered ? colors.bgHover : colors.bgDefault,
+    "&:hover": { backgroundColor: colors.bgSelected }
   }
-
-  return {
-    ...baseStyles,
-    color: "rgba(0, 0, 0, 0.54)",
-    backgroundColor: isSelected ? "#e0e0e0" : isHovered ? "#f5f5f5" : "#f0f0f0",
-    borderRight: "1px solid #e0e0e0",
-    "&:hover": { backgroundColor: "#e0e0e0" },
-  };
 } 
