@@ -2,7 +2,22 @@
  * @fileoverview Selection state utility functions for the spreadsheet component
  */
 
-import { State } from '../types'
+import { SelectionRange, State } from '../types'
+import { markSelectedCells } from './markSelectedCells'
+
+export function createSelectionMatrix({
+    data,
+    selection
+}: {
+    data: string[][]
+    selection: SelectionRange
+}): boolean[][] {
+    return markSelectedCells(
+        data.length,
+        data[0].length,
+        selection
+    )
+}
 
 export function isCellSelected({ 
     state, 

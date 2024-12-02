@@ -22,7 +22,8 @@ import { ButtonGroup, ToolbarProvider, Cell, ColumnHeaderCell, Row, RowNumberCel
 import { useOutsideClick, useSpreadsheetActions } from "../hooks";
 import { initialState, reducer } from "../store";
 import { SpreadsheetProps } from "../types";
-import { downloadCSV, handlePaste, markSelectedCells } from "../utils";
+import { downloadCSV, handlePaste } from "../utils";
+import { createSelectionMatrix } from '../utils/selectionUtils'
 
 const ROW_HEIGHT = 37;
 const BUFFER_SIZE = 10;
@@ -249,11 +250,10 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     const selectCells = useCallback(
         (startRow: number, startCol: number, endRow: number, endCol: number) => {
             actions.clearSelection()
-            const newSelection = markSelectedCells(
-                state.data.length,
-                state.data[0].length,
-                { startRow, startCol, endRow, endCol }
-            )
+            const newSelection = createSelectionMatrix({
+                data: state.data,
+                selection: { startRow, startCol, endRow, endCol }
+            })
             dispatch({ type: "SET_SELECTED_CELLS", payload: newSelection })
         },
         [state.data, actions]

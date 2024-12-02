@@ -28,6 +28,21 @@ const Cell: React.FC<CellProps> = React.memo(
         const isSelected = selectedCell && selectedCell.row === rowIndex && selectedCell.col === colIndex;
         const multipleCellsSelected = useMemo(() => selectedCells.flat().filter(Boolean).length > 1, [selectedCells]);
 
+        const enableEditMode = useCallback(() => {
+            setIsEditing(true);
+            requestAnimationFrame(() => {
+                if (cellRef.current) {
+                    cellRef.current.focus();
+                    const range = document.createRange();
+                    const sel = window.getSelection();
+                    range.selectNodeContents(cellRef.current);
+                    range.collapse(false);
+                    sel?.removeAllRanges();
+                    sel?.addRange(range);
+                }
+            });
+        }, []);
+
         const handleMouseEvent = useCallback(
             ({ 
                 event, 
@@ -46,6 +61,52 @@ const Cell: React.FC<CellProps> = React.memo(
             },
             []
         )
+
+        const createMouseEventHandler = useCallback(
+            ({ shouldPreventDefault = false, shouldStopPropagation = false, handler }: {
+                shouldPreventDefault?: boolean
+                shouldStopPropagation?: boolean
+                handler: () => void
+            }) => (e: React.MouseEvent) => {
+                handleMouseEvent({
+                    event: e,
+                    shouldPreventDefault,
+                    shouldStopPropagation,
+                    handler
+                })
+            },
+            [handleMouseEvent]
+        )
+
+        const handleMouseUpEvent = useCallback(
+            createMouseEventHandler({
+                shouldPreventDefault: true,
+                handler: onMouseUp
+            }),
+            [onMouseUp, createMouseEventHandler]
+        )
+
+        const handleDoubleClick = useCallback(
+            createMouseEventHandler({
+                shouldStopPropagation: true,
+                handler: enableEditMode
+            }),
+            [enableEditMode, createMouseEventHandler]
+        )
+
+        useEffect(() => {
+            if (cellRef.current) {
+                cellRef.current.textContent = cellData || "";
+
+                const regexBold = /^\*\*(.+)\*\*$/;
+                const regexItalic = /^\*?\*?_(.+)_\*?\*?$/;
+                const regexCode = /^\*?\*?\_?\`(.+)\`\_?\*?\*?$/;
+
+                setFontWeight(regexBold.test(cellData || "") ? "bold" : "normal");
+                setFontStyle(regexItalic.test(cellData || "") ? "italic" : "normal");
+                setIsFontCode(regexCode.test(cellData || ""));
+            }
+        }, [cellData]);
 
         const handleMouseDownEvent = useCallback(
             (e: React.MouseEvent) => {
@@ -67,46 +128,6 @@ const Cell: React.FC<CellProps> = React.memo(
             [rowIndex, colIndex, onMouseEnter]
         );
 
-        const handleMouseUpEvent = useCallback(
-            (e: React.MouseEvent) => {
-                handleMouseEvent({
-                    event: e,
-                    shouldPreventDefault: true,
-                    handler: onMouseUp
-                })
-            },
-            [onMouseUp, handleMouseEvent]
-        );
-
-        useEffect(() => {
-            if (cellRef.current) {
-                cellRef.current.textContent = cellData || "";
-
-                const regexBold = /^\*\*(.+)\*\*$/;
-                const regexItalic = /^\*?\*?_(.+)_\*?\*?$/;
-                const regexCode = /^\*?\*?\_?\`(.+)\`\_?\*?\*?$/;
-
-                setFontWeight(regexBold.test(cellData || "") ? "bold" : "normal");
-                setFontStyle(regexItalic.test(cellData || "") ? "italic" : "normal");
-                setIsFontCode(regexCode.test(cellData || ""));
-            }
-        }, [cellData]);
-
-        const enableEditMode = useCallback(() => {
-            setIsEditing(true);
-            requestAnimationFrame(() => {
-                if (cellRef.current) {
-                    cellRef.current.focus();
-                    const range = document.createRange();
-                    const sel = window.getSelection();
-                    range.selectNodeContents(cellRef.current);
-                    range.collapse(false);
-                    sel?.removeAllRanges();
-                    sel?.addRange(range);
-                }
-            });
-        }, []);
-
         const handleClick = useCallback(
             (e: React.MouseEvent) => {
                 e.stopPropagation();
@@ -115,17 +136,6 @@ const Cell: React.FC<CellProps> = React.memo(
                 }
             },
             [rowIndex, colIndex, handleCellSelection, isEditing]
-        );
-
-        const handleDoubleClick = useCallback(
-            (e: React.MouseEvent) => {
-                handleMouseEvent({
-                    event: e,
-                    shouldStopPropagation: true,
-                    handler: enableEditMode
-                })
-            },
-            [enableEditMode, handleMouseEvent]
         );
 
         const handleBlur = useCallback(() => {

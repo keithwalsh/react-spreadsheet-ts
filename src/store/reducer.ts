@@ -1,6 +1,28 @@
 import { Action, State, Alignment } from "../types";
 import { adjustTableSize, addRow, removeRow, addColumn, removeColumn, markSelectedCells, transpose } from "../utils";
 import { isCellSelected } from '../utils/selectionUtils'
+import { createSelectionMatrix } from '../utils/selectionUtils'
+
+function getRowSelectionCells({ 
+    data, 
+    startRow, 
+    endRow 
+}: { 
+    data: string[][], 
+    startRow: number, 
+    endRow: number 
+}) {
+    return markSelectedCells(
+        data.length,
+        data[0].length,
+        {
+            startRow,
+            endRow,
+            startCol: 0,
+            endCol: data[0].length - 1
+        }
+    )
+}
 
 /**
  * The reducer function to manage table state.
@@ -204,30 +226,33 @@ export function reducer(state: State, action: Action): State {
         case "START_DRAG":
         case "UPDATE_DRAG":
         case "END_DRAG": {
-            let updatedSelectedCells = state.selectedCells;
+            let updatedSelectedCells = state.selectedCells
             if (action.type === "START_DRAG" || action.type === "UPDATE_DRAG") {
-                const startRow = action.type === "START_DRAG" ? action.payload.row : state.dragStart!.row;
-                const startCol = action.type === "START_DRAG" ? action.payload.col : state.dragStart!.col;
-                const endRow = action.type === "UPDATE_DRAG" ? action.payload.row : action.payload.row;
-                const endCol = action.type === "UPDATE_DRAG" ? action.payload.col : action.payload.col;
+                const startRow = action.type === "START_DRAG" ? action.payload.row : state.dragStart!.row
+                const startCol = action.type === "START_DRAG" ? action.payload.col : state.dragStart!.col
+                const endRow = action.type === "UPDATE_DRAG" ? action.payload.row : action.payload.row
+                const endCol = action.type === "UPDATE_DRAG" ? action.payload.col : action.payload.col
                 
-                updatedSelectedCells = markSelectedCells(
-                    state.data.length,
-                    state.data[0].length,
-                    {
+                updatedSelectedCells = createSelectionMatrix({
+                    data: state.data,
+                    selection: {
                         startRow,
                         startCol,
                         endRow,
                         endCol
                     }
-                );
+                })
             }
             return {
                 ...state,
                 isDragging: action.type !== "END_DRAG",
-                dragStart: action.type === "START_DRAG" ? action.payload : action.type === "END_DRAG" ? null : state.dragStart,
+                dragStart: action.type === "START_DRAG" 
+                    ? action.payload 
+                    : action.type === "END_DRAG" 
+                        ? null 
+                        : state.dragStart,
                 selectedCells: updatedSelectedCells,
-            };
+            }
         }
 
         case "SET_TABLE_SIZE": {
@@ -278,16 +303,11 @@ export function reducer(state: State, action: Action): State {
             return {
                 ...state,
                 dragStartRow: action.payload,
-                selectedCells: markSelectedCells(
-                    state.data.length,
-                    state.data[0].length,
-                    {
-                        startRow: action.payload,
-                        endRow: action.payload,
-                        startCol: 0,
-                        endCol: state.data[0].length - 1
-                    }
-                ),
+                selectedCells: getRowSelectionCells({
+                    data: state.data,
+                    startRow: action.payload,
+                    endRow: action.payload
+                }),
                 selectedRow: action.payload
             }
 
@@ -296,16 +316,11 @@ export function reducer(state: State, action: Action): State {
             
             return {
                 ...state,
-                selectedCells: markSelectedCells(
-                    state.data.length,
-                    state.data[0].length,
-                    {
-                        startRow: state.dragStartRow,
-                        endRow: action.payload,
-                        startCol: 0,
-                        endCol: state.data[0].length - 1
-                    }
-                )
+                selectedCells: getRowSelectionCells({
+                    data: state.data,
+                    startRow: state.dragStartRow,
+                    endRow: action.payload
+                })
             }
         }
 
