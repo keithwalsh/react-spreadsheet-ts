@@ -1,11 +1,26 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Modal, Box, Typography, Button, TextField, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { NewTableModalProps } from "../types";
+import { NewTableModalProps, TableDimensionInputProps } from "../types";
 
-const NewTableModal: React.FC<NewTableModalProps> = ({ open, onClose, onCreateNewTable }) => {
-    const [rows, setRows] = useState("");
-    const [columns, setColumns] = useState("");
+function TableDimensionInput({ label, value, onChange, max }: TableDimensionInputProps) {
+    return (
+        <TextField
+            label={label}
+            type="number"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            fullWidth
+            margin="normal"
+            inputProps={{ min: 1, max }}
+            helperText={`Valid range: 1-${max}`}
+        />
+    )
+}
+
+export function NewTableModal({ open, onClose, onCreateNewTable }: NewTableModalProps) {
+    const [rows, setRows] = useState("")
+    const [columns, setColumns] = useState("")
 
     const handleCreate = () => {
         const rowsNum = parseInt(rows, 10);
@@ -47,25 +62,17 @@ const NewTableModal: React.FC<NewTableModalProps> = ({ open, onClose, onCreateNe
                 <Typography variant="body2" sx={{ mt: 2, mb: 3 }}>
                     Enter table size. Please, remember that the current table contents will be lost.
                 </Typography>
-                <TextField
+                <TableDimensionInput
                     label="Rows"
-                    type="number"
                     value={rows}
-                    onChange={(e) => setRows(e.target.value)}
-                    fullWidth
-                    margin="normal"
-                    inputProps={{ min: 1, max: 500 }}
-                    helperText="Valid range: 1-500"
+                    onChange={setRows}
+                    max={500}
                 />
-                <TextField
+                <TableDimensionInput
                     label="Columns"
-                    type="number"
                     value={columns}
-                    onChange={(e) => setColumns(e.target.value)}
-                    fullWidth
-                    margin="normal"
-                    inputProps={{ min: 1, max: 20 }}
-                    helperText="Valid range: 1-20"
+                    onChange={setColumns}
+                    max={20}
                 />
                 <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
                     <Button onClick={onClose} sx={{ mr: 1 }}>

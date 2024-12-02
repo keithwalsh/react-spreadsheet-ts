@@ -198,6 +198,13 @@ export interface State {
     dragStartColumn: number | null;
 }
 
+export interface TableDimensionInputProps {
+    label: 'Rows' | 'Columns'
+    value: string
+    onChange: (value: string) => void
+    max: number
+}
+
 export interface TableMenuProps {
     onCreateNewTable: (rows: number, columns: number) => void;
     onDownloadCSV: () => void;

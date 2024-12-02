@@ -8,6 +8,13 @@ type OperationParams = {
     position?: "left" | "right";
 };
 
+/**
+ * Transposes a 2D array
+ */
+export function transpose<T>(matrix: T[][]): T[][] {
+    return matrix[0].map((_, colIndex) => matrix.map(row => row[colIndex]))
+}
+
 export const addRow = ({ data, alignments, selectedCells }: OperationParams) => {
     const newRow = Array(data[0].length).fill("");
     const newAlignmentRow = Array(alignments[0].length).fill("left" as Alignment);

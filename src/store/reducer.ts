@@ -1,5 +1,5 @@
 import { Action, State, Alignment } from "../types";
-import { adjustTableSize, addRow, removeRow, addColumn, removeColumn, markSelectedCells } from "../utils";
+import { adjustTableSize, addRow, removeRow, addColumn, removeColumn, markSelectedCells, transpose } from "../utils";
 
 /**
  * The reducer function to manage table state.
@@ -257,9 +257,10 @@ export function reducer(state: State, action: Action): State {
         }
 
         case "TRANSPOSE_TABLE": {
-            const newData = state.data[0].map((_, colIndex) => state.data.map((row) => row[colIndex]));
-            const newAlignments = state.alignments[0].map((_, colIndex) => state.alignments.map((row) => row[colIndex]));
-            const newSelectedCells = Array.from({ length: newData.length }, () => Array(newData[0].length).fill(false));
+            const newData = transpose(state.data)
+            const newAlignments = transpose(state.alignments)
+            const newSelectedCells = Array.from({ length: newData.length }, () => Array(newData[0].length).fill(false))
+            
             return {
                 ...state,
                 data: newData,
@@ -271,7 +272,7 @@ export function reducer(state: State, action: Action): State {
                 selectedRow: null,
                 selectedColumn: null,
                 selectAll: false,
-            };
+            }
         }
 
         case "START_ROW_SELECTION":

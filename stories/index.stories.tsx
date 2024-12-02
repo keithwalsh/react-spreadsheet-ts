@@ -8,23 +8,36 @@ interface SpreadsheetStoryArgs extends SpreadsheetProps {
     mode?: 'light' | 'dark';
 }
 
+// Helper function for select controls
+function createSelectControl({ options, description, defaultValue }: {
+    options: string[]
+    description: string
+    defaultValue: string
+}) {
+    return {
+        control: {
+            type: 'select' as const,
+            options,
+        },
+        description,
+        defaultValue,
+        table: {
+            type: { summary: options.map(o => `"${o}"`).join(" | ") },
+        },
+    }
+}
+
 // Use a more specific name for the meta object
 const SpreadsheetMeta: Meta<SpreadsheetStoryArgs> = {
     title: "Spreadsheet",
     component: Spreadsheet,
     tags: ["autodocs"],
     argTypes: {
-        mode: {
-            control: {
-                type: "select",
-                options: ["light", "dark"],
-            },
+        mode: createSelectControl({
+            options: ["light", "dark"],
             description: "Switch between light and dark mode.",
-            defaultValue: "light",
-            table: {
-                type: { summary: `"light" | "dark"` },
-            },
-        },
+            defaultValue: "light"
+        }),
         initialRows: {
             control: { type: "number", min: 1, max: 100, step: 1 },
             description: "The number of initial rows.",
@@ -35,17 +48,11 @@ const SpreadsheetMeta: Meta<SpreadsheetStoryArgs> = {
             description: "The number of initial columns.",
             defaultValue: 5,
         },
-        toolbarOrientation: {
-            control: {
-                type: "select",
-                options: ["horizontal", "vertical"],
-            },
+        toolbarOrientation: createSelectControl({
+            options: ["horizontal", "vertical"],
             description: "Select the orientation of the button toolbar.",
-            defaultValue: "horizontal",
-            table: {
-                type: { summary: `"horizontal" | "vertical"` },
-            },
-        },
+            defaultValue: "horizontal"
+        }),
         onChange: {
             description: 'Callback fired when spreadsheet data changes'
         },

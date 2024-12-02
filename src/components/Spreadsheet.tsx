@@ -104,10 +104,15 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
             const currentCell = state.data[row]?.[col]
             if (currentCell === undefined) return
 
+            const toggleFormat = (formatType: 'bold' | 'italic' | 'code') => 
+                operation === formatType.toUpperCase() 
+                    ? !state[formatType][row]?.[col] 
+                    : !!state[formatType][row]?.[col]
+
             const format: CellFormat = {
-                bold: operation === 'BOLD' ? !state.bold[row]?.[col] : !!state.bold[row]?.[col],
-                italic: operation === 'ITALIC' ? !state.italic[row]?.[col] : !!state.italic[row]?.[col],
-                code: operation === 'CODE' ? !state.code[row]?.[col] : !!state.code[row]?.[col],
+                bold: toggleFormat('bold'),
+                italic: toggleFormat('italic'),
+                code: toggleFormat('code'),
                 alignment: state.alignments[row]?.[col] || 'none'
             }
 
