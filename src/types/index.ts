@@ -169,6 +169,12 @@ export interface SelectAllCellProps extends TableCellProps {
     iconSize?: number;
 }
 
+export interface SelectionRange {
+    startRow: number
+    startCol: number
+    endRow: number
+    endCol: number
+}
 export interface SpreadsheetProps {
     toolbarOrientation?: 'horizontal' | 'vertical'
     initialRows?: number

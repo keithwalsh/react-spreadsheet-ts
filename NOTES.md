@@ -1,3 +1,14 @@
+#### Tests
+- Paste data from clipboard
+- Select and drag to select multiple cells
+- Select and drag to select rows
+- Select and drag to select columns
+- Delete rows
+- Delete columns
+- Highlight part of the contents of a cell
+
+
+
 #### Problem
 Spreadsheet paste functionality doesn't work on initial load because the container isn't focused and ready to receive paste events.
 

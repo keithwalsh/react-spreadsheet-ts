@@ -18,11 +18,11 @@ import { CellFormat } from "../types"
 // Internal Components
 import { ButtonGroup, ToolbarProvider, Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, Table, TableMenu } from ".";
 
-// Hooks, Utilities, Store and Types
+// Hooks, Store, Types and Utilities
 import { useOutsideClick, useSpreadsheetActions } from "../hooks";
-import { handlePaste, downloadCSV } from "../utils";
 import { initialState, reducer } from "../store";
 import { SpreadsheetProps } from "../types";
+import { downloadCSV, handlePaste, markSelectedCells } from "../utils";
 
 const ROW_HEIGHT = 37;
 const BUFFER_SIZE = 10;
@@ -179,20 +179,31 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
 
     const handlePasteEvent = useCallback(
         (e: React.ClipboardEvent<HTMLDivElement> | ClipboardEvent) => {
-            e.preventDefault();
+            e.preventDefault()
+            if (!containerRef.current) return
+
+            // Set focus if not already focused
+            if (document.activeElement !== containerRef.current) {
+                containerRef.current.focus()
+            }
+
             if (!state.selectedCell) {
                 dispatch({
                     type: "SET_SELECTED_CELL",
                     payload: { row: 0, col: 0 },
-                });
+                })
             }
+
             const clipboardText = (e as ClipboardEvent).clipboardData?.getData("Text") || 
-                                (e as React.ClipboardEvent<HTMLDivElement>).clipboardData.getData("Text");
-            const result = handlePaste(clipboardText, state.data, state.selectedCell || { row: 0, col: 0 }, state.alignments);
-            dispatch({ type: "HANDLE_PASTE", payload: result });
+                                (e as React.ClipboardEvent<HTMLDivElement>).clipboardData.getData("Text")
+            
+            if (!clipboardText) return
+
+            const result = handlePaste(clipboardText, state.data, state.selectedCell || { row: 0, col: 0 }, state.alignments)
+            dispatch({ type: "HANDLE_PASTE", payload: result })
         },
         [state.data, state.selectedCell, state.alignments, dispatch]
-    );
+    )
 
     const handleAddColumn = useCallback(
         (index: number, position: 'left' | 'right') => {
@@ -237,17 +248,16 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
 
     const selectCells = useCallback(
         (startRow: number, startCol: number, endRow: number, endCol: number) => {
-            actions.clearSelection();
-            const newSelection = state.data.map((_, i) =>
-                state.data[0].map(
-                    (_, j) =>
-                        i >= Math.min(startRow, endRow) && i <= Math.max(startRow, endRow) && j >= Math.min(startCol, endCol) && j <= Math.max(startCol, endCol)
-                )
-            );
-            dispatch({ type: "SET_SELECTED_CELLS", payload: newSelection });
+            actions.clearSelection()
+            const newSelection = markSelectedCells(
+                state.data.length,
+                state.data[0].length,
+                { startRow, startCol, endRow, endCol }
+            )
+            dispatch({ type: "SET_SELECTED_CELLS", payload: newSelection })
         },
         [state.data, actions]
-    );
+    )
 
     const toggleSelectAll = useCallback(() => {
         const newSelectAll = !state.selectAll;
@@ -400,17 +410,18 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
 
     useEffect(() => {
         const handleGlobalPaste = (e: ClipboardEvent) => {
-            if (document.activeElement === containerRef.current || 
-                containerRef.current?.contains(document.activeElement)) {
-                handlePasteEvent(e);
+            if (containerRef.current && 
+                (document.activeElement === containerRef.current || 
+                containerRef.current.contains(document.activeElement))) {
+                handlePasteEvent(e)
             }
-        };
+        }
 
-        document.addEventListener('paste', handleGlobalPaste);
+        document.addEventListener('paste', handleGlobalPaste)
         return () => {
-            document.removeEventListener('paste', handleGlobalPaste);
-        };
-    }, [handlePasteEvent]);
+            document.removeEventListener('paste', handleGlobalPaste)
+        }
+    }, [handlePasteEvent])
 
     const handleRowDragStart = useCallback((rowIndex: number) => {
         dispatch({ type: "START_ROW_SELECTION", payload: rowIndex });
@@ -480,6 +491,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
             </ToolbarProvider>
             <div
                 ref={containerRef}
+                tabIndex={0}
                 style={{
                     height: tableHeight,
                     maxHeight: "100%",
@@ -488,8 +500,15 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                     outline: "none",
                 }}
                 onScroll={handleScroll}
-                tabIndex={0}
                 onPaste={handlePasteEvent}
+                onFocus={() => {
+                    if (!state.selectedCell) {
+                        dispatch({
+                            type: "SET_SELECTED_CELL",
+                            payload: { row: 0, col: 0 },
+                        })
+                    }
+                }}
             >
                 <div style={{ height: Math.max(totalHeight, parseFloat(tableHeight)) + "px", position: "relative" }}>
                     <Table

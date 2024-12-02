@@ -28,6 +28,25 @@ const Cell: React.FC<CellProps> = React.memo(
         const isSelected = selectedCell && selectedCell.row === rowIndex && selectedCell.col === colIndex;
         const multipleCellsSelected = useMemo(() => selectedCells.flat().filter(Boolean).length > 1, [selectedCells]);
 
+        const handleMouseEvent = useCallback(
+            ({ 
+                event, 
+                shouldPreventDefault = false, 
+                shouldStopPropagation = false,
+                handler
+            }: {
+                event: React.MouseEvent
+                shouldPreventDefault?: boolean
+                shouldStopPropagation?: boolean
+                handler: () => void
+            }) => {
+                if (shouldPreventDefault) event.preventDefault()
+                if (shouldStopPropagation) event.stopPropagation()
+                handler()
+            },
+            []
+        )
+
         const handleMouseDownEvent = useCallback(
             (e: React.MouseEvent) => {
                 if (isEditing) {
@@ -50,10 +69,13 @@ const Cell: React.FC<CellProps> = React.memo(
 
         const handleMouseUpEvent = useCallback(
             (e: React.MouseEvent) => {
-                e.preventDefault();
-                onMouseUp();
+                handleMouseEvent({
+                    event: e,
+                    shouldPreventDefault: true,
+                    handler: onMouseUp
+                })
             },
-            [onMouseUp]
+            [onMouseUp, handleMouseEvent]
         );
 
         useEffect(() => {
@@ -97,10 +119,13 @@ const Cell: React.FC<CellProps> = React.memo(
 
         const handleDoubleClick = useCallback(
             (e: React.MouseEvent) => {
-                e.stopPropagation();
-                enableEditMode();
+                handleMouseEvent({
+                    event: e,
+                    shouldStopPropagation: true,
+                    handler: enableEditMode
+                })
             },
-            [enableEditMode]
+            [enableEditMode, handleMouseEvent]
         );
 
         const handleBlur = useCallback(() => {

@@ -203,14 +203,24 @@ export function reducer(state: State, action: Action): State {
 
         case "START_DRAG":
         case "UPDATE_DRAG":
-        case "END_DRAG":
+        case "END_DRAG": {
             let updatedSelectedCells = state.selectedCells;
             if (action.type === "START_DRAG" || action.type === "UPDATE_DRAG") {
                 const startRow = action.type === "START_DRAG" ? action.payload.row : state.dragStart!.row;
                 const startCol = action.type === "START_DRAG" ? action.payload.col : state.dragStart!.col;
                 const endRow = action.type === "UPDATE_DRAG" ? action.payload.row : action.payload.row;
                 const endCol = action.type === "UPDATE_DRAG" ? action.payload.col : action.payload.col;
-                updatedSelectedCells = markSelectedCells(state.data, startRow, startCol, endRow, endCol);
+                
+                updatedSelectedCells = markSelectedCells(
+                    state.data.length,
+                    state.data[0].length,
+                    {
+                        startRow,
+                        startCol,
+                        endRow,
+                        endCol
+                    }
+                );
             }
             return {
                 ...state,
@@ -218,6 +228,7 @@ export function reducer(state: State, action: Action): State {
                 dragStart: action.type === "START_DRAG" ? action.payload : action.type === "END_DRAG" ? null : state.dragStart,
                 selectedCells: updatedSelectedCells,
             };
+        }
 
         case "SET_TABLE_SIZE": {
             const { row, col } = action.payload;
@@ -267,29 +278,42 @@ export function reducer(state: State, action: Action): State {
             return {
                 ...state,
                 dragStartRow: action.payload,
-                selectedCells: state.data.map((_, rowIndex) => 
-                    Array(state.data[0].length).fill(rowIndex === action.payload)
+                selectedCells: markSelectedCells(
+                    state.data.length,
+                    state.data[0].length,
+                    {
+                        startRow: action.payload,
+                        endRow: action.payload,
+                        startCol: 0,
+                        endCol: state.data[0].length - 1
+                    }
                 ),
                 selectedRow: action.payload
-            };
+            }
 
         case "UPDATE_ROW_SELECTION": {
-            if (state.dragStartRow === null) return state;
-            const startRow = Math.min(state.dragStartRow, action.payload);
-            const endRow = Math.max(state.dragStartRow, action.payload);
+            if (state.dragStartRow === null) return state
+            
             return {
                 ...state,
-                selectedCells: state.data.map((_, rowIndex) => 
-                    Array(state.data[0].length).fill(rowIndex >= startRow && rowIndex <= endRow)
+                selectedCells: markSelectedCells(
+                    state.data.length,
+                    state.data[0].length,
+                    {
+                        startRow: state.dragStartRow,
+                        endRow: action.payload,
+                        startCol: 0,
+                        endCol: state.data[0].length - 1
+                    }
                 )
-            };
+            }
         }
 
         case "END_ROW_SELECTION":
             return {
                 ...state,
                 dragStartRow: null
-            };
+            }
 
         case "START_COLUMN_SELECTION":
             return {
