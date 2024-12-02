@@ -1,100 +1,82 @@
-import * as React from "react";
-import { TableCell as TableCellMui, useTheme } from "@mui/material";
+/**
+ * @fileoverview Renders a column header cell with context menu and drag-and-drop support.
+ */
+
+import React from "react";
+import TableCell from "@mui/material/TableCell";
 import ColumnContextMenu from "./ColumnContextMenu";
 import { ColumnHeaderCellProps } from "../types";
+import { useHeaderCellStyles } from "../styles"
+import { getColumnLabel } from "../utils/columnUtils";
 
-const ColumnHeaderCell: React.FC<ColumnHeaderCellProps> = ({
-    index,
-    handleColumnSelection,
-    selectedColumns,
-    onAddColumnLeft,
-    onAddColumnRight,
-    onRemoveColumn,
-    onDragStart,
-    onDragEnter,
-    onDragEnd,
-}) => {
-    const theme = useTheme();
-    const isDarkMode = theme.palette.mode === 'dark';
-    const isSelected = selectedColumns?.has(index);
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-    const [isHovered, setIsHovered] = React.useState(false);
+export function ColumnHeaderCell({
+  index,
+  handleColumnSelection,
+  selectedColumns,
+  onAddColumnLeft,
+  onAddColumnRight,
+  onRemoveColumn,
+  onDragStart,
+  onDragEnter,
+  onDragEnd,
+}: ColumnHeaderCellProps) {
+  const isSelected = selectedColumns?.has(index) ?? false;
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [isHovered, setIsHovered] = React.useState(false);
 
-    const lightThemeStyles = {
-        color: "rgba(0, 0, 0, 0.54)",
-        backgroundColor: isSelected ? "#e0e0e0" : isHovered ? "#f5f5f5" : "#f0f0f0",
-        borderRight: "1px solid #e0e0e0",
-        "&:hover": { backgroundColor: "#e0e0e0" },
-    };
+  const styles = useHeaderCellStyles({ isSelected, isHovered });
 
-    const darkThemeStyles = {
-        color: "#BEBFC0",
-        backgroundColor: isSelected ? "#686868" : isHovered ? "#515151" : "#414547",
-        borderRight: "1px solid #686868",
-        borderBottom: "1px solid #686868",
-        "&:hover": { backgroundColor: "#686868" },
-    };
+  const handleContextMenu = (event: React.MouseEvent<HTMLTableCellElement>) => {
+    event.preventDefault();
+    setAnchorEl(event.currentTarget);
+    handleColumnSelection(index);
+  };
 
-    const handleContextMenu = (event: React.MouseEvent<HTMLTableCellElement>) => {
-        event.preventDefault();
-        setAnchorEl(event.currentTarget);
-        handleColumnSelection(index);
-    };
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
 
-    const handleCloseMenu = () => {
-        setAnchorEl(null);
-    };
+  const handleAddLeft = () => {
+    onAddColumnLeft(index);
+    handleCloseMenu();
+  };
 
-    const handleAddLeft = () => {
-        onAddColumnLeft(index);
-        handleCloseMenu();
-    };
+  const handleAddRight = () => {
+    onAddColumnRight(index);
+    handleCloseMenu();
+  };
 
-    const handleAddRight = () => {
-        onAddColumnRight(index);
-        handleCloseMenu();
-    };
+  const handleRemove = () => {
+    onRemoveColumn(index);
+    handleCloseMenu();
+  };
 
-    const handleRemove = () => {
-        onRemoveColumn(index);
-        handleCloseMenu();
-    };
-
-    return (
-        <>
-            <TableCellMui
-                sx={{
-                    ...(isDarkMode ? darkThemeStyles : lightThemeStyles),
-                    cursor: "pointer",
-                    userSelect: "none",
-                    textAlign: "center",
-                    padding: "2px 2px",
-                    height: "1px",
-                    lineHeight: "1",
-                    fontSize: "0.8rem",
-                }}
-                onClick={() => handleColumnSelection(index)}
-                onContextMenu={handleContextMenu}
-                onMouseEnter={() => {
-                    setIsHovered(true);
-                    onDragEnter(index);
-                }}
-                onMouseLeave={() => setIsHovered(false)}
-                onMouseDown={() => onDragStart(index)}
-                onMouseUp={onDragEnd}
-            >
-                {String.fromCharCode(65 + index)}
-            </TableCellMui>
-            <ColumnContextMenu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleCloseMenu}
-                onAddLeft={handleAddLeft}
-                onAddRight={handleAddRight}
-                onRemove={handleRemove}
-            />
-        </>
-    );
-};
+  return (
+    <>
+      <TableCell
+        sx={styles}
+        onClick={() => handleColumnSelection(index)}
+        onContextMenu={handleContextMenu}
+        onMouseEnter={() => {
+          setIsHovered(true);
+          onDragEnter(index);
+        }}
+        onMouseLeave={() => setIsHovered(false)}
+        onMouseDown={() => onDragStart(index)}
+        onMouseUp={onDragEnd}
+      >
+        {getColumnLabel(index)}
+      </TableCell>
+      <ColumnContextMenu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleCloseMenu}
+        onAddLeft={handleAddLeft}
+        onAddRight={handleAddRight}
+        onRemove={handleRemove}
+      />
+    </>
+  );
+}
 
 export default ColumnHeaderCell;
