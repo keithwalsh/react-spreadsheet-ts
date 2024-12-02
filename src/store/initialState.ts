@@ -15,4 +15,6 @@ export const initialState = (rows: number, columns: number): State => ({
     selectAll: false,
     isDragging: false,
     dragStart: null,
+    dragStartRow: null,
+    dragStartColumn: null,
 });

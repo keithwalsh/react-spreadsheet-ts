@@ -10,6 +10,9 @@ const ColumnHeaderCell: React.FC<ColumnHeaderCellProps> = ({
     onAddColumnLeft,
     onAddColumnRight,
     onRemoveColumn,
+    onDragStart,
+    onDragEnter,
+    onDragEnd,
 }) => {
     const theme = useTheme();
     const isDarkMode = theme.palette.mode === 'dark';
@@ -72,8 +75,13 @@ const ColumnHeaderCell: React.FC<ColumnHeaderCellProps> = ({
                 }}
                 onClick={() => handleColumnSelection(index)}
                 onContextMenu={handleContextMenu}
-                onMouseEnter={() => setIsHovered(true)}
+                onMouseEnter={() => {
+                    setIsHovered(true);
+                    onDragEnter(index);
+                }}
                 onMouseLeave={() => setIsHovered(false)}
+                onMouseDown={() => onDragStart(index)}
+                onMouseUp={onDragEnd}
             >
                 {String.fromCharCode(65 + index)}
             </TableCellMui>

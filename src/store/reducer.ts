@@ -274,6 +274,62 @@ export function reducer(state: State, action: Action): State {
             };
         }
 
+        case "START_ROW_SELECTION":
+            return {
+                ...state,
+                dragStartRow: action.payload,
+                selectedCells: state.data.map((_, rowIndex) => 
+                    Array(state.data[0].length).fill(rowIndex === action.payload)
+                ),
+                selectedRow: action.payload
+            };
+
+        case "UPDATE_ROW_SELECTION": {
+            if (state.dragStartRow === null) return state;
+            const startRow = Math.min(state.dragStartRow, action.payload);
+            const endRow = Math.max(state.dragStartRow, action.payload);
+            return {
+                ...state,
+                selectedCells: state.data.map((_, rowIndex) => 
+                    Array(state.data[0].length).fill(rowIndex >= startRow && rowIndex <= endRow)
+                )
+            };
+        }
+
+        case "END_ROW_SELECTION":
+            return {
+                ...state,
+                dragStartRow: null
+            };
+
+        case "START_COLUMN_SELECTION":
+            return {
+                ...state,
+                dragStartColumn: action.payload,
+                selectedCells: state.data.map(row => 
+                    row.map((_, colIndex) => colIndex === action.payload)
+                ),
+                selectedColumn: action.payload
+            };
+
+        case "UPDATE_COLUMN_SELECTION": {
+            if (state.dragStartColumn === null) return state;
+            const startCol = Math.min(state.dragStartColumn, action.payload);
+            const endCol = Math.max(state.dragStartColumn, action.payload);
+            return {
+                ...state,
+                selectedCells: state.data.map(row => 
+                    row.map((_, colIndex) => colIndex >= startCol && colIndex <= endCol)
+                )
+            };
+        }
+
+        case "END_COLUMN_SELECTION":
+            return {
+                ...state,
+                dragStartColumn: null
+            };
+
         default:
             return state;
     }

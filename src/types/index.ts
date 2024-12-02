@@ -75,6 +75,9 @@ export interface ColumnHeaderCellProps {
     onAddColumnLeft: (index: number) => void;
     onAddColumnRight: (index: number) => void;
     onRemoveColumn: (index: number) => void;
+    onDragStart: (index: number) => void;
+    onDragEnter: (index: number) => void;
+    onDragEnd: () => void;
 }
 
 export interface NewTableModalProps {
@@ -109,6 +112,9 @@ export interface RowNumberCellProps {
     selectedRows?: Set<number>;
     rowIndex: number;
     ref?: React.Ref<HTMLTableRowElement> | null;
+    onDragStart: (rowIndex: number) => void;
+    onDragEnter: (rowIndex: number) => void;
+    onDragEnd: () => void;
 }
 
 export interface SelectAllCellProps extends TableCellProps {
@@ -148,9 +154,9 @@ export interface ToolbarProviderProps extends ToolbarContextType {
     children: React.ReactNode;
 }
 
-export type State = {
+export interface State {
     data: string[][];
-    past: [string[][], Alignment[][]][]; // Each element is a tuple of [data, alignments]
+    past: [string[][], Alignment[][]][];
     future: [string[][], Alignment[][]][];
     alignments: Alignment[][];
     bold: boolean[][];
@@ -163,13 +169,10 @@ export type State = {
     selectAll: boolean;
     isDragging: boolean;
     dragStart: { row: number; col: number } | null;
-};
-export interface CellFormat {
-    bold: boolean
-    italic: boolean
-    code: boolean
-    alignment: Alignment
+    dragStartRow: number | null;
+    dragStartColumn: number | null;
 }
+
 export type Action =
     | { type: "SET_DATA"; payload: string[][] }
     | { type: "UNDO" }
@@ -186,26 +189,28 @@ export type Action =
     | { type: "ADD_COLUMN"; payload: { index: number; position: "left" | "right" } }
     | { type: "REMOVE_COLUMN"; payload: { index: number } }
     | { type: "SET_ALIGNMENT"; payload: Alignment }
-    | {
-        type: "HANDLE_PASTE";
-        payload: {
-            newData: string[][];
-            newAlignments: Alignment[][];
-            dimensions: {
-                rows: number;
-                cols: number;
-            };
-        };
-    }
+    | { type: "HANDLE_PASTE"; payload: { newData: string[][]; newAlignments: Alignment[][]; dimensions: { rows: number; cols: number } } }
     | { type: "START_DRAG"; payload: { row: number; col: number } }
     | { type: "UPDATE_DRAG"; payload: { row: number; col: number } }
     | { type: "END_DRAG" }
+    | { type: "START_ROW_DRAG"; payload: number }
+    | { type: "UPDATE_ROW_DRAG"; payload: number }
+    | { type: "END_ROW_DRAG" }
+    | { type: "START_COLUMN_DRAG"; payload: number }
+    | { type: "UPDATE_COLUMN_DRAG"; payload: number }
+    | { type: "END_COLUMN_DRAG" }
     | { type: "SET_TABLE_SIZE"; payload: { row: number; col: number } }
     | { type: "CLEAR_TABLE" }
     | { type: "TRANSPOSE_TABLE" }
-    | { type: "APPLY_TEXT_FORMATTING"; payload: { operation: "BOLD" | "ITALIC" | "CODE" } };
+    | { type: "APPLY_TEXT_FORMATTING"; payload: { operation: "BOLD" | "ITALIC" | "CODE" } }
+    | { type: "START_ROW_SELECTION"; payload: number }
+    | { type: "UPDATE_ROW_SELECTION"; payload: number }
+    | { type: "END_ROW_SELECTION" }
+    | { type: "START_COLUMN_SELECTION"; payload: number }
+    | { type: "UPDATE_COLUMN_SELECTION"; payload: number }
+    | { type: "END_COLUMN_SELECTION" };
 
-    export type ButtonHandlerKey =
+export type ButtonHandlerKey =
     | "onClickUndo"
     | "onClickRedo"
     | "onClickAlignLeft"

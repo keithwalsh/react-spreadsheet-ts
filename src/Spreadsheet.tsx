@@ -391,6 +391,38 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
         };
     }, [handlePasteEvent]);
 
+    const handleRowDragStart = useCallback((rowIndex: number) => {
+        dispatch({ type: "START_ROW_SELECTION", payload: rowIndex });
+    }, [dispatch]);
+
+    const handleRowDragEnter = useCallback((rowIndex: number) => {
+        if (state.dragStartRow !== null) {
+            dispatch({ type: "UPDATE_ROW_SELECTION", payload: rowIndex });
+        }
+    }, [state.dragStartRow, dispatch]);
+
+    const handleRowDragEnd = useCallback(() => {
+        if (state.dragStartRow !== null) {
+            dispatch({ type: "END_ROW_SELECTION" });
+        }
+    }, [state.dragStartRow, dispatch]);
+
+    const handleColumnDragStart = useCallback((colIndex: number) => {
+        dispatch({ type: "START_COLUMN_SELECTION", payload: colIndex });
+    }, [dispatch]);
+
+    const handleColumnDragEnter = useCallback((colIndex: number) => {
+        if (state.dragStartColumn !== null) {
+            dispatch({ type: "UPDATE_COLUMN_SELECTION", payload: colIndex });
+        }
+    }, [state.dragStartColumn, dispatch]);
+
+    const handleColumnDragEnd = useCallback(() => {
+        if (state.dragStartColumn !== null) {
+            dispatch({ type: "END_COLUMN_SELECTION" });
+        }
+    }, [state.dragStartColumn, dispatch]);
+
     return (
         <Box
             sx={{
@@ -465,6 +497,9 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                                         onAddColumnLeft={handleAddColumnLeft}
                                         onAddColumnRight={handleAddColumnRight}
                                         onRemoveColumn={handleRemoveColumn}
+                                        onDragStart={handleColumnDragStart}
+                                        onDragEnter={handleColumnDragEnter}
+                                        onDragEnd={handleColumnDragEnd}
                                     />
                                 ))}
                             </TableRow>
@@ -478,6 +513,9 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                                             onClick={() => handleRowSelection(rowIndex)}
                                             selectedRows={selectedRows}
                                             rowIndex={rowIndex}
+                                            onDragStart={handleRowDragStart}
+                                            onDragEnter={handleRowDragEnter}
+                                            onDragEnd={handleRowDragEnd}
                                         >
                                             {rowIndex + 1}
                                         </RowNumberCell>
