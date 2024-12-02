@@ -37,17 +37,17 @@ jobs:
 
             - name: Setup npm authentication
               run: |
-                  echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN1}" >> ~/.npmrc
+                  echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN2}" >> ~/.npmrc
                   cat ~/.npmrc
               env:
-                  NPM_TOKEN1: ${{ secrets.NPM_TOKEN1 }}
+                  NPM_TOKEN2: ${{ secrets.NPM_TOKEN2 }}
 
             - name: Publish to npm
               run: |
                   npm config list
                   npm publish --access public
               env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN1 }}
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN2 }}
 
             - name: Get latest tag
               id: get_tag
