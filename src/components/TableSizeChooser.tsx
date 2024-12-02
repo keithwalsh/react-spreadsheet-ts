@@ -7,6 +7,20 @@ import { TableSizeChooserProps } from '../types';
 import { useTableSizeChooser } from '../hooks';
 import { useTableSizeChooserStyles } from '../styles';
 
+function renderTextField(label: string, value: string, onChange: (value: string) => void, onBlur: () => void, max: number) {
+  return (
+    <TextField
+      label={label}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onBlur={onBlur}
+      type="number"
+      InputProps={{ inputProps: { min: 1, max } }}
+      size="small"
+    />
+  )
+}
+
 export function TableSizeChooser({
   maxRows = 20,
   maxCols = 20,
@@ -24,7 +38,6 @@ export function TableSizeChooser({
     handleClick,
     handleInputChange,
     handleInputBlur,
-    handleInputFocus,
     setHoveredRow,
     setHoveredCol,
   } = useTableSizeChooser({ maxRows, maxCols, currentRows, currentCols, onSizeSelect });
@@ -32,27 +45,9 @@ export function TableSizeChooser({
   return (
     <Box className={classes.container}>
       <Box className={classes.inputGroup}>
-        <TextField
-          label="Rows"
-          value={inputRows}
-          onChange={(e) => handleInputChange('rows', e.target.value)}
-          onBlur={handleInputBlur}
-          onFocus={handleInputFocus}
-          type="number"
-          InputProps={{ inputProps: { min: 1, max: maxRows } }}
-          size="small"
-        />
+        {renderTextField("Rows", inputRows, (value) => handleInputChange('rows', value), handleInputBlur, maxRows)}
         <Typography variant="h6">x</Typography>
-        <TextField
-          label="Columns"
-          value={inputCols}
-          onChange={(e) => handleInputChange('cols', e.target.value)}
-          onBlur={handleInputBlur}
-          onFocus={handleInputFocus}
-          type="number"
-          InputProps={{ inputProps: { min: 1, max: maxCols } }}
-          size="small"
-        />
+        {renderTextField("Columns", inputCols, (value) => handleInputChange('cols', value), handleInputBlur, maxCols)}
       </Box>
       <Box
         className={classes.gridContainer}
