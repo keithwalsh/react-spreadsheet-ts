@@ -164,23 +164,24 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
         [state.data, state.selectedCell, state.alignments, dispatch]
     );
 
-    const handleAddColumnLeft = useCallback(
-        (index: number) => {
-            dispatch({ type: "ADD_COLUMN", payload: { index, position: "left" } });
-            setSnackbarMessage("Column added successfully.");
-            setSnackbarOpen(true);
+    const handleAddColumn = useCallback(
+        (index: number, position: "left" | "right") => {
+            dispatch({ type: "ADD_COLUMN", payload: { index, position } })
+            setSnackbarMessage("Column added successfully.")
+            setSnackbarOpen(true)
         },
         [dispatch]
-    );
+    )
+
+    const handleAddColumnLeft = useCallback(
+        (index: number) => handleAddColumn(index, "left"),
+        [handleAddColumn]
+    )
 
     const handleAddColumnRight = useCallback(
-        (index: number) => {
-            dispatch({ type: "ADD_COLUMN", payload: { index, position: "right" } });
-            setSnackbarMessage("Column added successfully.");
-            setSnackbarOpen(true);
-        },
-        [dispatch]
-    );
+        (index: number) => handleAddColumn(index, "right"),
+        [handleAddColumn]
+    )
 
     const handleRemoveColumn = useCallback(
         (index: number) => {
@@ -381,37 +382,29 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
         };
     }, [handlePasteEvent]);
 
-    const handleRowDragStart = useCallback((rowIndex: number) => {
-        dispatch({ type: "START_ROW_SELECTION", payload: rowIndex });
-    }, [dispatch]);
+    const createDragHandler = useCallback(
+        (type: 'ROW' | 'COLUMN') => ({
+            onDragStart: (index: number) => {
+                dispatch({ type: `START_${type}_SELECTION`, payload: index })
+            },
+            onDragEnter: (index: number) => {
+                const dragStart = type === 'ROW' ? state.dragStartRow : state.dragStartColumn
+                if (dragStart !== null) {
+                    dispatch({ type: `UPDATE_${type}_SELECTION`, payload: index })
+                }
+            },
+            onDragEnd: () => {
+                const dragStart = type === 'ROW' ? state.dragStartRow : state.dragStartColumn
+                if (dragStart !== null) {
+                    dispatch({ type: `END_${type}_SELECTION` })
+                }
+            }
+        }),
+        [dispatch, state.dragStartRow, state.dragStartColumn]
+    )
 
-    const handleRowDragEnter = useCallback((rowIndex: number) => {
-        if (state.dragStartRow !== null) {
-            dispatch({ type: "UPDATE_ROW_SELECTION", payload: rowIndex });
-        }
-    }, [state.dragStartRow, dispatch]);
-
-    const handleRowDragEnd = useCallback(() => {
-        if (state.dragStartRow !== null) {
-            dispatch({ type: "END_ROW_SELECTION" });
-        }
-    }, [state.dragStartRow, dispatch]);
-
-    const handleColumnDragStart = useCallback((colIndex: number) => {
-        dispatch({ type: "START_COLUMN_SELECTION", payload: colIndex });
-    }, [dispatch]);
-
-    const handleColumnDragEnter = useCallback((colIndex: number) => {
-        if (state.dragStartColumn !== null) {
-            dispatch({ type: "UPDATE_COLUMN_SELECTION", payload: colIndex });
-        }
-    }, [state.dragStartColumn, dispatch]);
-
-    const handleColumnDragEnd = useCallback(() => {
-        if (state.dragStartColumn !== null) {
-            dispatch({ type: "END_COLUMN_SELECTION" });
-        }
-    }, [state.dragStartColumn, dispatch]);
+    const rowDragHandlers = createDragHandler('ROW')
+    const columnDragHandlers = createDragHandler('COLUMN')
 
     return (
         <Box
@@ -487,9 +480,9 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                                         onAddColumnLeft={handleAddColumnLeft}
                                         onAddColumnRight={handleAddColumnRight}
                                         onRemoveColumn={handleRemoveColumn}
-                                        onDragStart={handleColumnDragStart}
-                                        onDragEnter={handleColumnDragEnter}
-                                        onDragEnd={handleColumnDragEnd}
+                                        onDragStart={columnDragHandlers.onDragStart}
+                                        onDragEnter={columnDragHandlers.onDragEnter}
+                                        onDragEnd={columnDragHandlers.onDragEnd}
                                     />
                                 ))}
                             </TableRow>
@@ -503,9 +496,9 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                                             onClick={() => handleRowSelection(rowIndex)}
                                             selectedRows={selectedRows}
                                             rowIndex={rowIndex}
-                                            onDragStart={handleRowDragStart}
-                                            onDragEnter={handleRowDragEnter}
-                                            onDragEnd={handleRowDragEnd}
+                                            onDragStart={rowDragHandlers.onDragStart}
+                                            onDragEnter={rowDragHandlers.onDragEnter}
+                                            onDragEnd={rowDragHandlers.onDragEnd}
                                         >
                                             {rowIndex + 1}
                                         </RowNumberCell>
