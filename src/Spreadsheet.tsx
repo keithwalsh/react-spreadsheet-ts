@@ -91,26 +91,16 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
         [onFormatChange, state.bold, state.italic, state.code, state.alignments]
     )
 
-    const handleSetBold = useCallback(() => {
-        dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "BOLD" } })
+    const handleTextFormatting = useCallback((operation: 'BOLD' | 'ITALIC' | 'CODE') => {
+        dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation } })
         if (state.selectedCell) {
-            handleFormatChange('BOLD', state.selectedCell.row, state.selectedCell.col)
+            handleFormatChange(operation, state.selectedCell.row, state.selectedCell.col)
         }
     }, [dispatch, state.selectedCell, handleFormatChange])
 
-    const handleSetItalic = useCallback(() => {
-        dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "ITALIC" } })
-        if (state.selectedCell) {
-            handleFormatChange('ITALIC', state.selectedCell.row, state.selectedCell.col)
-        }
-    }, [dispatch, state.selectedCell, handleFormatChange])
-
-    const handleSetCode = useCallback(() => {
-        dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation: "CODE" } })
-        if (state.selectedCell) {
-            handleFormatChange('CODE', state.selectedCell.row, state.selectedCell.col)
-        }
-    }, [dispatch, state.selectedCell, handleFormatChange])
+    const handleSetBold = useCallback(() => handleTextFormatting('BOLD'), [handleTextFormatting])
+    const handleSetItalic = useCallback(() => handleTextFormatting('ITALIC'), [handleTextFormatting])
+    const handleSetCode = useCallback(() => handleTextFormatting('CODE'), [handleTextFormatting])
 
     const tableRef = useRef<HTMLTableElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
