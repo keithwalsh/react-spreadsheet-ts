@@ -28,12 +28,17 @@ const Cell: React.FC<CellProps> = React.memo(
         const isSelected = selectedCell && selectedCell.row === rowIndex && selectedCell.col === colIndex;
         const multipleCellsSelected = useMemo(() => selectedCells.flat().filter(Boolean).length > 1, [selectedCells]);
 
+        const preventAndStop = (e: React.MouseEvent<HTMLDivElement>) => {
+            e.preventDefault()
+            e.stopPropagation()
+        }
+
         const handleMouseDownEvent = useCallback(
-            (e: React.MouseEvent) => {
+            (e: React.MouseEvent<HTMLDivElement>) => {
                 if (isEditing) {
                     return;
                 }
-                e.preventDefault();
+                preventAndStop(e)
                 onMouseDown(rowIndex, colIndex);
                 handleCellSelection(rowIndex, colIndex);
             },
@@ -41,16 +46,16 @@ const Cell: React.FC<CellProps> = React.memo(
         );
 
         const handleMouseEnterEvent = useCallback(
-            (e: React.MouseEvent) => {
-                e.preventDefault();
+            (e: React.MouseEvent<HTMLDivElement>) => {
+                preventAndStop(e)
                 onMouseEnter(rowIndex, colIndex);
             },
             [rowIndex, colIndex, onMouseEnter]
         );
 
         const handleMouseUpEvent = useCallback(
-            (e: React.MouseEvent) => {
-                e.preventDefault();
+            (e: React.MouseEvent<HTMLDivElement>) => {
+                preventAndStop(e)
                 onMouseUp();
             },
             [onMouseUp]
@@ -96,8 +101,8 @@ const Cell: React.FC<CellProps> = React.memo(
         );
 
         const handleDoubleClick = useCallback(
-            (e: React.MouseEvent) => {
-                e.stopPropagation();
+            (e: React.MouseEvent<HTMLDivElement>) => {
+                preventAndStop(e)
                 enableEditMode();
             },
             [enableEditMode]
