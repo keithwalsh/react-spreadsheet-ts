@@ -15,6 +15,17 @@ export function transpose<T>(matrix: T[][]): T[][] {
     return matrix[0].map((_, colIndex) => matrix.map(row => row[colIndex]))
 }
 
+/**
+ * Helper function to splice a column from a 2D array
+ */
+function spliceColumn<T>(matrix: T[][], index: number, deleteCount: number, value?: T): T[][] {
+    return matrix.map(row => {
+        const newRow = [...row]
+        newRow.splice(index, deleteCount, ...(value ? [value] : []))
+        return newRow
+    })
+}
+
 export const addRow = ({ data, alignments, selectedCells }: OperationParams) => {
     const newRow = Array(data[0].length).fill("");
     const newAlignmentRow = Array(alignments[0].length).fill("left" as Alignment);
@@ -59,22 +70,11 @@ export const addColumn = ({ data, alignments, selectedCells, index = 0, position
 
 export const removeColumn = ({ data, alignments, selectedCells, index = 0 }: OperationParams) => {
     if (data[0].length > 1) {
-        const newData = data.map((row) => {
-            const newRow = [...row];
-            newRow.splice(index, 1);
-            return newRow;
-        });
-        const newAlignments = alignments.map((row) => {
-            const newRow = [...row];
-            newRow.splice(index, 1);
-            return newRow;
-        });
-        const newSelectedCells = selectedCells.map((row) => {
-            const newRow = [...row];
-            newRow.splice(index, 1);
-            return newRow;
-        });
-        return { newData, newAlignments, newSelectedCells };
+        return {
+            newData: spliceColumn(data, index, 1),
+            newAlignments: spliceColumn(alignments, index, 1),
+            newSelectedCells: spliceColumn(selectedCells, index, 1)
+        }
     }
-    return { newData: data, newAlignments: alignments, newSelectedCells: selectedCells };
-};
+    return { newData: data, newAlignments: alignments, newSelectedCells: selectedCells }
+}
