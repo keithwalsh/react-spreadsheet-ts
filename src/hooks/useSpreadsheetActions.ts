@@ -4,7 +4,8 @@ import { Alignment, State } from "../types";
 
 const useSpreadsheetActions = (
     dispatch: React.Dispatch<any>,
-    handleFormatChange?: (operation: string, row: number, col: number) => void
+    handleFormatChange?: (operation: string, row: number, col: number) => void,
+    onAlignmentChange?: (row: number, col: number, alignment: Alignment) => void
 ) => {
     const handleUndo = useCallback(() => dispatch({ type: "UNDO" }), [dispatch]);
     const handleRedo = useCallback(() => dispatch({ type: "REDO" }), [dispatch]);
@@ -22,15 +23,15 @@ const useSpreadsheetActions = (
     const clearSelection = useCallback(() => dispatch({ type: "CLEAR_SELECTION" }), [dispatch]);
     const setAlignment = useCallback((alignment: Alignment) => {
         dispatch({ type: "SET_ALIGNMENT", payload: alignment });
-        if (handleFormatChange) {
-            dispatch((state: State) => {
-                if (state.selectedCell) {
-                    handleFormatChange('ALIGNMENT', state.selectedCell.row, state.selectedCell.col);
-                }
-                return state;
-            });
-        }
-    }, [dispatch, handleFormatChange]);
+        
+        dispatch((state: State) => {
+            if (state.selectedCell) {
+                handleFormatChange?.('ALIGNMENT', state.selectedCell.row, state.selectedCell.col);
+                onAlignmentChange?.(state.selectedCell.row, state.selectedCell.col, alignment);
+            }
+            return state;
+        });
+    }, [dispatch, handleFormatChange, onAlignmentChange]);
 
     return {
         handleUndo,

@@ -183,6 +183,7 @@ export interface SpreadsheetProps {
     value?: string[][]
     onChange?: (data: string[][]) => void
     onFormatChange?: (row: number, col: number, format: CellFormat) => void
+    onAlignmentChange?: (row: number, col: number, alignment: Alignment) => void
 }
 
 export interface State {
