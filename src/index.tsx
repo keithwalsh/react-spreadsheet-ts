@@ -1,3 +1,3 @@
-import Spreadsheet from './components/Spreadsheet';
-export type { SpreadsheetProps } from './types';
-export default Spreadsheet;
+import { Spreadsheet } from './components/Spreadsheet'
+export type { SpreadsheetProps, CellFormat } from './types'
+export { Spreadsheet }
