@@ -99,35 +99,30 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     const [confirmDialogAction, setConfirmDialogAction] = useState<(() => void) | null>(null);
 
     const handleFormatChange = useCallback(
-        (operation: string, row: number, col: number) => {
+        (format: CellFormat) => {
             if (!onFormatChange) return
-
-            const currentCell = state.data[row]?.[col]
-            if (currentCell === undefined) return
-
-            const toggleFormat = (formatType: 'bold' | 'italic' | 'code') => 
-                operation === formatType.toUpperCase() 
-                    ? !state[formatType][row]?.[col] 
-                    : !!state[formatType][row]?.[col]
-
-            const format: CellFormat = {
-                bold: toggleFormat('bold'),
-                italic: toggleFormat('italic'),
-                code: toggleFormat('code'),
-                alignment: state.alignments[row]?.[col] || 'none'
-            }
-
-            onFormatChange(row, col, format)
+            onFormatChange(format)
         },
-        [onFormatChange, state.bold, state.italic, state.code, state.alignments]
+        [onFormatChange]
     )
 
     const handleTextFormatting = useCallback((operation: 'BOLD' | 'ITALIC' | 'CODE') => {
         dispatch({ type: "APPLY_TEXT_FORMATTING", payload: { operation } })
+        
         if (state.selectedCell) {
-            handleFormatChange(operation, state.selectedCell.row, state.selectedCell.col)
+            const row = state.selectedCell.row
+            const col = state.selectedCell.col
+            
+            const format: CellFormat = {
+                bold: operation === 'BOLD' ? !state.bold[row]?.[col] : !!state.bold[row]?.[col],
+                italic: operation === 'ITALIC' ? !state.italic[row]?.[col] : !!state.italic[row]?.[col],
+                code: operation === 'CODE' ? !state.code[row]?.[col] : !!state.code[row]?.[col],
+                alignment: state.alignments[row]?.[col] || 'left'
+            }
+            
+            handleFormatChange(format)
         }
-    }, [dispatch, state.selectedCell, handleFormatChange])
+    }, [dispatch, state.selectedCell, state.bold, state.italic, state.code, state.alignments, handleFormatChange])
 
     const handleSetBold = useCallback(() => handleTextFormatting('BOLD'), [handleTextFormatting])
     const handleSetItalic = useCallback(() => handleTextFormatting('ITALIC'), [handleTextFormatting])

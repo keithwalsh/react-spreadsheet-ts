@@ -1,10 +1,10 @@
 // hooks/useSpreadsheetActions.ts
 import { useCallback } from "react";
-import { Alignment, State } from "../types";
+import { Alignment, State, CellFormat } from "../types";
 
 const useSpreadsheetActions = (
     dispatch: React.Dispatch<any>,
-    handleFormatChange?: (operation: string, row: number, col: number) => void
+    handleFormatChange?: (format: CellFormat) => void
 ) => {
     const handleUndo = useCallback(() => dispatch({ type: "UNDO" }), [dispatch]);
     const handleRedo = useCallback(() => dispatch({ type: "REDO" }), [dispatch]);
@@ -22,7 +22,13 @@ const useSpreadsheetActions = (
     const clearSelection = useCallback(() => dispatch({ type: "CLEAR_SELECTION" }), [dispatch]);
     const setAlignment = useCallback((alignment: Alignment, state: State) => {
         if (handleFormatChange && state.selectedCell) {
-            handleFormatChange('ALIGNMENT', state.selectedCell.row, state.selectedCell.col)
+            const format: CellFormat = {
+                bold: state.bold[state.selectedCell.row]?.[state.selectedCell.col] || false,
+                italic: state.italic[state.selectedCell.row]?.[state.selectedCell.col] || false,
+                code: state.code[state.selectedCell.row]?.[state.selectedCell.col] || false,
+                alignment: alignment
+            }
+            handleFormatChange(format)
         }
         dispatch({ type: "SET_ALIGNMENT", payload: alignment })
     }, [dispatch, handleFormatChange])

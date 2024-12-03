@@ -54,10 +54,10 @@ const SpreadsheetMeta: Meta<SpreadsheetStoryArgs> = {
             defaultValue: "horizontal"
         }),
         onChange: {
-            description: 'Callback fired when spreadsheet data changes'
+            action: 'onChange'
         },
         onFormatChange: {
-            description: 'Callback fired when cell formatting changes'
+            action: 'onFormatChange'
         }
     },
     decorators: [
@@ -95,6 +95,11 @@ export default SpreadsheetMeta;
 type Story = StoryObj<SpreadsheetStoryArgs>;
 
 export const Default: Story = {
+    parameters: {
+        actions: {
+            handles: ['onChange', 'onFormatChange']
+        }
+    },
     args: {
         mode: "light",
         toolbarOrientation: "horizontal",
@@ -102,5 +107,5 @@ export const Default: Story = {
         initialColumns: 5,
         onChange: fn(),
         onFormatChange: fn()
-    },
+    }
 };

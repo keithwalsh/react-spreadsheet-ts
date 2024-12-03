@@ -7,7 +7,11 @@
 - Delete columns
 - Highlight part of the contents of a cell
 
-
+#### Remember
+- `useRef` is used to access the container element and auto-focus it.
+- `useEffect` is used to add and remove the document-level paste event listener.
+- `useCallback` is used to memoize the handlers to prevent unnecessary re-renders.
+- `SpreadsheetProps`, `CellFormat` are exported from the main file.
 
 #### Problem
 Spreadsheet paste functionality doesn't work on initial load because the container isn't focused and ready to receive paste events.

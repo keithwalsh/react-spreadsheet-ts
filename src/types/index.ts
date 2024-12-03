@@ -182,7 +182,7 @@ export interface SpreadsheetProps {
     tableHeight?: string
     value?: string[][]
     onChange?: (data: string[][]) => void
-    onFormatChange?: (row: number, col: number, format: CellFormat) => void
+    onFormatChange?: (format: CellFormat) => void
 }
 
 export interface State {
