@@ -20,17 +20,12 @@ const useSpreadsheetActions = (
         dispatch({ type: "REMOVE_COLUMN", payload: { index: -1 } });
     }, [dispatch]);
     const clearSelection = useCallback(() => dispatch({ type: "CLEAR_SELECTION" }), [dispatch]);
-    const setAlignment = useCallback((alignment: Alignment) => {
-        dispatch({ type: "SET_ALIGNMENT", payload: alignment });
-        if (handleFormatChange) {
-            dispatch((state: State) => {
-                if (state.selectedCell) {
-                    handleFormatChange('ALIGNMENT', state.selectedCell.row, state.selectedCell.col);
-                }
-                return state;
-            });
+    const setAlignment = useCallback((alignment: Alignment, state: State) => {
+        if (handleFormatChange && state.selectedCell) {
+            handleFormatChange('ALIGNMENT', state.selectedCell.row, state.selectedCell.col)
         }
-    }, [dispatch, handleFormatChange]);
+        dispatch({ type: "SET_ALIGNMENT", payload: alignment })
+    }, [dispatch, handleFormatChange])
 
     return {
         handleUndo,

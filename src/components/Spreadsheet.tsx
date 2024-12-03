@@ -463,9 +463,9 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
             <ToolbarProvider
                 onClickUndo={actions.handleUndo}
                 onClickRedo={actions.handleRedo}
-                onClickAlignLeft={() => actions.setAlignment("left")}
-                onClickAlignCenter={() => actions.setAlignment("center")}
-                onClickAlignRight={() => actions.setAlignment("right")}
+                onClickAlignLeft={() => actions.setAlignment("left", state)}
+                onClickAlignCenter={() => actions.setAlignment("center", state)}
+                onClickAlignRight={() => actions.setAlignment("right", state)}
                 onClickAddRow={actions.handleAddRow}
                 onClickRemoveRow={actions.handleRemoveRow}
                 onClickAddColumn={actions.handleAddColumn}
