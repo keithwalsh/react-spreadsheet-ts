@@ -1,50 +1,31 @@
 // hooks/useSpreadsheetActions.ts
 import { useCallback } from "react";
-import { Alignment, State } from "../types";
+import { useAppDispatch } from '../store/hooks'
+import { applyTextFormatting } from '../store/spreadsheetSlice'
 
-const useSpreadsheetActions = (
-    dispatch: React.Dispatch<any>,
-    handleFormatChange?: (operation: string, row: number, col: number) => void
-) => {
-    const handleUndo = useCallback(() => dispatch({ type: "UNDO" }), [dispatch]);
-    const handleRedo = useCallback(() => dispatch({ type: "REDO" }), [dispatch]);
-    const handleSetBold = useCallback(() => dispatch({ type: "SET_BOLD" }), [dispatch]);
-    const handleSetItalic = useCallback(() => dispatch({ type: "SET_ITALIC" }), [dispatch]);
-    const handleSetCode = useCallback(() => dispatch({ type: "SET_CODE" }), [dispatch]);
-    const handleAddRow = useCallback(() => dispatch({ type: "ADD_ROW" }), [dispatch]);
-    const handleRemoveRow = useCallback(() => dispatch({ type: "REMOVE_ROW" }), [dispatch]);
-    const handleAddColumn = useCallback(() => {
-        dispatch({ type: "ADD_COLUMN", payload: { index: -1, position: "right" } });
-    }, [dispatch]);
-    const handleRemoveColumn = useCallback(() => {
-        dispatch({ type: "REMOVE_COLUMN", payload: { index: -1 } });
-    }, [dispatch]);
-    const clearSelection = useCallback(() => dispatch({ type: "CLEAR_SELECTION" }), [dispatch]);
-    const setAlignment = useCallback((alignment: Alignment) => {
-        dispatch({ type: "SET_ALIGNMENT", payload: alignment });
-        if (handleFormatChange) {
-            dispatch((state: State) => {
-                if (state.selectedCell) {
-                    handleFormatChange('ALIGNMENT', state.selectedCell.row, state.selectedCell.col);
-                }
-                return state;
-            });
-        }
-    }, [dispatch, handleFormatChange]);
+const useSpreadsheetActions = () => {
+    const dispatch = useAppDispatch()
+
+    const handleSetBold = useCallback(() => 
+        dispatch(applyTextFormatting({ operation: "BOLD" })), 
+    [dispatch])
+    
+    const handleSetItalic = useCallback(() => 
+        dispatch(applyTextFormatting({ operation: "ITALIC" })), 
+    [dispatch])
+    
+    const handleSetCode = useCallback(() => 
+        dispatch(applyTextFormatting({ operation: "CODE" })), 
+    [dispatch])
+
+    // ... other actions
 
     return {
-        handleUndo,
-        handleRedo,
         handleSetBold,
         handleSetItalic,
         handleSetCode,
-        handleAddRow,
-        handleRemoveRow,
-        handleAddColumn,
-        handleRemoveColumn,
-        clearSelection,
-        setAlignment,
-    };
-};
+        // ... other actions
+    }
+}
 
-export default useSpreadsheetActions;
+export default useSpreadsheetActions

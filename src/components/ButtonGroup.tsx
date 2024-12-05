@@ -44,16 +44,29 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
             const { title, icon: Icon, handlerKey } = btn;
 
             const handleClick = () => {
-                if (title === "Set Bold") {
-                    handlers.onClickSetBold();
-                } else if (title === "Set Italic") {
-                    handlers.onClickSetItalic();
-                } else if (title === "Set Code") {
-                    handlers.onClickSetCode();
-                } else {
-                    handlers[handlerKey]?.();
+                switch (title) {
+                    case "Set Bold":
+                        handlers.onClickSetBold()
+                        break
+                    case "Set Italic":
+                        handlers.onClickSetItalic()
+                        break
+                    case "Set Code":
+                        handlers.onClickSetCode()
+                        break
+                    case "Align Left":
+                        handlers.onClickAlignLeft()
+                        break
+                    case "Align Center":
+                        handlers.onClickAlignCenter()
+                        break
+                    case "Align Right":
+                        handlers.onClickAlignRight()
+                        break
+                    default:
+                        handlers[handlerKey]?.()
                 }
-            };
+            }
 
             return (
                 <TooltipMui key={title} title={title} placement={tooltipPlacement} arrow={tooltipArrow}>

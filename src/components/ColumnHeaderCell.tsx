@@ -8,6 +8,7 @@ import ColumnContextMenu from "./ColumnContextMenu";
 import { ColumnHeaderCellProps } from "../types";
 import { useHeaderCellStyles } from "../styles"
 import { getColumnLabel } from "../utils/columnUtils";
+import { useDragSelection } from '../hooks'
 
 export function ColumnHeaderCell({
   index,
@@ -16,15 +17,14 @@ export function ColumnHeaderCell({
   onAddColumnLeft,
   onAddColumnRight,
   onRemoveColumn,
-  onDragStart,
-  onDragEnter,
-  onDragEnd,
 }: ColumnHeaderCellProps) {
-  const isSelected = selectedColumns?.has(index) ?? false;
+  const isSelected = selectedColumns?.includes(index) ?? false;
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [isHovered, setIsHovered] = React.useState(false);
+  const [isMouseDown, setIsMouseDown] = React.useState(false);
 
   const styles = useHeaderCellStyles({ isSelected, isHovered });
+  const { handleDragStart, handleDragEnter, handleDragEnd, isDragging } = useDragSelection();
 
   const handleContextMenu = (event: React.MouseEvent<HTMLTableCellElement>) => {
     event.preventDefault();
@@ -36,20 +36,52 @@ export function ColumnHeaderCell({
     setAnchorEl(null);
   };
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsMouseDown(true)
+    handleDragStart(-1, index)
+  }
+
+  const handleMouseEnter = () => {
+    setIsHovered(true)
+    if (isDragging) {
+      handleDragEnter(-1, index)
+    }
+  }
+
+  const handleMouseUp = () => {
+    if (isMouseDown) {
+      setIsMouseDown(false)
+      handleDragEnd()
+    }
+  }
+
+  React.useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (isMouseDown) {
+        setIsMouseDown(false)
+        handleDragEnd()
+      }
+    }
+
+    document.addEventListener('mouseup', handleGlobalMouseUp)
+    return () => document.removeEventListener('mouseup', handleGlobalMouseUp)
+  }, [isMouseDown, handleDragEnd])
+
   const handleAddLeft = () => {
-    onAddColumnLeft(index);
-    handleCloseMenu();
-  };
+    onAddColumnLeft(index)
+    handleCloseMenu()
+  }
 
   const handleAddRight = () => {
-    onAddColumnRight(index);
-    handleCloseMenu();
-  };
+    onAddColumnRight(index)
+    handleCloseMenu()
+  }
 
   const handleRemove = () => {
-    onRemoveColumn(index);
-    handleCloseMenu();
-  };
+    onRemoveColumn(index)
+    handleCloseMenu()
+  }
 
   return (
     <>
@@ -57,13 +89,10 @@ export function ColumnHeaderCell({
         sx={styles}
         onClick={() => handleColumnSelection(index)}
         onContextMenu={handleContextMenu}
-        onMouseEnter={() => {
-          setIsHovered(true);
-          onDragEnter(index);
-        }}
+        onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setIsHovered(false)}
-        onMouseDown={() => onDragStart(index)}
-        onMouseUp={onDragEnd}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
       >
         {getColumnLabel(index)}
       </TableCell>

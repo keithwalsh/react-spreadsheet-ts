@@ -106,6 +106,8 @@ export interface CellProps {
     onMouseDown: (row: number, col: number) => void;
     onMouseEnter: (row: number, col: number) => void;
     onMouseUp: () => void;
+    selectedColumns: number[];
+    selectedRows: number[];
 }
 
 export interface ColumnContextMenuProps {
@@ -120,7 +122,7 @@ export interface ColumnContextMenuProps {
 export interface ColumnHeaderCellProps {
     index: number;
     handleColumnSelection: (index: number) => void;
-    selectedColumns?: Set<number>;
+    selectedColumns: number[];
     className?: string;
     onAddColumnLeft: (index: number) => void;
     onAddColumnRight: (index: number) => void;
@@ -149,7 +151,7 @@ export interface RowNumberCellProps {
     children?: React.ReactNode;
     className?: string;
     onClick?: () => void;
-    selectedRows?: Set<number>;
+    selectedRows: number[];
     rowIndex: number;
     ref?: React.Ref<HTMLTableRowElement> | null;
     onDragStart: (rowIndex: number) => void;
@@ -186,22 +188,24 @@ export interface SpreadsheetProps {
 }
 
 export interface State {
-    data: string[][];
-    past: [string[][], Alignment[][]][];
-    future: [string[][], Alignment[][]][];
-    alignments: Alignment[][];
-    bold: boolean[][];
-    italic: boolean[][];
-    code: boolean[][];
-    selectedColumn: number | null;
-    selectedRow: number | null;
-    selectedCell: { row: number; col: number } | null;
-    selectedCells: boolean[][];
-    selectAll: boolean;
-    isDragging: boolean;
-    dragStart: { row: number; col: number } | null;
-    dragStartRow: number | null;
-    dragStartColumn: number | null;
+    data: string[][]
+    alignments: Alignment[][]
+    bold: boolean[][]
+    italic: boolean[][]
+    code: boolean[][]
+    past: [string[][], Alignment[][]][]
+    future: [string[][], Alignment[][]][]
+    selectedColumn: number | null
+    selectedRow: number | null
+    selectedCell: { row: number, col: number } | null
+    selectedCells: boolean[][]
+    selectedRows: number[]
+    selectedColumns: number[]
+    selectAll: boolean
+    isDragging: boolean
+    dragStart: { row: number, col: number } | null
+    dragStartRow: number | null
+    dragStartColumn: number | null
 }
 
 export interface TableDimensionInputProps {

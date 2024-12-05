@@ -12,9 +12,11 @@ export const initialState = (rows: number, columns: number): State => ({
     selectedRow: null,
     selectedCell: null,
     selectedCells: Array.from({ length: rows }, () => Array(columns).fill(false)),
+    selectedRows: [],
     selectAll: false,
     isDragging: false,
     dragStart: null,
     dragStartRow: null,
     dragStartColumn: null,
+    selectedColumns: [],
 });

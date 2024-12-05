@@ -1,8 +1,11 @@
 import { Meta, StoryObj } from "@storybook/react";
 import { fn } from '@storybook/test'
 import { ThemeProvider, createTheme } from '@mui/material';
+import { Provider } from 'react-redux'
+import { useMemo } from 'react'
 import Spreadsheet from "../src/components/Spreadsheet";
 import { SpreadsheetProps } from "../src/types";
+import { createStore } from '../src/store'
 
 interface SpreadsheetStoryArgs extends SpreadsheetProps {
     mode?: 'light' | 'dark';
@@ -61,31 +64,42 @@ const SpreadsheetMeta: Meta<SpreadsheetStoryArgs> = {
         }
     },
     decorators: [
-        (Story, context) => {
-            const { mode = 'light' } = context.args;
-            const theme = createTheme({
+        (StoryFn: React.ComponentType<SpreadsheetStoryArgs>, context: { args: SpreadsheetStoryArgs }) => {
+            const { mode = 'light', initialRows = 4, initialColumns = 5 } = context.args
+            
+            // Memoize theme creation
+            const theme = useMemo(() => createTheme({
                 palette: {
                     mode,
                 },
-            });
+            }), [mode])
 
-            // Create a unique key based on initialRows and initialColumns
-            const key = `rows-${context.args.initialRows}-cols-${context.args.initialColumns}`;
+            // Memoize store creation with initial state
+            const store = useMemo(() => {
+                const newStore = createStore()
+                // Initialize store with the correct dimensions
+                newStore.dispatch({
+                    type: 'spreadsheet/setTableSize',
+                    payload: { row: initialRows, col: initialColumns }
+                })
+                return newStore
+            }, [initialRows, initialColumns])
 
             return (
-                <ThemeProvider theme={theme}>
-                    <div
-                        style={{
-                            display: "inline-block",
-                            padding: 0,
-                            backgroundColor: mode === "dark" ? "#000" : "#fff",
-                        }}
-                        key={key}
-                    >
-                        <Story {...context.args} />
-                    </div>
-                </ThemeProvider>
-            );
+                <Provider store={store}>
+                    <ThemeProvider theme={theme}>
+                        <div
+                            style={{
+                                display: "inline-block",
+                                padding: 0,
+                                backgroundColor: mode === "dark" ? "#000" : "#fff",
+                            }}
+                        >
+                            <StoryFn {...context.args} />
+                        </div>
+                    </ThemeProvider>
+                </Provider>
+            )
         },
     ],
 };

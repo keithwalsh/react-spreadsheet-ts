@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { TableCell as TableCellMui, useTheme } from "@mui/material";
 import { CellProps } from "../types";
+import { useAppSelector } from '../store/hooks'
 
 const Cell: React.FC<CellProps> = React.memo(
     ({
@@ -16,7 +17,10 @@ const Cell: React.FC<CellProps> = React.memo(
         onMouseDown,
         onMouseEnter,
         onMouseUp,
+        selectedColumns,
+        selectedRows,
     }) => {
+        const { bold, italic, code } = useAppSelector(state => state.spreadsheet)
         const theme = useTheme();
         const isDarkMode = theme.palette.mode === 'dark';
         const [isEditing, setIsEditing] = useState(false);
@@ -25,23 +29,29 @@ const Cell: React.FC<CellProps> = React.memo(
         const [isFontCode, setIsFontCode] = useState(false);
         const cellRef = useRef<HTMLDivElement>(null);
 
-        const isSelected = selectedCell && selectedCell.row === rowIndex && selectedCell.col === colIndex;
+        const isSingleCellSelected = selectedCell?.row === rowIndex && selectedCell?.col === colIndex;
+        const isColumnSelected = selectedColumns?.includes(colIndex);
+        const isRowSelected = selectedRows?.includes(rowIndex);
+        const isMultiSelected = selectedCells[rowIndex]?.[colIndex];
+
         const multipleCellsSelected = useMemo(() => selectedCells.flat().filter(Boolean).length > 1, [selectedCells]);
 
         const enableEditMode = useCallback(() => {
-            setIsEditing(true);
-            requestAnimationFrame(() => {
-                if (cellRef.current) {
-                    cellRef.current.focus();
-                    const range = document.createRange();
-                    const sel = window.getSelection();
-                    range.selectNodeContents(cellRef.current);
-                    range.collapse(false);
-                    sel?.removeAllRanges();
-                    sel?.addRange(range);
-                }
-            });
-        }, []);
+            if (cellRef.current) {
+                setIsEditing(true)
+                requestAnimationFrame(() => {
+                    if (cellRef.current) {
+                        cellRef.current.focus()
+                        const range = document.createRange()
+                        const sel = window.getSelection()
+                        range.selectNodeContents(cellRef.current)
+                        range.collapse(false)
+                        sel?.removeAllRanges()
+                        sel?.addRange(range)
+                    }
+                })
+            }
+        }, [])
 
         const handleMouseEvent = useCallback(
             ({ 
@@ -96,60 +106,31 @@ const Cell: React.FC<CellProps> = React.memo(
 
         useEffect(() => {
             if (cellRef.current) {
-                cellRef.current.textContent = cellData || "";
-
-                const regexBold = /^\*\*(.+)\*\*$/;
-                const regexItalic = /^\*?\*?_(.+)_\*?\*?$/;
-                const regexCode = /^\*?\*?\_?\`(.+)\`\_?\*?\*?$/;
-
-                setFontWeight(regexBold.test(cellData || "") ? "bold" : "normal");
-                setFontStyle(regexItalic.test(cellData || "") ? "italic" : "normal");
-                setIsFontCode(regexCode.test(cellData || ""));
+                const currentContent = cellRef.current.textContent
+                if (currentContent !== cellData) {
+                    cellRef.current.textContent = cellData || ""
+                }
+                setFontWeight(bold[rowIndex][colIndex] ? "bold" : "normal")
+                setFontStyle(italic[rowIndex][colIndex] ? "italic" : "normal")
+                setIsFontCode(code[rowIndex][colIndex])
             }
-        }, [cellData]);
-
-        const handleMouseDownEvent = useCallback(
-            (e: React.MouseEvent) => {
-                if (isEditing) {
-                    return;
-                }
-                e.preventDefault();
-                onMouseDown(rowIndex, colIndex);
-                handleCellSelection(rowIndex, colIndex);
-            },
-            [rowIndex, colIndex, onMouseDown, handleCellSelection, isEditing]
-        );
-
-        const handleMouseEnterEvent = useCallback(
-            (e: React.MouseEvent) => {
-                e.preventDefault();
-                onMouseEnter(rowIndex, colIndex);
-            },
-            [rowIndex, colIndex, onMouseEnter]
-        );
-
-        const handleClick = useCallback(
-            (e: React.MouseEvent) => {
-                e.stopPropagation();
-                if (!isEditing) {
-                    handleCellSelection(rowIndex, colIndex);
-                }
-            },
-            [rowIndex, colIndex, handleCellSelection, isEditing]
-        );
+        }, [cellData, bold, italic, code, rowIndex, colIndex])
 
         const handleBlur = useCallback(() => {
-            setIsEditing(false);
             if (cellRef.current) {
-                handleCellChange(rowIndex, colIndex, cellRef.current.textContent || "");
+                const newContent = cellRef.current.textContent || ""
+                if (newContent !== cellData) {
+                    handleCellChange(rowIndex, colIndex, newContent)
+                }
             }
-        }, [rowIndex, colIndex, handleCellChange]);
+            setIsEditing(false)
+        }, [rowIndex, colIndex, handleCellChange, cellData])
 
         useEffect(() => {
-            if (!isSelected && isEditing) {
-                handleBlur();
+            if (!isSingleCellSelected && isEditing) {
+                handleBlur()
             }
-        }, [isSelected, isEditing, handleBlur]);
+        }, [isSingleCellSelected, isEditing, handleBlur])
 
         const cellStyles = useMemo(() => {
             const themeStyles = isDarkMode
@@ -166,31 +147,84 @@ const Cell: React.FC<CellProps> = React.memo(
                       "&:last-child": {
                           borderRight: "1px solid #e0e0e0",
                       },
-                  };
+                  }
+
+            const getBackgroundColor = () => {
+                if (isMultiSelected && multipleCellsSelected) {
+                    return "rgba(25, 118, 210, 0.12)"
+                }
+                if (isColumnSelected || isRowSelected) {
+                    return "rgba(25, 118, 210, 0.08)"
+                }
+                return "transparent"
+            }
+
+            const outlineStyle = isSingleCellSelected ? {
+                outline: "#1976d2 solid 1px",
+                outlineOffset: "-1px"
+            } : {
+                outline: "none",
+                outlineOffset: "0"
+            }
 
             return {
                 ...themeStyles,
+                ...outlineStyle,
                 height: "37.02px",
                 cursor: isEditing ? "text" : "pointer",
-                backgroundColor: selectedCells[rowIndex]?.[colIndex] && multipleCellsSelected ? "rgba(25, 118, 210, 0.12)" : "transparent",
+                backgroundColor: getBackgroundColor(),
                 p: 1,
-                outline: isSelected ? "#1976d2 solid 1px" : "none",
-                outlineOffset: isSelected ? "-1px" : "0",
                 ...(isEditing && {
                     boxShadow: "rgba(0, 0, 0, 0.2) 0px 3px 1px -2px, rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px",
                     textIndent: "3px",
                     zIndex: 1,
                 }),
-            };
-        }, [isDarkMode, isEditing, selectedCells, rowIndex, colIndex, multipleCellsSelected, isSelected]);
+            }
+        }, [
+            isDarkMode, 
+            isEditing, 
+            isMultiSelected,
+            isColumnSelected,
+            isRowSelected,
+            isSingleCellSelected,
+            multipleCellsSelected
+        ])
+
+        const handleClick = useCallback((e: React.MouseEvent) => {
+            if (isSingleCellSelected) {
+                e.preventDefault()
+                e.stopPropagation()
+                return
+            }
+            
+            e.stopPropagation()
+            handleCellSelection(rowIndex, colIndex)
+        }, [isSingleCellSelected, handleCellSelection, rowIndex, colIndex])
+
+        const handleMouseDownEvent = useCallback(
+            (e: React.MouseEvent) => {
+                if (isSingleCellSelected) {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    return
+                }
+                
+                if (isEditing) {
+                    return
+                }
+                e.preventDefault()
+                onMouseDown(rowIndex, colIndex)
+            },
+            [isSingleCellSelected, rowIndex, colIndex, onMouseDown, isEditing]
+        )
 
         return (
             <TableCellMui
                 align={align}
-                onMouseDown={handleMouseDownEvent}
-                onMouseEnter={handleMouseEnterEvent}
                 onMouseUp={handleMouseUpEvent}
                 onClick={handleClick}
+                onMouseDown={handleMouseDownEvent}
+                onMouseEnter={() => onMouseEnter(rowIndex, colIndex)}
                 onDoubleClick={handleDoubleClick}
                 sx={cellStyles}
             >
