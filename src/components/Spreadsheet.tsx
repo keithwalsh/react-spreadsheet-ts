@@ -29,6 +29,7 @@ import { ButtonGroup, ToolbarProvider, Cell, ColumnHeaderCell, Row, RowNumberCel
 import { SpreadsheetProps } from "../types"
 import { useDragSelection } from '../hooks'
 import { addRow, removeRow, addColumn, removeColumn } from '../utils/spreadsheetOperations'
+import { downloadCSV } from '../utils'
 
 export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     toolbarOrientation = 'horizontal',
@@ -209,7 +210,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                         onCreateNewTable={(rows, columns) => {
                             dispatch(setTableSize({ row: rows, col: columns }))
                         }}
-                        onDownloadCSV={() => {}}
+                        onDownloadCSV={() => downloadCSV(state.data)}
                     />
                 </Box>
                 <div ref={buttonGroupRef}>
