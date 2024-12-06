@@ -191,31 +191,20 @@ const Cell: React.FC<CellProps> = React.memo(
         ])
 
         const handleClick = useCallback((e: React.MouseEvent) => {
-            if (isSingleCellSelected) {
-                e.preventDefault()
-                e.stopPropagation()
-                return
-            }
-            
             e.stopPropagation()
-            handleCellSelection(rowIndex, colIndex)
+            if (!isSingleCellSelected) {
+                handleCellSelection(rowIndex, colIndex)
+            }
         }, [isSingleCellSelected, handleCellSelection, rowIndex, colIndex])
 
         const handleMouseDownEvent = useCallback(
-            (e: React.MouseEvent) => {
-                if (isSingleCellSelected) {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    return
+            createMouseEventHandler({
+                shouldPreventDefault: true,
+                handler: () => {
+                    onMouseDown(rowIndex, colIndex)
                 }
-                
-                if (isEditing) {
-                    return
-                }
-                e.preventDefault()
-                onMouseDown(rowIndex, colIndex)
-            },
-            [isSingleCellSelected, rowIndex, colIndex, onMouseDown, isEditing]
+            }),
+            [onMouseDown, rowIndex, colIndex, createMouseEventHandler]
         )
 
         return (
