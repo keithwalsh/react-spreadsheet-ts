@@ -7,7 +7,10 @@ import {
     clearTable,
     transposeTable,
     toggleSelectAll,
-    setSelectedCell
+    setSelectedCell,
+    setSelectedColumn,
+    undo,
+    redo
 } from '../store/spreadsheetSlice'
 import {
     Box,
@@ -42,7 +45,19 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
 
     useEffect(() => {
         if (value) {
-            dispatch(setData([value, Array(value.length).fill(Array(value[0].length).fill("left"))]))
+            dispatch(setData({
+                data: value,
+                alignments: Array(value.length).fill(Array(value[0].length).fill("left")),
+                bold: Array(value.length).fill(Array(value[0].length).fill(false)),
+                italic: Array(value.length).fill(Array(value[0].length).fill(false)),
+                code: Array(value.length).fill(Array(value[0].length).fill(false)),
+                selectedCell: null,
+                selectedCells: Array(value.length).fill(Array(value[0].length).fill(false)),
+                selectedRows: [],
+                selectedColumns: [],
+                isDragging: false,
+                selectAll: false
+            }))
         }
     }, [value, dispatch])
 
@@ -56,9 +71,21 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
         (rowIndex: number, colIndex: number, value: string) => {
             const newData = [...state.data.map(row => [...row])]
             newData[rowIndex][colIndex] = value
-            dispatch(setData([newData, state.alignments]))
+            dispatch(setData({
+                data: newData,
+                alignments: state.alignments,
+                bold: state.bold,
+                italic: state.italic,
+                code: state.code,
+                selectedCell: state.selectedCell,
+                selectedCells: state.selectedCells,
+                selectedRows: state.selectedRows,
+                selectedColumns: state.selectedColumns,
+                isDragging: state.isDragging,
+                selectAll: state.selectAll
+            }))
         },
-        [dispatch, state.data, state.alignments]
+        [dispatch, state.data, state.alignments, state.bold, state.italic, state.code, state.selectedCell, state.selectedCells, state.selectedRows, state.selectedColumns, state.isDragging, state.selectAll]
     )
 
     const handleMouseDown = useCallback(
@@ -108,8 +135,8 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
             }}
         >
             <ToolbarProvider
-                onClickUndo={() => {}}
-                onClickRedo={() => {}}
+                onClickUndo={() => dispatch(undo())}
+                onClickRedo={() => dispatch(redo())}
                 onClickAlignLeft={() => {}}
                 onClickAlignCenter={() => {}}
                 onClickAlignRight={() => {}}
@@ -148,7 +175,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                                 <ColumnHeaderCell
                                     key={index}
                                     index={index}
-                                    handleColumnSelection={() => handleCellSelection(-1, index)}
+                                    handleColumnSelection={() => dispatch(setSelectedColumn(index))}
                                     selectedColumns={state.selectedColumns}
                                     onAddColumnLeft={() => {}}
                                     onAddColumnRight={() => {}}

@@ -177,14 +177,19 @@ export interface SelectionRange {
     endRow: number
     endCol: number
 }
-export interface SpreadsheetProps {
-    toolbarOrientation?: 'horizontal' | 'vertical'
-    initialRows?: number
-    initialColumns?: number
-    tableHeight?: string
-    value?: string[][]
-    onChange?: (data: string[][]) => void
-    onFormatChange?: (row: number, col: number, format: CellFormat) => void
+
+export type DataPayload = {
+    data: string[][]
+    alignments: Alignment[][]
+    bold: boolean[][]
+    italic: boolean[][]
+    code: boolean[][]
+    selectedCell?: { row: number, col: number } | null
+    selectedCells?: boolean[][]
+    selectedRows?: number[]
+    selectedColumns?: number[]
+    isDragging?: boolean
+    selectAll?: boolean
 }
 
 export interface State {
@@ -193,8 +198,8 @@ export interface State {
     bold: boolean[][]
     italic: boolean[][]
     code: boolean[][]
-    past: [string[][], Alignment[][]][]
-    future: [string[][], Alignment[][]][]
+    past: DataPayload[]
+    future: DataPayload[]
     selectedColumn: number | null
     selectedRow: number | null
     selectedCell: { row: number, col: number } | null
@@ -206,6 +211,16 @@ export interface State {
     dragStart: { row: number, col: number } | null
     dragStartRow: number | null
     dragStartColumn: number | null
+}
+
+export interface SpreadsheetProps {
+    toolbarOrientation?: 'horizontal' | 'vertical'
+    initialRows?: number
+    initialColumns?: number
+    tableHeight?: string
+    value?: string[][]
+    onChange?: (data: string[][]) => void
+    onFormatChange?: (row: number, col: number, format: CellFormat) => void
 }
 
 export interface TableDimensionInputProps {

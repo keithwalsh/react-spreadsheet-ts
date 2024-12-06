@@ -2,7 +2,6 @@ import React, { createContext } from "react";
 import { useAppDispatch } from '../store/hooks'
 import { 
     applyTextFormatting,
-    // Add other actions as needed
 } from '../store/spreadsheetSlice'
 import { ToolbarContextType, ToolbarProviderProps } from "../types";
 
