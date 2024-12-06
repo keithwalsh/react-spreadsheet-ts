@@ -227,7 +227,6 @@ export interface State {
 }
 
 export interface SpreadsheetProps {
-    toolbarOrientation?: 'horizontal' | 'vertical'
     initialRows?: number
     initialColumns?: number
     tableHeight?: string
@@ -280,6 +279,7 @@ export interface ToolbarContextType {
     currentRows: number;
     currentCols: number;
     clearTable: () => void;
+    clearSelected: () => void;
     transposeTable: () => void;
 }
 

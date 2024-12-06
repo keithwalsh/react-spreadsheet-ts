@@ -29,6 +29,7 @@ interface ToolbarContextType {
     onClickSetBold: () => void
     onClickSetItalic: () => void
     onClickSetCode: () => void
+    clearSelected: () => void
 }
 
 const defaultContext: ToolbarContextType = {
@@ -48,7 +49,8 @@ const defaultContext: ToolbarContextType = {
     onClickRemoveColumn: () => {},
     onClickSetBold: () => {},
     onClickSetItalic: () => {},
-    onClickSetCode: () => {}
+    onClickSetCode: () => {},
+    clearSelected: () => {}
 }
 
 export const TableMenu: React.FC<TableMenuProps> = ({ onCreateNewTable, onDownloadCSV }) => {

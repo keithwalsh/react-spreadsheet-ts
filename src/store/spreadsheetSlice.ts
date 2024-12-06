@@ -15,7 +15,7 @@ type TableSizePayload = {
 const spreadsheetSlice = createSlice({
     name: 'spreadsheet',
     initialState: {
-        ...initialState(10, 10),
+        ...initialState(4, 4), // Default to minimum size, will be updated by component
         selectedColumns: [] as number[],
         past: [] as DataPayload[],
         future: [] as DataPayload[]
@@ -159,24 +159,26 @@ const spreadsheetSlice = createSlice({
             state.selectedRows = []
         },
 
-        setTableSize: (state, action: PayloadAction<TableSizePayload>) => {
-            const { row, col } = action.payload
+        setTableSize: (state, action: PayloadAction<TableSizePayload & { isInitialSetup?: boolean }>) => {
+            const { row, col, isInitialSetup } = action.payload
             
-            // Save current state before changing
-            state.past.push({
-                data: state.data,
-                alignments: state.alignments,
-                bold: state.bold,
-                italic: state.italic,
-                code: state.code,
-                selectedCell: state.selectedCell,
-                selectedCells: state.selectedCells,
-                selectedRows: state.selectedRows,
-                selectedColumns: state.selectedColumns,
-                isDragging: state.isDragging,
-                selectAll: state.selectAll
-            })
-            state.future = [] // Clear future states
+            // Only save to history if it's not the initial setup
+            if (!isInitialSetup) {
+                state.past.push({
+                    data: state.data,
+                    alignments: state.alignments,
+                    bold: state.bold,
+                    italic: state.italic,
+                    code: state.code,
+                    selectedCell: state.selectedCell,
+                    selectedCells: state.selectedCells,
+                    selectedRows: state.selectedRows,
+                    selectedColumns: state.selectedColumns,
+                    isDragging: state.isDragging,
+                    selectAll: state.selectAll
+                })
+                state.future = [] // Clear future states
+            }
             
             // Update state
             state.data = Array.from({ length: row }, () => Array(col).fill(""))
@@ -217,6 +219,58 @@ const spreadsheetSlice = createSlice({
             
             // Reset selection state
             state.selectedCell = null
+            state.selectedRows = []
+            state.selectedColumns = []
+            state.selectAll = false
+            state.isDragging = false
+            state.dragStart = null
+            state.dragStartRow = null
+            state.dragStartColumn = null
+        },
+
+        clearSelected: (state) => {
+            // Save current state before clearing
+            state.past.push({
+                data: state.data,
+                alignments: state.alignments,
+                bold: state.bold,
+                italic: state.italic,
+                code: state.code,
+                selectedCell: state.selectedCell,
+                selectedCells: state.selectedCells,
+                selectedRows: state.selectedRows,
+                selectedColumns: state.selectedColumns,
+                isDragging: state.isDragging,
+                selectAll: state.selectAll
+            })
+            state.future = [] // Clear future states
+            
+            const numRows = state.data.length
+            const numCols = state.data[0].length
+            
+            for (let i = 0; i < numRows; i++) {
+                for (let j = 0; j < numCols; j++) {
+                    // Check if cell is selected through any selection mechanism
+                    const isSelected = 
+                        state.selectedCells[i][j] || 
+                        state.selectedRows.includes(i) || 
+                        state.selectedColumns.includes(j) ||
+                        (state.selectedCell?.row === i && state.selectedCell?.col === j) ||
+                        state.selectAll
+                    
+                    if (isSelected) {
+                        state.data[i][j] = ""
+                        state.alignments[i][j] = "left"
+                        state.bold[i][j] = false
+                        state.italic[i][j] = false
+                        state.code[i][j] = false
+                    }
+                }
+            }
+            
+            // Clear selection state after operation
+            state.selectedCell = null
+            state.selectedCells = Array.from({ length: numRows }, () => Array(numCols).fill(false))
             state.selectedRows = []
             state.selectedColumns = []
             state.selectAll = false
@@ -491,6 +545,7 @@ export const {
     clearRowSelection,
     setTableSize,
     clearTable,
+    clearSelected,
     transposeTable,
     setSelectedCell,
     setSelectedColumn,

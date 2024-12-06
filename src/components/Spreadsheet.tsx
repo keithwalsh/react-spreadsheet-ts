@@ -10,7 +10,8 @@ import {
     setSelectedCell,
     setSelectedColumn,
     undo,
-    redo
+    redo,
+    clearSelected
 } from '../store/spreadsheetSlice'
 import {
     Box,
@@ -32,9 +33,8 @@ import { addRow, removeRow, addColumn, removeColumn } from '../utils/spreadsheet
 import { downloadCSV, handlePaste } from '../utils'
 
 export const Spreadsheet: React.FC<SpreadsheetProps> = ({
-    toolbarOrientation = 'horizontal',
     initialRows = 4,
-    initialColumns = 10,
+    initialColumns = 5,
     value,
 }) => {
     const dispatch = useAppDispatch()
@@ -60,14 +60,11 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                 isDragging: false,
                 selectAll: false
             }))
+        } else {
+            // Initialize with the provided dimensions, marking it as initial setup
+            dispatch(setTableSize({ row: initialRows, col: initialColumns, isInitialSetup: true }))
         }
-    }, [value, dispatch])
-
-    useEffect(() => {
-        if (!value) {
-            dispatch(setTableSize({ row: initialRows, col: initialColumns }))
-        }
-    }, [initialRows, initialColumns, value, dispatch])
+    }, [value, initialRows, initialColumns, dispatch])
 
     const handleCellChange = useCallback(
         (rowIndex: number, colIndex: number, value: string) => {
@@ -163,10 +160,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     return (
         <Box
             sx={{
-                display: "flex",
-                flexDirection: "column",
-                ...(toolbarOrientation === "horizontal" ? { p: 0 } : { p: 0 }),
-                height: "100%",
+                p: 0
             }}
         >
             <ToolbarProvider
@@ -236,6 +230,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                 currentRows={state.data.length}
                 currentCols={state.data[0].length}
                 clearTable={clearTable}
+                clearSelected={() => dispatch(clearSelected())}
                 transposeTable={transposeTable}
             >
                 <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -247,7 +242,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                     />
                 </Box>
                 <div ref={buttonGroupRef}>
-                    <ButtonGroup orientation={toolbarOrientation} />
+                    <ButtonGroup orientation="horizontal" />
                 </div>
             </ToolbarProvider>
             <div 

@@ -3,6 +3,7 @@ import { useAppDispatch } from '../store/hooks'
 import { 
     applyTextFormatting,
     clearTable,
+    clearSelected,
     undo,
     redo
 } from '../store/spreadsheetSlice'
@@ -35,6 +36,9 @@ export const ToolbarProvider: React.FC<ToolbarProviderProps> = ({ children, ...h
         },
         clearTable: () => {
             dispatch(clearTable())
+        },
+        clearSelected: () => {
+            dispatch(clearSelected())
         },
         onClickUndo: () => {
             dispatch(undo())

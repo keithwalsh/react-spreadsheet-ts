@@ -12,6 +12,7 @@ import {
   FolderOpen,
   Undo,
   Redo,
+  Delete
 } from "@mui/icons-material"
 import { MenuConfig } from "mui-menubar"
 import { ToolbarContextType } from "src/types"
@@ -31,21 +32,22 @@ interface MenuConfigParams extends ToolbarContextType {
 
 export function createMenuConfig(params: MenuConfigParams): MenuConfig[] {
   const {
-        handleNewTable,
-        onDownloadCSV,
-        TableSizeChooser,
-        toolbarContext
+    handleNewTable,
+    onDownloadCSV,
+    TableSizeChooser,
+    toolbarContext
   } = params
 
   const {
-    onClickUndo,
-    onClickRedo,
-    clearTable,
+    clearSelected,
     transposeTable,
     currentRows,
     currentCols,
-    setTableSize
-} = toolbarContext
+    setTableSize,
+    onClickUndo,
+    onClickRedo,
+    clearTable
+  } = toolbarContext
 
   return [
     {
@@ -53,15 +55,17 @@ export function createMenuConfig(params: MenuConfigParams): MenuConfig[] {
       items: [
         {
           kind: "action",
-          label: "New table...",
+          label: "New table",
           action: handleNewTable,
-          icon: React.createElement(FolderOpen)
+          icon: React.createElement(FolderOpen),
+          shortcut: "Ctrl+N"
         },
         {
           kind: "action",
           label: "Download as CSV",
           action: onDownloadCSV,
-          icon: React.createElement(Save)
+          icon: React.createElement(Save),
+          shortcut: "Ctrl+S"
         }
       ]
     },
@@ -81,6 +85,14 @@ export function createMenuConfig(params: MenuConfigParams): MenuConfig[] {
           action: onClickRedo,
           icon: React.createElement(Redo),
           shortcut: "Ctrl+Y"
+        },
+        { kind: "divider" },
+        {
+          kind: "action",
+          label: "Delete selected",
+          action: clearSelected,
+          icon: React.createElement(Delete),
+          shortcut: "Delete"
         }
       ]
     },
@@ -118,4 +130,4 @@ export function createMenuConfig(params: MenuConfigParams): MenuConfig[] {
       ]
     }
   ]
-} 
+}
