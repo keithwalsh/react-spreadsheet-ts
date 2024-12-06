@@ -1,5 +1,10 @@
 import React from "react";
-import { Menu, MenuItem } from "@mui/material";
+import { Divider, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
+import { 
+    ArrowBack, 
+    ArrowForward, 
+    DeleteOutline 
+} from "@mui/icons-material";
 import { ColumnContextMenuProps } from "../types";
 
 const ColumnContextMenu: React.FC<ColumnContextMenuProps> = ({ anchorEl, open, onClose, onAddLeft, onAddRight, onRemove }) => {
@@ -18,13 +23,29 @@ const ColumnContextMenu: React.FC<ColumnContextMenuProps> = ({ anchorEl, open, o
             }}
         >
             <MenuItem dense onClick={onAddLeft}>
-                Add column to the left
+                <ListItemIcon>
+                    <ArrowBack fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>
+                    Add column to the left
+                </ListItemText>
             </MenuItem>
             <MenuItem dense onClick={onAddRight}>
-                Add column to the right
+                <ListItemIcon>
+                    <ArrowForward fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>
+                    Add column to the right
+                </ListItemText>
             </MenuItem>
+            <Divider />
             <MenuItem dense onClick={onRemove}>
-                Remove column
+                <ListItemIcon>
+                    <DeleteOutline fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>
+                    Remove column
+                </ListItemText>
             </MenuItem>
         </Menu>
     );
