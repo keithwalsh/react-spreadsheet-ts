@@ -29,7 +29,7 @@ export function useHeaderCellStyles({ isSelected, isHovered, isHighlighted = fal
       ...baseStyles,
       color: "#BEBFC0",
       backgroundColor: isSelected ? "#686868" : 
-                     isHighlighted ? "#585858" :
+                     isHighlighted ? "#515151" :
                      isHovered ? "#515151" : "#414547",
       borderRight: "1px solid #686868",
       borderBottom: "1px solid #686868",
@@ -41,8 +41,8 @@ export function useHeaderCellStyles({ isSelected, isHovered, isHighlighted = fal
     ...baseStyles,
     color: "rgba(0, 0, 0, 0.54)",
     backgroundColor: isSelected ? "#e0e0e0" : 
-                   isHighlighted ? "#f0f0f0" :
-                   isHovered ? "#f5f5f5" : "#f8f8f8",
+                   isHighlighted ? "#e0e0e0" :
+                   isHovered ? "#f5f5f5" : "#f0f0f0",
     borderRight: "1px solid #e0e0e0",
     "&:hover": { backgroundColor: "#e0e0e0" },
   };
