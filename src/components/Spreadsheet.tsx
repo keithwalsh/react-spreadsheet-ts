@@ -28,6 +28,7 @@ import {
 import { ButtonGroup, ToolbarProvider, Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, Table, TableMenu } from "."
 import { SpreadsheetProps } from "../types"
 import { useDragSelection } from '../hooks'
+import { addRow, removeRow, addColumn, removeColumn } from '../utils/spreadsheetOperations'
 
 export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     toolbarOrientation = 'horizontal',
@@ -140,10 +141,60 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                 onClickAlignLeft={() => {}}
                 onClickAlignCenter={() => {}}
                 onClickAlignRight={() => {}}
-                onClickAddRow={() => {}}
-                onClickRemoveRow={() => {}}
-                onClickAddColumn={() => {}}
-                onClickRemoveColumn={() => {}}
+                onClickAddRow={() => {
+                    const { newData, newAlignments, newSelectedCells } = addRow({
+                        data: state.data,
+                        alignments: state.alignments,
+                        selectedCells: state.selectedCells
+                    });
+                    dispatch(setData({
+                        ...state,
+                        data: newData,
+                        alignments: newAlignments,
+                        selectedCells: newSelectedCells
+                    }));
+                }}
+                onClickRemoveRow={() => {
+                    const { newData, newAlignments, newSelectedCells } = removeRow({
+                        data: state.data,
+                        alignments: state.alignments,
+                        selectedCells: state.selectedCells
+                    });
+                    dispatch(setData({
+                        ...state,
+                        data: newData,
+                        alignments: newAlignments,
+                        selectedCells: newSelectedCells
+                    }));
+                }}
+                onClickAddColumn={() => {
+                    const { newData, newAlignments, newSelectedCells } = addColumn({
+                        data: state.data,
+                        alignments: state.alignments,
+                        selectedCells: state.selectedCells,
+                        index: state.selectedColumns?.[0] ?? state.data[0].length - 1
+                    });
+                    dispatch(setData({
+                        ...state,
+                        data: newData,
+                        alignments: newAlignments,
+                        selectedCells: newSelectedCells
+                    }));
+                }}
+                onClickRemoveColumn={() => {
+                    const { newData, newAlignments, newSelectedCells } = removeColumn({
+                        data: state.data,
+                        alignments: state.alignments,
+                        selectedCells: state.selectedCells,
+                        index: state.selectedColumns?.[0] ?? state.data[0].length - 1
+                    });
+                    dispatch(setData({
+                        ...state,
+                        data: newData,
+                        alignments: newAlignments,
+                        selectedCells: newSelectedCells
+                    }));
+                }}
                 onClickSetBold={() => {}}
                 onClickSetItalic={() => {}}
                 onClickSetCode={() => {}}
