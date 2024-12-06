@@ -7,5 +7,17 @@ import SelectAllCell from "./SelectAllCell";
 import Table from "./Table";
 import TableMenu from "./Menu";
 import { ToolbarProvider } from "./ToolbarProvider";
+import RowContextMenu from "./RowContextMenu";
 
-export { ButtonGroup, ToolbarProvider, Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, Table, TableMenu };
+export { 
+    ButtonGroup, 
+    ToolbarProvider, 
+    Cell, 
+    ColumnHeaderCell, 
+    Row, 
+    RowNumberCell, 
+    SelectAllCell, 
+    Table, 
+    TableMenu,
+    RowContextMenu 
+};

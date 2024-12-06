@@ -26,23 +26,36 @@ function spliceColumn<T>(matrix: T[][], index: number, deleteCount: number, valu
     })
 }
 
-export const addRow = ({ data, alignments, selectedCells }: OperationParams) => {
+export const addRow = ({ data, alignments, selectedCells, index = data.length }: OperationParams) => {
     const newRow = Array(data[0].length).fill("");
     const newAlignmentRow = Array(alignments[0].length).fill("left" as Alignment);
     const newSelectedCellsRow = Array(selectedCells[0].length).fill(false);
+    
     return {
-        newData: [...data, newRow],
-        newAlignments: [...alignments, newAlignmentRow],
-        newSelectedCells: [...selectedCells, newSelectedCellsRow],
+        newData: [
+            ...data.slice(0, index),
+            newRow,
+            ...data.slice(index)
+        ],
+        newAlignments: [
+            ...alignments.slice(0, index),
+            newAlignmentRow,
+            ...alignments.slice(index)
+        ],
+        newSelectedCells: [
+            ...selectedCells.slice(0, index),
+            newSelectedCellsRow,
+            ...selectedCells.slice(index)
+        ],
     };
 };
 
-export const removeRow = ({ data, alignments, selectedCells }: OperationParams) => {
+export const removeRow = ({ data, alignments, selectedCells, index = data.length - 1 }: OperationParams) => {
     if (data.length > 1) {
         return {
-            newData: data.slice(0, -1),
-            newAlignments: alignments.slice(0, -1),
-            newSelectedCells: selectedCells.slice(0, -1),
+            newData: [...data.slice(0, index), ...data.slice(index + 1)],
+            newAlignments: [...alignments.slice(0, index), ...alignments.slice(index + 1)],
+            newSelectedCells: [...selectedCells.slice(0, index), ...selectedCells.slice(index + 1)],
         };
     }
     return { newData: data, newAlignments: alignments, newSelectedCells: selectedCells };

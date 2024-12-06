@@ -150,16 +150,26 @@ export interface PasteOperationResult {
     }
 }
 
+export interface RowContextMenuProps {
+    anchorEl: HTMLElement | null;
+    open: boolean;
+    onClose: () => void;
+    onAddAbove: () => void;
+    onAddBelow: () => void;
+    onRemove: () => void;
+}
+
 export interface RowNumberCellProps {
     children?: React.ReactNode;
     className?: string;
-    onClick?: () => void;
     selectedRows: number[];
     rowIndex: number;
-    ref?: React.Ref<HTMLTableRowElement> | null;
     onDragStart: (rowIndex: number) => void;
     onDragEnter: (rowIndex: number) => void;
     onDragEnd: () => void;
+    onAddAbove: () => void;
+    onAddBelow: () => void;
+    onRemove: () => void;
 }
 
 export interface RowProps {

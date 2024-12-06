@@ -268,9 +268,50 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                                     index={index}
                                     handleColumnSelection={() => dispatch(setSelectedColumn(index))}
                                     selectedColumns={state.selectedColumns}
-                                    onAddColumnLeft={() => {}}
-                                    onAddColumnRight={() => {}}
-                                    onRemoveColumn={() => {}}
+                                    onAddColumnLeft={() => {
+                                        const { newData, newAlignments, newSelectedCells } = addColumn({
+                                            data: state.data,
+                                            alignments: state.alignments,
+                                            selectedCells: state.selectedCells,
+                                            index: index,
+                                            position: "left"
+                                        });
+                                        dispatch(setData({
+                                            ...state,
+                                            data: newData,
+                                            alignments: newAlignments,
+                                            selectedCells: newSelectedCells
+                                        }));
+                                    }}
+                                    onAddColumnRight={() => {
+                                        const { newData, newAlignments, newSelectedCells } = addColumn({
+                                            data: state.data,
+                                            alignments: state.alignments,
+                                            selectedCells: state.selectedCells,
+                                            index: index,
+                                            position: "right"
+                                        });
+                                        dispatch(setData({
+                                            ...state,
+                                            data: newData,
+                                            alignments: newAlignments,
+                                            selectedCells: newSelectedCells
+                                        }));
+                                    }}
+                                    onRemoveColumn={() => {
+                                        const { newData, newAlignments, newSelectedCells } = removeColumn({
+                                            data: state.data,
+                                            alignments: state.alignments,
+                                            selectedCells: state.selectedCells,
+                                            index: index
+                                        });
+                                        dispatch(setData({
+                                            ...state,
+                                            data: newData,
+                                            alignments: newAlignments,
+                                            selectedCells: newSelectedCells
+                                        }));
+                                    }}
                                     onDragStart={handleColumnDragStart}
                                     onDragEnter={(col) => handleDragEnter(-1, col)}
                                     onDragEnd={handleDragEnd}
@@ -287,6 +328,55 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                                     onDragStart={handleRowDragStart}
                                     onDragEnter={(row) => handleDragEnter(row, -1)}
                                     onDragEnd={handleDragEnd}
+                                    onAddAbove={() => {
+                                        const { newData, newAlignments, newSelectedCells } = addRow({
+                                            data: state.data,
+                                            alignments: state.alignments,
+                                            selectedCells: state.selectedCells,
+                                            index: rowIndex
+                                        });
+                                        dispatch(setData({
+                                            ...state,
+                                            data: newData,
+                                            alignments: newAlignments,
+                                            selectedCells: newSelectedCells
+                                        }));
+                                    }}
+                                    onAddBelow={() => {
+                                        const { newData, newAlignments, newSelectedCells } = addRow({
+                                            data: state.data,
+                                            alignments: state.alignments,
+                                            selectedCells: state.selectedCells,
+                                            index: rowIndex + 1
+                                        });
+                                        dispatch(setData({
+                                            ...state,
+                                            data: newData,
+                                            alignments: newAlignments,
+                                            selectedCells: newSelectedCells
+                                        }));
+                                    }}
+                                    onRemove={() => {
+                                        const { newData, newAlignments, newSelectedCells } = removeRow({
+                                            data: state.data,
+                                            alignments: state.alignments,
+                                            selectedCells: state.selectedCells,
+                                            index: rowIndex
+                                        });
+                                        
+                                        // Update selected rows after removal
+                                        const newSelectedRows = state.selectedRows
+                                            .filter(row => row !== rowIndex) // Remove the deleted row
+                                            .map(row => row > rowIndex ? row - 1 : row); // Adjust indices for rows after the deleted one
+                                        
+                                        dispatch(setData({
+                                            ...state,
+                                            data: newData,
+                                            alignments: newAlignments,
+                                            selectedCells: newSelectedCells,
+                                            selectedRows: newSelectedRows
+                                        }));
+                                    }}
                                 >
                                     {rowIndex + 1}
                                 </RowNumberCell>
