@@ -161,39 +161,107 @@ const spreadsheetSlice = createSlice({
 
         setTableSize: (state, action: PayloadAction<TableSizePayload>) => {
             const { row, col } = action.payload
+            
+            // Save current state before changing
+            state.past.push({
+                data: state.data,
+                alignments: state.alignments,
+                bold: state.bold,
+                italic: state.italic,
+                code: state.code,
+                selectedCell: state.selectedCell,
+                selectedCells: state.selectedCells,
+                selectedRows: state.selectedRows,
+                selectedColumns: state.selectedColumns,
+                isDragging: state.isDragging,
+                selectAll: state.selectAll
+            })
+            state.future = [] // Clear future states
+            
+            // Update state
             state.data = Array.from({ length: row }, () => Array(col).fill(""))
             state.alignments = Array.from({ length: row }, () => Array(col).fill("left"))
+            state.bold = Array.from({ length: row }, () => Array(col).fill(false))
+            state.italic = Array.from({ length: row }, () => Array(col).fill(false))
+            state.code = Array.from({ length: row }, () => Array(col).fill(false))
             state.selectedCells = Array.from({ length: row }, () => Array(col).fill(false))
         },
 
         clearTable: (state) => {
-            const numRows = state.data.length;
-            const numCols = state.data[0].length;
+            const numRows = state.data.length
+            const numCols = state.data[0].length
+            
+            // Save current state before clearing
+            state.past.push({
+                data: state.data,
+                alignments: state.alignments,
+                bold: state.bold,
+                italic: state.italic,
+                code: state.code,
+                selectedCell: state.selectedCell,
+                selectedCells: state.selectedCells,
+                selectedRows: state.selectedRows,
+                selectedColumns: state.selectedColumns,
+                isDragging: state.isDragging,
+                selectAll: state.selectAll
+            })
+            state.future = [] // Clear future states
             
             // Clear all arrays while maintaining dimensions
-            state.data = Array.from({ length: numRows }, () => Array(numCols).fill(""));
-            state.alignments = Array.from({ length: numRows }, () => Array(numCols).fill("left"));
-            state.bold = Array.from({ length: numRows }, () => Array(numCols).fill(false));
-            state.italic = Array.from({ length: numRows }, () => Array(numCols).fill(false));
-            state.code = Array.from({ length: numRows }, () => Array(numCols).fill(false));
-            state.selectedCells = Array.from({ length: numRows }, () => Array(numCols).fill(false));
+            state.data = Array.from({ length: numRows }, () => Array(numCols).fill(""))
+            state.alignments = Array.from({ length: numRows }, () => Array(numCols).fill("left"))
+            state.bold = Array.from({ length: numRows }, () => Array(numCols).fill(false))
+            state.italic = Array.from({ length: numRows }, () => Array(numCols).fill(false))
+            state.code = Array.from({ length: numRows }, () => Array(numCols).fill(false))
+            state.selectedCells = Array.from({ length: numRows }, () => Array(numCols).fill(false))
             
             // Reset selection state
-            state.selectedCell = null;
-            state.selectedRows = [];
-            state.selectedColumns = [];
-            state.selectAll = false;
-            state.isDragging = false;
-            state.dragStart = null;
-            state.dragStartRow = null;
-            state.dragStartColumn = null;
+            state.selectedCell = null
+            state.selectedRows = []
+            state.selectedColumns = []
+            state.selectAll = false
+            state.isDragging = false
+            state.dragStart = null
+            state.dragStartRow = null
+            state.dragStartColumn = null
         },
 
         transposeTable: (state) => {
-            const newData = state.data[0].map((_, colIndex) => 
+            // Save current state before transposing
+            state.past.push({
+                data: state.data,
+                alignments: state.alignments,
+                bold: state.bold,
+                italic: state.italic,
+                code: state.code,
+                selectedCell: state.selectedCell,
+                selectedCells: state.selectedCells,
+                selectedRows: state.selectedRows,
+                selectedColumns: state.selectedColumns,
+                isDragging: state.isDragging,
+                selectAll: state.selectAll
+            })
+            state.future = [] // Clear future states
+
+            // Transpose arrays
+            state.data = state.data[0].map((_, colIndex) => 
                 state.data.map(row => row[colIndex])
             )
-            state.data = newData
+            state.alignments = state.alignments[0].map((_, colIndex) => 
+                state.alignments.map(row => row[colIndex])
+            )
+            state.bold = state.bold[0].map((_, colIndex) => 
+                state.bold.map(row => row[colIndex])
+            )
+            state.italic = state.italic[0].map((_, colIndex) => 
+                state.italic.map(row => row[colIndex])
+            )
+            state.code = state.code[0].map((_, colIndex) => 
+                state.code.map(row => row[colIndex])
+            )
+            state.selectedCells = state.selectedCells[0].map((_, colIndex) => 
+                state.selectedCells.map(row => row[colIndex])
+            )
         },
 
         setSelectedCell: (state, action: PayloadAction<{ row: number, col: number }>) => {

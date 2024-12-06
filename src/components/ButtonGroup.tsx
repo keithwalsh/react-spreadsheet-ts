@@ -45,6 +45,12 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
 
             const handleClick = () => {
                 switch (title) {
+                    case "Undo":
+                        handlers.onClickUndo()
+                        break
+                    case "Redo":
+                        handlers.onClickRedo()
+                        break
                     case "Set Bold":
                         handlers.onClickSetBold()
                         break

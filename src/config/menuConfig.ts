@@ -10,8 +10,11 @@ import {
   SwapVert,
   Save,
   FolderOpen,
+  Undo,
+  Redo,
 } from "@mui/icons-material"
 import { MenuConfig } from "mui-menubar"
+import { ToolbarContextType } from "src/types"
 
 interface TableSizeChooserProps {
   onSizeSelect: (row: number, col: number) => void
@@ -19,28 +22,30 @@ interface TableSizeChooserProps {
   currentCols: number
 }
 
-type MenuConfigParams = {
+interface MenuConfigParams extends ToolbarContextType {
   handleNewTable: () => void
   onDownloadCSV: () => void
-  handleSizeSelect: (row: number, col: number) => void
-  clearTable: () => void
-  transposeTable: () => void
-  currentRows: number
-  currentCols: number
   TableSizeChooser: React.ComponentType<TableSizeChooserProps>
+  toolbarContext: ToolbarContextType
 }
 
 export function createMenuConfig(params: MenuConfigParams): MenuConfig[] {
   const {
-    handleNewTable,
-    onDownloadCSV,
-    handleSizeSelect,
+        handleNewTable,
+        onDownloadCSV,
+        TableSizeChooser,
+        toolbarContext
+  } = params
+
+  const {
+    onClickUndo,
+    onClickRedo,
     clearTable,
     transposeTable,
     currentRows,
     currentCols,
-    TableSizeChooser
-  } = params
+    setTableSize
+} = toolbarContext
 
   return [
     {
@@ -61,6 +66,25 @@ export function createMenuConfig(params: MenuConfigParams): MenuConfig[] {
       ]
     },
     {
+      label: "Edit",
+      items: [
+        {
+          kind: "action",
+          label: "Undo",
+          action: onClickUndo,
+          icon: React.createElement(Undo),
+          shortcut: "Ctrl+Z"
+        },
+        {
+          kind: "action",
+          label: "Redo",
+          action: onClickRedo,
+          icon: React.createElement(Redo),
+          shortcut: "Ctrl+Y"
+        }
+      ]
+    },
+    {
       label: "Table",
       items: [
         {
@@ -70,7 +94,7 @@ export function createMenuConfig(params: MenuConfigParams): MenuConfig[] {
             {
               kind: "custom",
               component: React.createElement(TableSizeChooser, {
-                onSizeSelect: handleSizeSelect,
+                onSizeSelect: setTableSize,
                 currentRows,
                 currentCols
               })

@@ -2,7 +2,9 @@ import React, { createContext } from "react";
 import { useAppDispatch } from '../store/hooks'
 import { 
     applyTextFormatting,
-    clearTable
+    clearTable,
+    undo,
+    redo
 } from '../store/spreadsheetSlice'
 import { ToolbarContextType, ToolbarProviderProps } from "../types";
 
@@ -33,6 +35,12 @@ export const ToolbarProvider: React.FC<ToolbarProviderProps> = ({ children, ...h
         },
         clearTable: () => {
             dispatch(clearTable())
+        },
+        onClickUndo: () => {
+            dispatch(undo())
+        },
+        onClickRedo: () => {
+            dispatch(redo())
         }
     };
 

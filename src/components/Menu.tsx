@@ -3,7 +3,7 @@
  * size adjustment, CSV export, and table manipulations using mui-menubar.
  */
 
-import React, { useContext, useCallback, useState } from "react"
+import React, { useContext, useState } from "react"
 import { MenuBar } from "mui-menubar"
 import { createMenuConfig } from "../config/menuConfig"
 import TableSizeChooser from "./TableSizeChooser"
@@ -17,6 +17,18 @@ interface ToolbarContextType {
     setTableSize: (row: number, col: number) => void
     clearTable: () => void
     transposeTable: () => void
+    onClickUndo: () => void
+    onClickRedo: () => void
+    onClickAlignLeft: () => void
+    onClickAlignCenter: () => void
+    onClickAlignRight: () => void
+    onClickAddRow: () => void
+    onClickRemoveRow: () => void
+    onClickAddColumn: () => void
+    onClickRemoveColumn: () => void
+    onClickSetBold: () => void
+    onClickSetItalic: () => void
+    onClickSetCode: () => void
 }
 
 const defaultContext: ToolbarContextType = {
@@ -24,22 +36,25 @@ const defaultContext: ToolbarContextType = {
     currentCols: 0,
     setTableSize: () => {},
     clearTable: () => {},
-    transposeTable: () => {}
+    transposeTable: () => {},
+    onClickUndo: () => {},
+    onClickRedo: () => {},
+    onClickAlignLeft: () => {},
+    onClickAlignCenter: () => {},
+    onClickAlignRight: () => {},
+    onClickAddRow: () => {},
+    onClickRemoveRow: () => {},
+    onClickAddColumn: () => {},
+    onClickRemoveColumn: () => {},
+    onClickSetBold: () => {},
+    onClickSetItalic: () => {},
+    onClickSetCode: () => {}
 }
 
 export const TableMenu: React.FC<TableMenuProps> = ({ onCreateNewTable, onDownloadCSV }) => {
     const [isNewTableModalOpen, setNewTableModalOpen] = useState(false)
     const handlers = useContext(ToolbarContext) ?? defaultContext
     
-    const { currentRows, currentCols } = handlers
-
-    const handleSizeSelect = useCallback(
-        (row: number, col: number) => {
-            handlers.setTableSize(row, col)
-        },
-        [handlers]
-    )
-
     const handleNewTable = () => setNewTableModalOpen(true)
     const handleModalClose = () => setNewTableModalOpen(false)
     
@@ -51,12 +66,9 @@ export const TableMenu: React.FC<TableMenuProps> = ({ onCreateNewTable, onDownlo
     const menuConfig = createMenuConfig({
         handleNewTable,
         onDownloadCSV,
-        handleSizeSelect,
-        clearTable: handlers.clearTable,
-        transposeTable: handlers.transposeTable,
-        currentRows,
-        currentCols,
-        TableSizeChooser
+        TableSizeChooser,
+        toolbarContext: handlers,
+        ...handlers
     })
 
     return (
