@@ -141,6 +141,9 @@ export interface NewTableModalProps {
 export interface PasteOperationResult {
     newData: string[][]
     newAlignments: Alignment[][]
+    newBold: boolean[][]
+    newItalic: boolean[][]
+    newCode: boolean[][]
     dimensions: {
         rows: number
         cols: number

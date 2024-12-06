@@ -29,7 +29,7 @@ import { ButtonGroup, ToolbarProvider, Cell, ColumnHeaderCell, Row, RowNumberCel
 import { SpreadsheetProps } from "../types"
 import { useDragSelection } from '../hooks'
 import { addRow, removeRow, addColumn, removeColumn } from '../utils/spreadsheetOperations'
-import { downloadCSV } from '../utils'
+import { downloadCSV, handlePaste } from '../utils'
 
 export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     toolbarOrientation = 'horizontal',
@@ -127,6 +127,39 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
         [dispatch, state.selectedCell, state.isDragging]
     )
 
+    // Add focus management
+    useEffect(() => {
+        containerRef.current?.focus()
+    }, [])
+
+    // Add global paste handler
+    const handleGlobalPaste = useCallback((event: ClipboardEvent) => {
+        const clipboardText = event.clipboardData?.getData('text') || ''
+        const result = handlePaste(
+            clipboardText,
+            state.data,
+            state.selectedCell,
+            state.alignments,
+            state.bold,
+            state.italic,
+            state.code
+        )
+        
+        dispatch(setData({
+            ...state,
+            data: result.newData,
+            alignments: result.newAlignments,
+            bold: result.newBold,
+            italic: result.newItalic,
+            code: result.newCode
+        }))
+    }, [dispatch, state])
+
+    useEffect(() => {
+        document.addEventListener('paste', handleGlobalPaste)
+        return () => document.removeEventListener('paste', handleGlobalPaste)
+    }, [handleGlobalPaste])
+
     return (
         <Box
             sx={{
@@ -217,7 +250,11 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                     <ButtonGroup orientation={toolbarOrientation} />
                 </div>
             </ToolbarProvider>
-            <div ref={containerRef}>
+            <div 
+                ref={containerRef}
+                tabIndex={0} // Make container focusable
+                style={{ outline: 'none' }} // Remove focus outline
+            >
                 <Table ref={tableRef}>
                     <TableHead>
                         <TableRow>

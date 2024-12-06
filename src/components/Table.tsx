@@ -1,8 +1,38 @@
 import * as React from "react";
 import { TableContainer as TableContainerMui, Table as TableMui, Paper as PaperMui, useTheme } from "@mui/material";
 import { TableProps } from "../types";
+import { useAppDispatch, useAppSelector } from '../store/hooks'
+import { handlePaste } from '../utils/handlePaste'
+import { setData } from '../store/spreadsheetSlice'
 
-const Table = React.forwardRef<HTMLTableElement, TableProps>(({ children, className, onPaste }, ref) => {
+const Table = React.forwardRef<HTMLTableElement, TableProps>(({ children, className }, ref) => {
+    const dispatch = useAppDispatch()
+    const state = useAppSelector(state => state.spreadsheet)
+    
+    const handlePasteEvent = React.useCallback((event: React.ClipboardEvent<HTMLDivElement>) => {
+        event.preventDefault()
+        const clipboardText = event.clipboardData?.getData('text') || ''
+        
+        const result = handlePaste(
+            clipboardText,
+            state.data,
+            state.selectedCell,
+            state.alignments,
+            state.bold,
+            state.italic,
+            state.code
+        )
+        
+        dispatch(setData({
+            ...state,
+            data: result.newData,
+            alignments: result.newAlignments,
+            bold: result.newBold,
+            italic: result.newItalic,
+            code: result.newCode
+        }))
+    }, [dispatch, state])
+
     const theme = useTheme();
     const isDarkMode = theme.palette.mode === 'dark';
 
@@ -31,7 +61,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(({ children, classN
                     ...(isDarkMode ? darkThemeStyles : lightThemeStyles),
                     ...commonStyles,
                 }}
-                onPaste={onPaste}
+                onPaste={handlePasteEvent}
             >
                 <TableMui
                     ref={ref}

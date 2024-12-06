@@ -207,6 +207,16 @@ const Cell: React.FC<CellProps> = React.memo(
             [onMouseDown, rowIndex, colIndex, createMouseEventHandler]
         )
 
+        const handlePaste = useCallback((e: React.ClipboardEvent<HTMLDivElement>) => {
+            if (isEditing) {
+                // Allow default paste behavior when editing
+                return
+            }
+            // Prevent default paste when not editing
+            e.preventDefault()
+            e.stopPropagation()
+        }, [isEditing])
+
         return (
             <TableCellMui
                 align={align}
@@ -223,6 +233,7 @@ const Cell: React.FC<CellProps> = React.memo(
                     suppressContentEditableWarning
                     spellCheck={false}
                     onBlur={handleBlur}
+                    onPaste={handlePaste}
                     style={{
                         minWidth: "80px",
                         outline: "none",

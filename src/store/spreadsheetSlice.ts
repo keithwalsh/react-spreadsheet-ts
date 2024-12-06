@@ -167,7 +167,26 @@ const spreadsheetSlice = createSlice({
         },
 
         clearTable: (state) => {
-            state.data = state.data.map(row => row.map(() => ""))
+            const numRows = state.data.length;
+            const numCols = state.data[0].length;
+            
+            // Clear all arrays while maintaining dimensions
+            state.data = Array.from({ length: numRows }, () => Array(numCols).fill(""));
+            state.alignments = Array.from({ length: numRows }, () => Array(numCols).fill("left"));
+            state.bold = Array.from({ length: numRows }, () => Array(numCols).fill(false));
+            state.italic = Array.from({ length: numRows }, () => Array(numCols).fill(false));
+            state.code = Array.from({ length: numRows }, () => Array(numCols).fill(false));
+            state.selectedCells = Array.from({ length: numRows }, () => Array(numCols).fill(false));
+            
+            // Reset selection state
+            state.selectedCell = null;
+            state.selectedRows = [];
+            state.selectedColumns = [];
+            state.selectAll = false;
+            state.isDragging = false;
+            state.dragStart = null;
+            state.dragStartRow = null;
+            state.dragStartColumn = null;
         },
 
         transposeTable: (state) => {
