@@ -87,7 +87,11 @@ export function ColumnHeaderCell({
     <>
       <TableCell
         sx={styles}
-        onClick={() => handleColumnSelection(index)}
+        onClick={() => {
+          handleColumnSelection(index)
+          handleDragStart(-1, index)
+          handleDragEnd()
+        }}
         onContextMenu={handleContextMenu}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setIsHovered(false)}
