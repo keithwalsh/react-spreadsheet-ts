@@ -206,7 +206,9 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
             >
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                     <TableMenu 
-                        onCreateNewTable={() => {}}
+                        onCreateNewTable={(rows, columns) => {
+                            dispatch(setTableSize({ row: rows, col: columns }))
+                        }}
                         onDownloadCSV={() => {}}
                     />
                 </Box>
