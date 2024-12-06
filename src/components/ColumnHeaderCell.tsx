@@ -25,8 +25,25 @@ export function ColumnHeaderCell({
   const [isHovered, setIsHovered] = React.useState(false);
   const [isMouseDown, setIsMouseDown] = React.useState(false);
 
-  const { selectAll } = useAppSelector((state: RootState) => state.spreadsheet);
-  const styles = useHeaderCellStyles({ isSelected: isSelected || selectAll, isHovered });
+  const { selectAll, selectedCell, selectedCells } = useAppSelector((state: RootState) => state.spreadsheet);
+  
+  // Check if any cell in this column is selected
+  const isHighlighted = React.useMemo(() => {
+    if (selectedCell) {
+      return selectedCell.col === index;
+    }
+    if (selectedCells && selectedCells.length > 0) {
+      return selectedCells.some(row => row[index]);
+    }
+    return false;
+  }, [selectedCell, selectedCells, index]);
+
+  const styles = useHeaderCellStyles({ 
+    isSelected: isSelected || selectAll, 
+    isHovered,
+    isHighlighted
+  });
+  
   const { handleDragStart, handleDragEnter, handleDragEnd, isDragging } = useDragSelection();
 
   const handleContextMenu = (event: React.MouseEvent<HTMLTableCellElement>) => {

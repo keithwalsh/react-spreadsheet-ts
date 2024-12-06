@@ -3,11 +3,13 @@
  * handles row selection through click and drag interactions.
  */
 
-import { TableCell as TableCellMui, useTheme } from "@mui/material"
+import { TableCell as TableCellMui } from "@mui/material"
 import { RowNumberCellProps } from "../types"
 import { useHeaderCellStyles } from "../styles"
 import { useState } from "react"
 import RowContextMenu from "./RowContextMenu"
+import { useAppSelector } from "../store/hooks"
+import { RootState } from "../store"
 
 export function RowNumberCell({
     children,
@@ -25,9 +27,17 @@ export function RowNumberCell({
     const [isMouseDown, setIsMouseDown] = useState(false)
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
-    const theme = useTheme()
-    const isDarkMode = theme.palette.mode === 'dark'
-    const styles = useHeaderCellStyles({ isSelected, isHovered })
+    const { selectAll, selectedCell, selectedCells } = useAppSelector((state: RootState) => state.spreadsheet)
+
+    // Check if any cell in this row is selected
+    const isHighlighted = selectedCell?.row === rowIndex || 
+                         (selectedCells && selectedCells[rowIndex]?.some(cell => cell));
+
+    const styles = useHeaderCellStyles({ 
+        isSelected: isSelected || selectAll, 
+        isHovered,
+        isHighlighted 
+    })
 
     const handleContextMenu = (event: React.MouseEvent<HTMLTableCellElement>) => {
         event.preventDefault()
@@ -76,14 +86,7 @@ export function RowNumberCell({
     return (
         <>
             <TableCellMui
-                sx={{
-                    ...styles,
-                    textAlign: "center",
-                    width: "1px",
-                    padding: "2px 2px",
-                    color: isDarkMode ? "#BEBFC0" : "rgba(0, 0, 0, 0.54)",
-                    cursor: "pointer",
-                }}
+                sx={styles}
                 onMouseDown={handleMouseDown}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={() => setIsHovered(false)}

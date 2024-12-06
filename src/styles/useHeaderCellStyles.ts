@@ -1,5 +1,5 @@
 /**
- * @fileoverview Provides styles for header cells based on theme mode.
+ * @fileoverview Provides styles for header cells based on theme mode and selection state.
  */
 
 import { useTheme } from "@mui/material";
@@ -7,9 +7,10 @@ import { useTheme } from "@mui/material";
 interface HeaderCellStylesParams {
   isSelected: boolean;
   isHovered: boolean;
+  isHighlighted?: boolean;
 }
 
-export function useHeaderCellStyles({ isSelected, isHovered }: HeaderCellStylesParams) {
+export function useHeaderCellStyles({ isSelected, isHovered, isHighlighted = false }: HeaderCellStylesParams) {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
 
@@ -27,7 +28,9 @@ export function useHeaderCellStyles({ isSelected, isHovered }: HeaderCellStylesP
     return {
       ...baseStyles,
       color: "#BEBFC0",
-      backgroundColor: isSelected ? "#686868" : isHovered ? "#515151" : "#414547",
+      backgroundColor: isSelected ? "#686868" : 
+                     isHighlighted ? "#585858" :
+                     isHovered ? "#515151" : "#414547",
       borderRight: "1px solid #686868",
       borderBottom: "1px solid #686868",
       "&:hover": { backgroundColor: "#686868" },
@@ -37,8 +40,10 @@ export function useHeaderCellStyles({ isSelected, isHovered }: HeaderCellStylesP
   return {
     ...baseStyles,
     color: "rgba(0, 0, 0, 0.54)",
-    backgroundColor: isSelected ? "#e0e0e0" : isHovered ? "#f5f5f5" : "#f0f0f0",
+    backgroundColor: isSelected ? "#e0e0e0" : 
+                   isHighlighted ? "#f0f0f0" :
+                   isHovered ? "#f5f5f5" : "#f8f8f8",
     borderRight: "1px solid #e0e0e0",
     "&:hover": { backgroundColor: "#e0e0e0" },
   };
-} 
+}
