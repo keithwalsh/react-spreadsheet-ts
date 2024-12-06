@@ -9,6 +9,8 @@ import { ColumnHeaderCellProps } from "../types";
 import { useHeaderCellStyles } from "../styles"
 import { getColumnLabel } from "../utils/columnUtils";
 import { useDragSelection } from "../hooks/useDragSelection";
+import { RootState } from "../store";
+import { useAppSelector } from "../store/hooks";
 
 export function ColumnHeaderCell({
   index,
@@ -23,7 +25,8 @@ export function ColumnHeaderCell({
   const [isHovered, setIsHovered] = React.useState(false);
   const [isMouseDown, setIsMouseDown] = React.useState(false);
 
-  const styles = useHeaderCellStyles({ isSelected, isHovered });
+  const { selectAll } = useAppSelector((state: RootState) => state.spreadsheet);
+  const styles = useHeaderCellStyles({ isSelected: isSelected || selectAll, isHovered });
   const { handleDragStart, handleDragEnter, handleDragEnd, isDragging } = useDragSelection();
 
   const handleContextMenu = (event: React.MouseEvent<HTMLTableCellElement>) => {

@@ -217,9 +217,12 @@ const spreadsheetSlice = createSlice({
             state.selectAll = !state.selectAll
             if (state.selectAll) {
                 const rowCount = state.data.length
+                const colCount = state.data[0].length
                 state.selectedRows = Array.from({ length: rowCount }, (_, i) => i)
+                state.selectedColumns = Array.from({ length: colCount }, (_, i) => i)
             } else {
                 state.selectedRows = []
+                state.selectedColumns = []
             }
         },
 

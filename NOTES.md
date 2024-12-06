@@ -6,7 +6,7 @@
 - Cell range selection (when clicking inside the spreadsheet and dragging outwards)
 - Column header and row number selection via click-and-drag
 - Clicking a selected cell should not trigger a re-render that momentarily removes and reapplies the selection outline. 
-
+- Column and row headers corresponding to selected cells should be automatically highlighted, to help users quickly track their position within the spreadsheet.
 
 
 #### Problem
