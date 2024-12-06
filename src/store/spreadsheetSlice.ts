@@ -158,6 +158,7 @@ const spreadsheetSlice = createSlice({
             state.selectedColumns = []
             state.selectedRows = []
             state.selectedCells = state.selectedCells.map(row => row.map(() => false))
+            state.selectAll = false
             
             // Set new selection
             state.selectedCell = { row, col }

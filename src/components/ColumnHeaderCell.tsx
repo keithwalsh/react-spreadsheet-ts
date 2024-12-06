@@ -8,7 +8,7 @@ import ColumnContextMenu from "./ColumnContextMenu";
 import { ColumnHeaderCellProps } from "../types";
 import { useHeaderCellStyles } from "../styles"
 import { getColumnLabel } from "../utils/columnUtils";
-import { useDragSelection } from '../hooks'
+import { useDragSelection } from "../hooks/useDragSelection";
 
 export function ColumnHeaderCell({
   index,
@@ -37,61 +37,56 @@ export function ColumnHeaderCell({
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault()
-    setIsMouseDown(true)
-    handleDragStart(-1, index)
-  }
+    e.preventDefault();
+    setIsMouseDown(true);
+    handleDragStart(-1, index);
+  };
 
   const handleMouseEnter = () => {
-    setIsHovered(true)
+    setIsHovered(true);
     if (isDragging) {
-      handleDragEnter(-1, index)
+      handleDragEnter(-1, index);
     }
-  }
+  };
 
   const handleMouseUp = () => {
     if (isMouseDown) {
-      setIsMouseDown(false)
-      handleDragEnd()
+      setIsMouseDown(false);
+      handleDragEnd();
     }
-  }
+  };
 
   React.useEffect(() => {
     const handleGlobalMouseUp = () => {
       if (isMouseDown) {
-        setIsMouseDown(false)
-        handleDragEnd()
+        setIsMouseDown(false);
+        handleDragEnd();
       }
-    }
+    };
 
-    document.addEventListener('mouseup', handleGlobalMouseUp)
-    return () => document.removeEventListener('mouseup', handleGlobalMouseUp)
-  }, [isMouseDown, handleDragEnd])
+    document.addEventListener('mouseup', handleGlobalMouseUp);
+    return () => document.removeEventListener('mouseup', handleGlobalMouseUp);
+  }, [isMouseDown, handleDragEnd]);
 
   const handleAddLeft = () => {
-    onAddColumnLeft(index)
-    handleCloseMenu()
-  }
+    onAddColumnLeft(index);
+    handleCloseMenu();
+  };
 
   const handleAddRight = () => {
-    onAddColumnRight(index)
-    handleCloseMenu()
-  }
+    onAddColumnRight(index);
+    handleCloseMenu();
+  };
 
   const handleRemove = () => {
-    onRemoveColumn(index)
-    handleCloseMenu()
-  }
+    onRemoveColumn(index);
+    handleCloseMenu();
+  };
 
   return (
     <>
       <TableCell
         sx={styles}
-        onClick={() => {
-          handleColumnSelection(index)
-          handleDragStart(-1, index)
-          handleDragEnd()
-        }}
         onContextMenu={handleContextMenu}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setIsHovered(false)}
