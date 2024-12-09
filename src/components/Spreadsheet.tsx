@@ -94,10 +94,8 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                 ...state,
                 data: newData
             }))
-            // Call onChange callback if provided
-            onChange?.(newData)
         },
-        [dispatch, state, onChange]
+        [dispatch, state]
     )
 
     const handleMouseDown = useCallback(
@@ -183,6 +181,13 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
             document.removeEventListener('keydown', handleGlobalKeyDown);
         };
     }, [dispatch, state.selectedCell, state.data]);
+
+    // Watch for data changes and call onChange
+    useEffect(() => {
+        if (onChange && state.data) {
+            onChange(state.data);
+        }
+    }, [state.data, onChange]);
 
     // Add global paste handler
     const handleGlobalPaste = useCallback((event: ClipboardEvent) => {
