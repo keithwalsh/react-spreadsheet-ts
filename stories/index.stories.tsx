@@ -2,18 +2,14 @@ import type { Meta, StoryObj } from "@storybook/react"
 import { fn } from '@storybook/test'
 import { ThemeProvider, createTheme } from '@mui/material'
 import { useMemo } from 'react'
-import Spreadsheet from "../src/components/Spreadsheet"
+import Spreadsheet from "../src"  // Updated to use the wrapped version
 import type { SpreadsheetProps } from "../src/types"
-import { Provider } from 'react-redux'
-import { createStore } from '../src/store'
 
 interface SpreadsheetStoryArgs extends SpreadsheetProps {
     mode?: 'light' | 'dark'
 }
 
-const store = createStore()
-
-const SpreadsheetWithProvider = ({ mode, ...props }: SpreadsheetStoryArgs) => {
+const SpreadsheetWithTheme = ({ mode, ...props }: SpreadsheetStoryArgs) => {
     const theme = useMemo(() => createTheme({
         palette: {
             mode: mode || 'light'
@@ -21,11 +17,9 @@ const SpreadsheetWithProvider = ({ mode, ...props }: SpreadsheetStoryArgs) => {
     }), [mode])
 
     return (
-        <Provider store={store}>
-            <ThemeProvider theme={theme}>
-                <Spreadsheet {...props} />
-            </ThemeProvider>
-        </Provider>
+        <ThemeProvider theme={theme}>
+            <Spreadsheet {...props} />
+        </ThemeProvider>
     )
 }
 
@@ -42,28 +36,22 @@ const SpreadsheetMeta: Meta<SpreadsheetStoryArgs> = {
         },
     },
     decorators: [
-        (Story, context) => {
-            const { mode = 'light' } = context.args
-
-            return (
-                <div style={{
-                    display: "inline-block",
-                    padding: 0,
-                    backgroundColor: mode === "dark" ? "#000" : "#fff"
-                }}>
-                    <Story />
-                </div>
-            )
-        }
+        (Story) => (
+            <div style={{
+                display: "inline-block",
+                padding: 0,
+                margin: 0
+            }}>
+                <Story />
+            </div>
+        )
     ]
-}
+} satisfies Meta<SpreadsheetStoryArgs>
 
 export default SpreadsheetMeta
 
-type Story = StoryObj<SpreadsheetStoryArgs>
-
-export const Default: Story = {
-    render: (args) => <SpreadsheetWithProvider {...args} />,
+export const Default: StoryObj<SpreadsheetStoryArgs> = {
+    render: (args) => <SpreadsheetWithTheme {...args} />,
     args: {
         mode: "light",
         onChange: fn(),
