@@ -5,7 +5,7 @@
 -   Apply alignment when single cell is selected and when multiple cells are selected
 -   Delete rows
 -   Delete columns
--   Highlight part of the contents of a cell
+-   When a cell is in edit mode and contains content, the user must be able to highlight any portion of that content.
 -   Cell range selection (when clicking inside the spreadsheet and dragging outwards)
 -   Column header and row number selection via click-and-drag
 -   Clicking a selected cell should not trigger a re-render that momentarily removes and reapplies the selection outline.

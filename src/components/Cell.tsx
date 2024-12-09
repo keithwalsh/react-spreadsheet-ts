@@ -205,11 +205,21 @@ const Cell: React.FC<CellProps> = React.memo(
                     spellCheck={false}
                     onBlur={handleBlur}
                     onPaste={handlePaste}
+                    onMouseDown={(e) => {
+                        if (isEditing) {
+                            e.stopPropagation();
+                            return;
+                        }
+                        handleMouseDownEvent(e);
+                    }}
                     style={{
                         minWidth: "80px",
                         outline: "none",
                         cursor: isEditing ? "text" : (cellData?.link ? "pointer" : "inherit"),
                         userSelect: isEditing ? "text" : "none",
+                        WebkitUserSelect: isEditing ? "text" : "none",
+                        MozUserSelect: isEditing ? "text" : "none",
+                        msUserSelect: isEditing ? "text" : "none",
                         fontWeight: cellData?.bold ? "bold" : "normal",
                         fontStyle: cellData?.italic ? "italic" : "normal",
                         fontFamily: cellData?.code ? "monospace" : "inherit",
