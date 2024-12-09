@@ -19,9 +19,9 @@ export type Action =
     | { type: "REMOVE_COLUMN"; payload: { index: number } }
     | { type: "SET_ALIGNMENT"; payload: Alignment }
     | {
-        type: "HANDLE_PASTE";
-        payload: PasteOperationResult;
-    }
+          type: "HANDLE_PASTE";
+          payload: PasteOperationResult;
+      }
     | { type: "START_DRAG"; payload: { row: number; col: number } }
     | { type: "UPDATE_DRAG"; payload: { row: number; col: number } }
     | { type: "END_DRAG" }
@@ -42,7 +42,7 @@ export type Action =
     | { type: "UPDATE_COLUMN_SELECTION"; payload: number }
     | { type: "END_COLUMN_SELECTION" };
 
-export type Alignment = 'left' | 'center' | 'right' | 'inherit' | 'justify';
+export type Alignment = "left" | "center" | "right" | "inherit" | "justify";
 
 export type ButtonHandlerKey =
     | "onClickUndo"
@@ -67,7 +67,7 @@ export interface ButtonDefinition {
 
 export interface ButtonGroupProps {
     visibleButtons?: string[];
-    orientation?: 'horizontal' | 'vertical';
+    orientation?: "horizontal" | "vertical";
     iconSize?: number;
     iconMargin?: number;
     dividerMargin?: number;
@@ -143,6 +143,10 @@ export interface NewTableModalProps {
 
 export interface PasteOperationResult {
     newData: CellData[][];
+    newAlignments: Alignment[][];
+    newBold: boolean[][];
+    newItalic: boolean[][];
+    newCode: boolean[][];
     dimensions: {
         rows: number;
         cols: number;
@@ -184,50 +188,50 @@ export interface SelectAllCellProps extends TableCellProps {
 }
 
 export interface SelectionRange {
-    startRow: number
-    startCol: number
-    endRow: number
-    endCol: number
+    startRow: number;
+    startCol: number;
+    endRow: number;
+    endCol: number;
 }
 
 export interface DataPayload {
-    data: CellData[][]
-    selectedCell?: { row: number, col: number } | null
-    selectedCells?: boolean[][]
-    selectedRows?: number[]
-    selectedColumns?: number[]
-    isDragging?: boolean
-    selectAll?: boolean
+    data: CellData[][];
+    selectedCell?: { row: number; col: number } | null;
+    selectedCells?: boolean[][];
+    selectedRows?: number[];
+    selectedColumns?: number[];
+    isDragging?: boolean;
+    selectAll?: boolean;
 }
 
 export interface State {
-    data: CellData[][]
-    past: DataPayload[]
-    future: DataPayload[]
-    selectedColumn: number | null
-    selectedRow: number | null
-    selectedCell: { row: number, col: number } | null
-    selectedCells: boolean[][]
-    selectedRows: number[]
-    selectedColumns: number[]
-    selectAll: boolean
-    isDragging: boolean
-    dragStart: { row: number, col: number } | null
-    dragStartRow: number | null
-    dragStartColumn: number | null
+    data: CellData[][];
+    past: DataPayload[];
+    future: DataPayload[];
+    selectedColumn: number | null;
+    selectedRow: number | null;
+    selectedCell: { row: number; col: number } | null;
+    selectedCells: boolean[][];
+    selectedRows: number[];
+    selectedColumns: number[];
+    selectAll: boolean;
+    isDragging: boolean;
+    dragStart: { row: number; col: number } | null;
+    dragStartRow: number | null;
+    dragStartColumn: number | null;
 }
 
 export interface SpreadsheetProps {
-    tableHeight?: string
-    value?: CellData[][]
-    onChange?: (data: CellData[][]) => void
+    tableHeight?: string;
+    value?: CellData[][];
+    onChange?: (data: CellData[][]) => void;
 }
 
 export interface TableDimensionInputProps {
-    label: 'Rows' | 'Columns'
-    value: string
-    onChange: (value: string) => void
-    max: number
+    label: "Rows" | "Columns";
+    value: string;
+    onChange: (value: string) => void;
+    max: number;
 }
 
 export interface TableMenuProps {
