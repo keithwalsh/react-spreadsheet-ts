@@ -3,6 +3,7 @@ import { ToolbarContextType } from '../types';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { applyTextFormatting } from '../store/spreadsheetSlice';
 import LinkModal from './LinkModal';
+import { Snackbar } from '@mui/material';
 
 export const ToolbarContext = createContext<ToolbarContextType | undefined>(undefined);
 
@@ -51,8 +52,24 @@ export const ToolbarProvider: React.FC<ToolbarProviderProps> = ({
 }) => {
     const dispatch = useAppDispatch();
     const [showLinkModal, setShowLinkModal] = useState(false);
-    const { selectedCell, data } = useAppSelector(state => state.spreadsheet);
+    const [showSnackbar, setShowSnackbar] = useState(false);
+    const { selectedCell, selectedCells, selectedRows, selectedColumns, selectAll, data } = useAppSelector(state => state.spreadsheet);
     const selectedCellData = selectedCell ? data[selectedCell.row]?.[selectedCell.col] : undefined;
+
+    const hasMultipleSelections = () => {
+        return selectedRows.length > 0 || 
+            selectedColumns.length > 0 || 
+            selectAll ||
+            selectedCells.some(row => row.some(cell => cell));
+    };
+
+    const handleSetLink = () => {
+        if (hasMultipleSelections()) {
+            setShowSnackbar(true);
+            return;
+        }
+        setShowLinkModal(true);
+    };
 
     const handleLinkSubmit = (url: string | undefined) => {
         dispatch(applyTextFormatting({ operation: 'LINK', payload: url }));
@@ -72,7 +89,7 @@ export const ToolbarProvider: React.FC<ToolbarProviderProps> = ({
         onClickSetBold,
         onClickSetItalic,
         onClickSetCode,
-        onClickSetLink: () => setShowLinkModal(true),
+        onClickSetLink: handleSetLink,
         setTableSize,
         currentRows,
         currentCols,
@@ -91,6 +108,13 @@ export const ToolbarProvider: React.FC<ToolbarProviderProps> = ({
                 onClose={() => setShowLinkModal(false)}
                 onSubmit={handleLinkSubmit}
                 initialUrl={selectedCellData?.link}
+            />
+            <Snackbar
+                open={showSnackbar}
+                autoHideDuration={3000}
+                onClose={() => setShowSnackbar(false)}
+                message="Cannot set link when multiple cells are selected"
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             />
         </>
     );

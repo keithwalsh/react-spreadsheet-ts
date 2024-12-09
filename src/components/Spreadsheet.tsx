@@ -137,43 +137,52 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
         [dispatch, state.selectedCell, state.isDragging]
     )
 
-    // Add keyboard navigation handler
-    const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
-        if (!state.selectedCell || event.target instanceof HTMLInputElement) {
-            return;
-        }
-
-        const { row, col } = state.selectedCell;
-        let newRow = row;
-        let newCol = col;
-
-        switch (event.key) {
-            case 'ArrowUp':
-                newRow = Math.max(0, row - 1);
-                break;
-            case 'ArrowDown':
-                newRow = Math.min(state.data.length - 1, row + 1);
-                break;
-            case 'ArrowLeft':
-                newCol = Math.max(0, col - 1);
-                break;
-            case 'ArrowRight':
-                newCol = Math.min(state.data[0].length - 1, col + 1);
-                break;
-            default:
-                return;
-        }
-
-        if (newRow !== row || newCol !== col) {
-            dispatch(setSelectedCell({ row: newRow, col: newCol }));
-            event.preventDefault();
-        }
-    }, [dispatch, state.selectedCell, state.data]);
-
-    // Add focus management
     useEffect(() => {
-        containerRef.current?.focus()
-    }, [])
+        const handleGlobalKeyDown = (event: KeyboardEvent) => {
+            // Ignore keyboard events when editing a cell
+            if (event.target instanceof HTMLElement && event.target.isContentEditable) {
+                return;
+            }
+
+            if (!state.selectedCell) {
+                return;
+            }
+
+            const { row, col } = state.selectedCell;
+            let newRow = row;
+            let newCol = col;
+
+            switch (event.key) {
+                case 'ArrowUp':
+                    newRow = Math.max(0, row - 1);
+                    break;
+                case 'ArrowDown':
+                    newRow = Math.min(state.data.length - 1, row + 1);
+                    break;
+                case 'ArrowLeft':
+                    newCol = Math.max(0, col - 1);
+                    break;
+                case 'ArrowRight':
+                    newCol = Math.min(state.data[0].length - 1, col + 1);
+                    break;
+                default:
+                    return;
+            }
+
+            if (newRow !== row || newCol !== col) {
+                dispatch(setSelectedCell({ row: newRow, col: newCol }));
+                event.preventDefault();
+            }
+        };
+
+        // Add global keyboard listener
+        document.addEventListener('keydown', handleGlobalKeyDown);
+
+        // Cleanup
+        return () => {
+            document.removeEventListener('keydown', handleGlobalKeyDown);
+        };
+    }, [dispatch, state.selectedCell, state.data]);
 
     // Add global paste handler
     const handleGlobalPaste = useCallback((event: ClipboardEvent) => {
@@ -301,9 +310,8 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
             </ToolbarProvider>
             <div 
                 ref={containerRef}
-                tabIndex={0}
                 style={{ outline: 'none' }}
-                onKeyDown={handleKeyDown}
+                data-spreadsheet-container="true"
             >
                 <Table ref={tableRef}>
                     <TableHead>

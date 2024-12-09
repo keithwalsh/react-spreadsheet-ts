@@ -273,14 +273,19 @@ const spreadsheetSlice = createSlice({
                 return
             }
 
-            // Clear other selections
-            state.selectedColumns = []
-            state.selectedRows = []
-            state.selectedCells = state.selectedCells.map(row => row.map(() => false))
-            state.selectAll = false
-            
             // Set new selection
             state.selectedCell = { row, col }
+
+            // Only clear other selections if they exist (for multi-select operations)
+            if (state.selectedColumns.length > 0 || 
+                state.selectedRows.length > 0 || 
+                state.selectedCells.some(row => row.some(cell => cell)) || 
+                state.selectAll) {
+                state.selectedColumns = []
+                state.selectedRows = []
+                state.selectedCells = state.selectedCells.map(row => row.map(() => false))
+                state.selectAll = false
+            }
         },
 
         setSelectedColumn: (state, action: PayloadAction<number>) => {
@@ -317,6 +322,22 @@ const spreadsheetSlice = createSlice({
         applyTextFormatting: (state, action: PayloadAction<TextFormattingOperation>) => {
             const { operation } = action.payload;
             let modified = false;
+
+            // For link operations, only allow when a single cell is selected
+            if (operation === 'LINK') {
+                const hasMultipleSelections = state.selectedRows.length > 0 || 
+                    state.selectedColumns.length > 0 || 
+                    state.selectAll;
+                
+                // Check if any cells are selected through drag
+                const hasDragSelection = state.selectedCells.some(row => 
+                    row.some(cell => cell)
+                );
+
+                if (!state.selectedCell || hasMultipleSelections || hasDragSelection) {
+                    return;
+                }
+            }
 
             const newData = state.data.map((row, i) =>
                 row.map((cell, j) => {

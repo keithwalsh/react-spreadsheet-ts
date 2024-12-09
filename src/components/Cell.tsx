@@ -142,13 +142,18 @@ const Cell: React.FC<CellProps> = React.memo(
             [isDarkMode, theme, isEditing, isSingleCellSelected, style, backgroundColor]
         );
 
-        const handleBlur = () => {
-            if (isEditing && cellRef.current) {
-                const newValue = cellRef.current.textContent || "";
-                handleCellChange(rowIndex, colIndex, newValue);
+        const handleBlur = useCallback(() => {
+            if (isEditing) {
+                const content = cellRef.current?.textContent || "";
+                handleCellChange(rowIndex, colIndex, content);
                 setIsEditing(false);
+                // Refocus the container after a short delay to allow other events to process
+                setTimeout(() => {
+                    const container = document.querySelector('[data-spreadsheet-container="true"]') as HTMLDivElement;
+                    container?.focus();
+                }, 0);
             }
-        };
+        }, [isEditing, handleCellChange, rowIndex, colIndex]);
 
         const handleClick = useCallback(
             (e: React.MouseEvent) => {
