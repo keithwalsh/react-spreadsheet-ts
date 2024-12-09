@@ -137,6 +137,39 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
         [dispatch, state.selectedCell, state.isDragging]
     )
 
+    // Add keyboard navigation handler
+    const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
+        if (!state.selectedCell || event.target instanceof HTMLInputElement) {
+            return;
+        }
+
+        const { row, col } = state.selectedCell;
+        let newRow = row;
+        let newCol = col;
+
+        switch (event.key) {
+            case 'ArrowUp':
+                newRow = Math.max(0, row - 1);
+                break;
+            case 'ArrowDown':
+                newRow = Math.min(state.data.length - 1, row + 1);
+                break;
+            case 'ArrowLeft':
+                newCol = Math.max(0, col - 1);
+                break;
+            case 'ArrowRight':
+                newCol = Math.min(state.data[0].length - 1, col + 1);
+                break;
+            default:
+                return;
+        }
+
+        if (newRow !== row || newCol !== col) {
+            dispatch(setSelectedCell({ row: newRow, col: newCol }));
+            event.preventDefault();
+        }
+    }, [dispatch, state.selectedCell, state.data]);
+
     // Add focus management
     useEffect(() => {
         containerRef.current?.focus()
@@ -268,8 +301,9 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
             </ToolbarProvider>
             <div 
                 ref={containerRef}
-                tabIndex={0} // Make container focusable
-                style={{ outline: 'none' }} // Remove focus outline
+                tabIndex={0}
+                style={{ outline: 'none' }}
+                onKeyDown={handleKeyDown}
             >
                 <Table ref={tableRef}>
                     <TableHead>

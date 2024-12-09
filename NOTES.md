@@ -11,6 +11,7 @@
 -   Clicking a selected cell should not trigger a re-render that momentarily removes and reapplies the selection outline.
 -   Column and row headers corresponding to selected cells should be automatically highlighted, to help users quickly track their position within the spreadsheet.
 - The system must allow users to exit cell edit mode by clicking outside the active cell, without requiring them to enter edit mode on a different cell.
+- When a single cell is selected and not in edit mode, pressing the up, down, left, or right arrow keys must move the selection to the next cell in the corresponding direction.
 ---
 
 -   Multiple row selection via click-and-drag on row numbers is broken; only single row selection works.
