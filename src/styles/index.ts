@@ -3,6 +3,6 @@
  */
 
 import { useHeaderCellStyles } from "./useHeaderCellStyles";
-import { getCellStyles, getBackgroundColor } from "./cellStyles";
+import { getCellStyles, getThemeBorderColor, getSelectionBackground } from "./cellStyles";
 
-export { useHeaderCellStyles, getCellStyles, getBackgroundColor };
+export { useHeaderCellStyles, getCellStyles, getThemeBorderColor, getSelectionBackground };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { TableCell as TableCellMui, useTheme } from "@mui/material";
 import { CellProps } from "../types";
-import { getCellStyles, getBackgroundColor } from "../styles";
+import { getCellStyles, getSelectionBackground } from "../styles";
 
 const Cell: React.FC<CellProps> = React.memo(
     ({
@@ -20,7 +20,7 @@ const Cell: React.FC<CellProps> = React.memo(
         selectedRows,
     }) => {
         const theme = useTheme();
-        const isDarkMode = theme.palette.mode === 'dark';
+        const isDarkMode = theme.palette.mode === "dark";
         const [isEditing, setIsEditing] = useState(false);
         const cellRef = useRef<HTMLDivElement>(null);
 
@@ -31,71 +31,76 @@ const Cell: React.FC<CellProps> = React.memo(
 
         const enableEditMode = useCallback(() => {
             if (cellRef.current) {
-                setIsEditing(true)
+                setIsEditing(true);
                 requestAnimationFrame(() => {
                     if (cellRef.current) {
-                        cellRef.current.focus()
-                        const range = document.createRange()
-                        const sel = window.getSelection()
-                        range.selectNodeContents(cellRef.current)
-                        range.collapse(false)
-                        sel?.removeAllRanges()
-                        sel?.addRange(range)
+                        cellRef.current.focus();
+                        const range = document.createRange();
+                        const sel = window.getSelection();
+                        range.selectNodeContents(cellRef.current);
+                        range.collapse(false);
+                        sel?.removeAllRanges();
+                        sel?.addRange(range);
                     }
-                })
+                });
             }
-        }, [])
+        }, []);
 
         const handleMouseEvent = useCallback(
-            ({ 
-                event, 
-                shouldPreventDefault = false, 
+            ({
+                event,
+                shouldPreventDefault = false,
                 shouldStopPropagation = false,
-                handler
+                handler,
             }: {
-                event: React.MouseEvent
-                shouldPreventDefault?: boolean
-                shouldStopPropagation?: boolean
-                handler: () => void
+                event: React.MouseEvent;
+                shouldPreventDefault?: boolean;
+                shouldStopPropagation?: boolean;
+                handler: () => void;
             }) => {
-                if (shouldPreventDefault) event.preventDefault()
-                if (shouldStopPropagation) event.stopPropagation()
-                handler()
+                if (shouldPreventDefault) event.preventDefault();
+                if (shouldStopPropagation) event.stopPropagation();
+                handler();
             },
             []
-        )
+        );
 
         const createMouseEventHandler = useCallback(
-            ({ shouldPreventDefault = false, shouldStopPropagation = false, handler }: {
-                shouldPreventDefault?: boolean
-                shouldStopPropagation?: boolean
-                handler: () => void
-            }) => (e: React.MouseEvent) => {
-                handleMouseEvent({
-                    event: e,
-                    shouldPreventDefault,
-                    shouldStopPropagation,
-                    handler
-                })
-            },
+            ({
+                    shouldPreventDefault = false,
+                    shouldStopPropagation = false,
+                    handler,
+                }: {
+                    shouldPreventDefault?: boolean;
+                    shouldStopPropagation?: boolean;
+                    handler: () => void;
+                }) =>
+                (e: React.MouseEvent) => {
+                    handleMouseEvent({
+                        event: e,
+                        shouldPreventDefault,
+                        shouldStopPropagation,
+                        handler,
+                    });
+                },
             [handleMouseEvent]
-        )
+        );
 
         const handleMouseUpEvent = useCallback(
             createMouseEventHandler({
                 shouldPreventDefault: true,
-                handler: onMouseUp
+                handler: onMouseUp,
             }),
             [onMouseUp, createMouseEventHandler]
-        )
+        );
 
         const handleDoubleClick = useCallback(
             createMouseEventHandler({
                 shouldStopPropagation: true,
-                handler: enableEditMode
+                handler: enableEditMode,
             }),
             [enableEditMode, createMouseEventHandler]
-        )
+        );
 
         useEffect(() => {
             const handleDocumentClick = (e: MouseEvent) => {
@@ -107,11 +112,11 @@ const Cell: React.FC<CellProps> = React.memo(
             };
 
             if (isEditing) {
-                document.addEventListener('mousedown', handleDocumentClick);
+                document.addEventListener("mousedown", handleDocumentClick);
             }
 
             return () => {
-                document.removeEventListener('mousedown', handleDocumentClick);
+                document.removeEventListener("mousedown", handleDocumentClick);
             };
         }, [isEditing, handleCellChange, rowIndex, colIndex]);
 
@@ -121,18 +126,21 @@ const Cell: React.FC<CellProps> = React.memo(
             }
         }, [isEditing, cellData]);
 
-        const backgroundColor = getBackgroundColor(
-            isDarkMode,
-            isColumnSelected,
-            isRowSelected,
-            isMultiSelected,
-            isSingleCellSelected
-        );
+        const backgroundColor = getSelectionBackground(isDarkMode, isColumnSelected, isRowSelected, isMultiSelected, isSingleCellSelected);
 
-        const cellStyles = useMemo(() => ({
-            ...getCellStyles(isDarkMode, theme, isEditing, style),
-            backgroundColor
-        }), [isDarkMode, theme, isEditing, style, backgroundColor]);
+        const cellStyles = useMemo(
+            () => ({
+                ...getCellStyles({
+                    isDarkMode,
+                    theme,
+                    isEditing,
+                    isSelected: isSingleCellSelected,
+                    style,
+                }),
+                backgroundColor,
+            }),
+            [isDarkMode, theme, isEditing, isSingleCellSelected, style, backgroundColor]
+        );
 
         const handleBlur = () => {
             if (isEditing && cellRef.current) {
@@ -142,32 +150,38 @@ const Cell: React.FC<CellProps> = React.memo(
             }
         };
 
-        const handleClick = useCallback((e: React.MouseEvent) => {
-            e.stopPropagation()
-            if (!isSingleCellSelected) {
-                handleCellSelection(rowIndex, colIndex)
-            }
-        }, [isSingleCellSelected, handleCellSelection, rowIndex, colIndex])
+        const handleClick = useCallback(
+            (e: React.MouseEvent) => {
+                e.stopPropagation();
+                if (!isSingleCellSelected) {
+                    handleCellSelection(rowIndex, colIndex);
+                }
+            },
+            [isSingleCellSelected, handleCellSelection, rowIndex, colIndex]
+        );
 
         const handleMouseDownEvent = useCallback(
             createMouseEventHandler({
                 shouldPreventDefault: true,
                 handler: () => {
-                    onMouseDown(rowIndex, colIndex)
-                }
+                    onMouseDown(rowIndex, colIndex);
+                },
             }),
             [onMouseDown, rowIndex, colIndex, createMouseEventHandler]
-        )
+        );
 
-        const handlePaste = useCallback((e: React.ClipboardEvent<HTMLDivElement>) => {
-            if (isEditing) {
-                // Allow default paste behavior when editing
-                return
-            }
-            // Prevent default paste when not editing
-            e.preventDefault()
-            e.stopPropagation()
-        }, [isEditing])
+        const handlePaste = useCallback(
+            (e: React.ClipboardEvent<HTMLDivElement>) => {
+                if (isEditing) {
+                    // Allow default paste behavior when editing
+                    return;
+                }
+                // Prevent default paste when not editing
+                e.preventDefault();
+                e.stopPropagation();
+            },
+            [isEditing]
+        );
 
         return (
             <TableCellMui
