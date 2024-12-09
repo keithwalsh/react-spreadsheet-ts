@@ -3,85 +3,70 @@
  * handles row selection through click and drag interactions.
  */
 
-import { TableCell as TableCellMui } from "@mui/material"
-import { RowNumberCellProps } from "../types"
-import { useHeaderCellStyles } from "../styles"
-import { useState } from "react"
-import RowContextMenu from "./RowContextMenu"
-import { useAppSelector } from "../store/hooks"
-import { RootState } from "../store"
+import { TableCell as TableCellMui } from "@mui/material";
+import { RowNumberCellProps } from "../types";
+import { useHeaderCellStyles } from "../styles";
+import { useState } from "react";
+import RowContextMenu from "./RowContextMenu";
+import { useAppSelector } from "../store/hooks";
+import { RootState } from "../store";
 
-export function RowNumberCell({
-    children,
-    selectedRows,
-    rowIndex,
-    onDragStart,
-    onDragEnter,
-    onDragEnd,
-    onAddAbove,
-    onAddBelow,
-    onRemove,
-}: RowNumberCellProps) {
-    const isSelected = selectedRows?.includes(rowIndex) ?? false
-    const [isHovered, setIsHovered] = useState(false)
-    const [isMouseDown, setIsMouseDown] = useState(false)
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+export function RowNumberCell({ children, selectedRows, rowIndex, onDragStart, onDragEnter, onAddAbove, onAddBelow, onRemove }: RowNumberCellProps) {
+    const isSelected = selectedRows?.includes(rowIndex) ?? false;
+    const [isHovered, setIsHovered] = useState(false);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-    const { selectAll, selectedCell, selectedCells } = useAppSelector((state: RootState) => state.spreadsheet)
+    const { selectAll, selectedCell, selectedCells, isDragging } = useAppSelector((state: RootState) => state.spreadsheet);
 
     // Check if any cell in this row is selected
-    const isHighlighted = selectedCell?.row === rowIndex || 
-                         (selectedCells && selectedCells[rowIndex]?.some(cell => cell));
+    const isHighlighted = selectedCell?.row === rowIndex || (selectedCells && selectedCells[rowIndex]?.some((cell) => cell));
 
-    const styles = useHeaderCellStyles({ 
-        isSelected: isSelected || selectAll, 
+    const styles = useHeaderCellStyles({
+        isSelected: isSelected || selectAll,
         isHovered,
-        isHighlighted 
-    })
+        isHighlighted,
+    });
 
     const handleContextMenu = (event: React.MouseEvent<HTMLTableCellElement>) => {
-        event.preventDefault()
-        setAnchorEl(event.currentTarget)
-    }
+        event.preventDefault();
+        setAnchorEl(event.currentTarget);
+    };
 
     const handleCloseMenu = () => {
-        setAnchorEl(null)
-    }
+        setAnchorEl(null);
+    };
 
     const handleMouseDown = (e: React.MouseEvent) => {
-        e.preventDefault()
-        setIsMouseDown(true)
-        onDragStart(rowIndex)
-    }
+        e.preventDefault();
+        onDragStart(rowIndex);
+    };
 
-    const handleMouseEnter = () => {
-        setIsHovered(true)
-        if (isMouseDown) {
-            onDragEnter(rowIndex)
+    const handleMouseEnter = (e: React.MouseEvent) => {
+        setIsHovered(true);
+        if (isDragging) {
+            e.preventDefault();
+            onDragEnter(rowIndex);
         }
-    }
+    };
 
-    const handleMouseUp = () => {
-        if (isMouseDown) {
-            setIsMouseDown(false)
-            onDragEnd()
-        }
-    }
+    const handleMouseLeave = () => {
+        setIsHovered(false);
+    };
 
     const handleAddAbove = () => {
-        onAddAbove()
-        handleCloseMenu()
-    }
+        onAddAbove();
+        handleCloseMenu();
+    };
 
     const handleAddBelow = () => {
-        onAddBelow()
-        handleCloseMenu()
-    }
+        onAddBelow();
+        handleCloseMenu();
+    };
 
     const handleRemove = () => {
-        onRemove()
-        handleCloseMenu()
-    }
+        onRemove();
+        handleCloseMenu();
+    };
 
     return (
         <>
@@ -89,8 +74,7 @@ export function RowNumberCell({
                 sx={styles}
                 onMouseDown={handleMouseDown}
                 onMouseEnter={handleMouseEnter}
-                onMouseLeave={() => setIsHovered(false)}
-                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseLeave}
                 onContextMenu={handleContextMenu}
             >
                 {children}
@@ -104,7 +88,7 @@ export function RowNumberCell({
                 onRemove={handleRemove}
             />
         </>
-    )
+    );
 }
 
-export default RowNumberCell
+export default RowNumberCell;

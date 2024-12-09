@@ -98,6 +98,24 @@ const Cell: React.FC<CellProps> = React.memo(
         )
 
         useEffect(() => {
+            const handleDocumentClick = (e: MouseEvent) => {
+                if (isEditing && cellRef.current && !cellRef.current.contains(e.target as Node)) {
+                    const newValue = cellRef.current.textContent || "";
+                    handleCellChange(rowIndex, colIndex, newValue);
+                    setIsEditing(false);
+                }
+            };
+
+            if (isEditing) {
+                document.addEventListener('mousedown', handleDocumentClick);
+            }
+
+            return () => {
+                document.removeEventListener('mousedown', handleDocumentClick);
+            };
+        }, [isEditing, handleCellChange, rowIndex, colIndex]);
+
+        useEffect(() => {
             if (!isEditing && cellRef.current) {
                 cellRef.current.textContent = cellData?.content || "";
             }
@@ -173,6 +191,9 @@ const Cell: React.FC<CellProps> = React.memo(
                         outline: "none",
                         cursor: "inherit",
                         userSelect: isEditing ? "text" : "none",
+                        fontWeight: cellData?.bold ? "bold" : "normal",
+                        fontStyle: cellData?.italic ? "italic" : "normal",
+                        fontFamily: cellData?.code ? "monospace" : "inherit",
                         ...style,
                     }}
                 />

@@ -12,27 +12,36 @@ export function useDragSelection() {
     const isDragging = useAppSelector(state => state.spreadsheet?.isDragging ?? false)
 
     useEffect(() => {
-        const handleGlobalMouseUp = () => {
+        const handleGlobalMouseUp = (e: MouseEvent) => {
             if (isDragging) {
+                e.preventDefault()
                 dispatch(endDrag())
             }
         }
 
-        window.addEventListener('mouseup', handleGlobalMouseUp, { passive: true })
-        return () => window.removeEventListener('mouseup', handleGlobalMouseUp)
+        const handleGlobalMouseMove = (e: MouseEvent) => {
+            if (!isDragging) return
+            
+            // Prevent text selection during drag
+            e.preventDefault()
+        }
+
+        window.addEventListener('mouseup', handleGlobalMouseUp)
+        window.addEventListener('mousemove', handleGlobalMouseMove)
+        
+        return () => {
+            window.removeEventListener('mouseup', handleGlobalMouseUp)
+            window.removeEventListener('mousemove', handleGlobalMouseMove)
+        }
     }, [isDragging, dispatch])
 
     const handleDragStart = useCallback((row: number, col: number) => {
-        if (!isDragging) {
-            dispatch(startDrag({ row, col }))
-        }
-    }, [dispatch, isDragging])
+        dispatch(startDrag({ row, col }))
+    }, [dispatch])
 
     const handleDragEnter = useCallback((row: number, col: number) => {
         if (isDragging) {
-            requestAnimationFrame(() => {
-                dispatch(updateDragSelection({ row, col }))
-            })
+            dispatch(updateDragSelection({ row, col }))
         }
     }, [isDragging, dispatch])
 

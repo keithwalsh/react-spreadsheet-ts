@@ -101,6 +101,11 @@ const spreadsheetSlice = createSlice({
                     { length: maxRow - minRow + 1 },
                     (_, i) => minRow + i
                 )
+                
+                // Update selectedCells matrix to reflect row selection
+                state.selectedCells = state.selectedCells.map((rowCells, rowIndex) => 
+                    rowCells.map(() => state.selectedRows.includes(rowIndex))
+                )
                 return
             }
 
@@ -111,6 +116,11 @@ const spreadsheetSlice = createSlice({
                 state.selectedColumns = Array.from(
                     { length: maxCol - minCol + 1 },
                     (_, i) => minCol + i
+                )
+                
+                // Update selectedCells matrix to reflect column selection
+                state.selectedCells = state.selectedCells.map(rowCells => 
+                    rowCells.map((_, colIndex) => state.selectedColumns.includes(colIndex))
                 )
                 return
             }
