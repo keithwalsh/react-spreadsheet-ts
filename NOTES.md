@@ -81,3 +81,31 @@ const handleRowDragEnd = useCallback(() => {
 3. Add similar handlers for column selection.
 
 The key is connecting mouse events to selection state updates through the reducer.
+
+#### Problem
+
+In edit mode, the cell shadow does not appear.
+
+#### Solution
+
+Apply the styles directly at the TableCell level (via sx prop) instead of nesting them. This ensures the shadow and other styles are applied with the correct specificity and scope.
+Before:
+
+```
+position: "absolute",
+top: 0,
+left: 0,
+// ... nested styles that didn't work
+```
+
+After:
+
+```
+// Direct application to TableCell
+...(isEditing && {
+    boxShadow: "rgba(0, 0, 0, 0.2) 0px 3px 1px -2px...",
+    textIndent: "3px",
+    zIndex: 1,
+})
+
+```

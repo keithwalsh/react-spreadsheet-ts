@@ -40,16 +40,6 @@ const SpreadsheetMeta: Meta<SpreadsheetStoryArgs> = {
             description: "Select the theme mode",
             defaultValue: "light"
         },
-        initialRows: {
-            control: { type: "number", min: 1, max: 100, step: 1 },
-            description: "The number of initial rows.",
-            defaultValue: 4,
-        },
-        initialColumns: {
-            control: { type: "number", min: 1, max: 100, step: 1 },
-            description: "The number of initial columns.",
-            defaultValue: 5,
-        },
     },
     decorators: [
         (Story, context) => {
@@ -77,8 +67,5 @@ export const Default: Story = {
     args: {
         mode: "light",
         onChange: fn(),
-        onFormatChange: fn(),
-        initialRows: 4,
-        initialColumns: 5
     }
 }

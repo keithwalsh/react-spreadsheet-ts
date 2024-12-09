@@ -33,9 +33,8 @@ import { addRow, removeRow, addColumn, removeColumn } from '../utils/spreadsheet
 import { downloadCSV } from '../utils'
 
 export const Spreadsheet: React.FC<SpreadsheetProps> = ({
-    initialRows = 4,
-    initialColumns = 5,
     value,
+    onChange,
 }) => {
     const dispatch = useAppDispatch()
     const state = useAppSelector(state => state.spreadsheet)
@@ -78,10 +77,10 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                 selectAll: false
             }))
         } else {
-            // Initialize with the provided dimensions, marking it as initial setup
-            dispatch(setTableSize({ row: initialRows, col: initialColumns, isInitialSetup: true }))
+            // Initialize with default dimensions
+            dispatch(setTableSize({ row: 4, col: 5, isInitialSetup: true }))
         }
-    }, [value, initialRows, initialColumns, dispatch])
+    }, [value, dispatch])
 
     const handleCellChange = useCallback(
         (rowIndex: number, colIndex: number, value: string) => {
@@ -94,8 +93,10 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                 ...state,
                 data: newData
             }))
+            // Call onChange callback if provided
+            onChange?.(newData)
         },
-        [dispatch, state]
+        [dispatch, state, onChange]
     )
 
     const handleMouseDown = useCallback(

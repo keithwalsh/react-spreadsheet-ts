@@ -190,7 +190,7 @@ export interface SelectionRange {
 }
 
 export interface DataPayload {
-    data: CellData[][];
+    data: CellData[][]
     selectedCell?: { row: number, col: number } | null
     selectedCells?: boolean[][]
     selectedRows?: number[]
@@ -200,7 +200,7 @@ export interface DataPayload {
 }
 
 export interface State {
-    data: CellData[][];
+    data: CellData[][]
     past: DataPayload[]
     future: DataPayload[]
     selectedColumn: number | null
@@ -217,12 +217,9 @@ export interface State {
 }
 
 export interface SpreadsheetProps {
-    initialRows?: number;
-    initialColumns?: number;
-    tableHeight?: string;
-    value?: CellData[][];
-    onChange?: (data: CellData[][]) => void;
-    onFormatChange?: (row: number, col: number, format: Partial<CellData>) => void;
+    tableHeight?: string
+    value?: CellData[][]
+    onChange?: (data: CellData[][]) => void
 }
 
 export interface TableDimensionInputProps {
