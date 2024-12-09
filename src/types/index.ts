@@ -56,7 +56,8 @@ export type ButtonHandlerKey =
     | "onClickRemoveColumn"
     | "onClickSetBold"
     | "onClickSetItalic"
-    | "onClickSetCode";
+    | "onClickSetCode"
+    | "onClickSetLink";
 
 export interface ButtonDefinition {
     title: string;
@@ -262,11 +263,12 @@ export interface ToolbarContextType {
     onClickSetBold: () => void;
     onClickSetItalic: () => void;
     onClickSetCode: () => void;
+    onClickSetLink: () => void;
     setTableSize: (row: number, col: number) => void;
     currentRows: number;
     currentCols: number;
     clearTable: () => void;
-    clearSelected: () => void;
+    deleteSelected: () => void;
     transposeTable: () => void;
 }
 

@@ -39,7 +39,7 @@ export function createMenuConfig(params: MenuConfigParams): MenuConfig[] {
   } = params
 
   const {
-    clearSelected,
+    deleteSelected,
     transposeTable,
     currentRows,
     currentCols,
@@ -90,7 +90,7 @@ export function createMenuConfig(params: MenuConfigParams): MenuConfig[] {
         {
           kind: "action",
           label: "Delete selected",
-          action: clearSelected,
+          action: deleteSelected,
           icon: React.createElement(Delete),
           shortcut: "Delete"
         }

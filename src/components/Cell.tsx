@@ -203,12 +203,20 @@ const Cell: React.FC<CellProps> = React.memo(
                     style={{
                         minWidth: "80px",
                         outline: "none",
-                        cursor: "inherit",
+                        cursor: isEditing ? "text" : (cellData?.link ? "pointer" : "inherit"),
                         userSelect: isEditing ? "text" : "none",
                         fontWeight: cellData?.bold ? "bold" : "normal",
                         fontStyle: cellData?.italic ? "italic" : "normal",
                         fontFamily: cellData?.code ? "monospace" : "inherit",
+                        textDecoration: cellData?.link ? "underline" : "none",
+                        color: cellData?.link ? theme.palette.primary.main : "inherit",
                         ...style,
+                    }}
+                    onClick={(e) => {
+                        if (!isEditing && cellData?.link) {
+                            e.stopPropagation();
+                            window.open(cellData.link, '_blank', 'noopener,noreferrer');
+                        }
                     }}
                 />
             </TableCellMui>

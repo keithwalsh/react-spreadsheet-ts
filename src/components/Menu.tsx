@@ -8,29 +8,8 @@ import { MenuBar } from "mui-menubar"
 import { createMenuConfig } from "../config/menuConfig"
 import TableSizeChooser from "./TableSizeChooser"
 import NewTableModal from "./NewTableModal"
-import { TableMenuProps } from "../types"
+import { TableMenuProps, ToolbarContextType } from "../types"
 import { ToolbarContext } from "./ToolbarProvider"
-
-interface ToolbarContextType {
-    currentRows: number
-    currentCols: number
-    setTableSize: (row: number, col: number) => void
-    clearTable: () => void
-    transposeTable: () => void
-    onClickUndo: () => void
-    onClickRedo: () => void
-    onClickAlignLeft: () => void
-    onClickAlignCenter: () => void
-    onClickAlignRight: () => void
-    onClickAddRow: () => void
-    onClickRemoveRow: () => void
-    onClickAddColumn: () => void
-    onClickRemoveColumn: () => void
-    onClickSetBold: () => void
-    onClickSetItalic: () => void
-    onClickSetCode: () => void
-    clearSelected: () => void
-}
 
 const defaultContext: ToolbarContextType = {
     currentRows: 0,
@@ -50,7 +29,8 @@ const defaultContext: ToolbarContextType = {
     onClickSetBold: () => {},
     onClickSetItalic: () => {},
     onClickSetCode: () => {},
-    clearSelected: () => {}
+    onClickSetLink: () => {},
+    deleteSelected: () => {}
 }
 
 export const TableMenu: React.FC<TableMenuProps> = ({ onCreateNewTable, onDownloadCSV }) => {

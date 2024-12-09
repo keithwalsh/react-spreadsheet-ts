@@ -12,6 +12,10 @@ type TableSizePayload = {
     col: number
 }
 
+export type TextFormattingOperation = 
+    | { operation: "BOLD" | "ITALIC" | "CODE" | "LINK"; payload?: string }
+    | { operation: "ALIGN_LEFT" | "ALIGN_CENTER" | "ALIGN_RIGHT" };
+
 const spreadsheetSlice = createSlice({
     name: 'spreadsheet',
     initialState: {
@@ -160,7 +164,8 @@ const spreadsheetSlice = createSlice({
                     alignment: "left",
                     bold: false,
                     italic: false,
-                    code: false
+                    code: false,
+                    link: undefined
                 }))
             )
 
@@ -207,7 +212,8 @@ const spreadsheetSlice = createSlice({
                     alignment: "left",
                     bold: false,
                     italic: false,
-                    code: false
+                    code: false,
+                    link: undefined
                 }))
             )
 
@@ -228,7 +234,8 @@ const spreadsheetSlice = createSlice({
                     alignment: "left",
                     bold: false,
                     italic: false,
-                    code: false
+                    code: false,
+                    link: undefined
                 }))
             );
 
@@ -307,17 +314,19 @@ const spreadsheetSlice = createSlice({
             }
         },
 
-        applyTextFormatting: (state, action: PayloadAction<{ operation: 'BOLD' | 'ITALIC' | 'CODE' | 'ALIGN_LEFT' | 'ALIGN_CENTER' | 'ALIGN_RIGHT' }>) => {
+        applyTextFormatting: (state, action: PayloadAction<TextFormattingOperation>) => {
             const { operation } = action.payload;
             let modified = false;
 
             const newData = state.data.map((row, i) =>
                 row.map((cell, j) => {
-                    if (state.selectedCells[i][j] || 
-                        (state.selectedCell && state.selectedCell.row === i && state.selectedCell.col === j) ||
-                        state.selectedRows.includes(i) ||
-                        state.selectedColumns.includes(j) ||
-                        state.selectAll) {
+                    if (
+                        (state.selectedCell?.row === i && state.selectedCell?.col === j) ||
+                        state.selectedCells[i][j] ||
+                        (state.selectedColumns.includes(j)) ||
+                        (state.selectedRows.includes(i)) ||
+                        state.selectAll
+                    ) {
                         modified = true;
                         const newCell = { ...cell };
                         switch (operation) {
@@ -330,14 +339,18 @@ const spreadsheetSlice = createSlice({
                             case 'CODE':
                                 newCell.code = !cell.code;
                                 break;
+                            case 'LINK':
+                                // Preserve existing formatting when adding/removing link
+                                newCell.link = (action.payload as { operation: 'LINK', payload?: string }).payload;
+                                break;
                             case 'ALIGN_LEFT':
-                                newCell.alignment = 'left';
+                                newCell.alignment = "left";
                                 break;
                             case 'ALIGN_CENTER':
-                                newCell.alignment = 'center';
+                                newCell.alignment = "center";
                                 break;
                             case 'ALIGN_RIGHT':
-                                newCell.alignment = 'right';
+                                newCell.alignment = "right";
                                 break;
                         }
                         return newCell;
@@ -354,10 +367,10 @@ const spreadsheetSlice = createSlice({
                     selectedRows: state.selectedRows,
                     selectedColumns: state.selectedColumns,
                     isDragging: state.isDragging,
-                    selectAll: state.selectAll
+                    selectAll: state.selectAll,
                 });
-                state.data = newData;
                 state.future = [];
+                state.data = newData;
             }
         },
 
@@ -411,7 +424,7 @@ const spreadsheetSlice = createSlice({
             }
         },
         
-        clearSelected: (state) => {
+        deleteSelected: (state) => {
             // Save current state before clearing
             state.past.push({
                 data: state.data,
@@ -423,15 +436,30 @@ const spreadsheetSlice = createSlice({
                 selectAll: state.selectAll
             });
 
-            // Clear selected cells
-            state.selectedCells = Array.from(
-                { length: state.data.length }, 
-                () => Array(state.data[0].length).fill(false)
-            );
-            state.selectedCell = null;
-            state.selectedRows = [];
-            state.selectedColumns = [];
-            state.selectAll = false;
+            // Create a copy of the data to modify
+            const newData = state.data.map(row => row.map(cell => ({ ...cell })));
+
+            // Clear contents of selected cells
+            for (let i = 0; i < state.data.length; i++) {
+                for (let j = 0; j < state.data[i].length; j++) {
+                    if (state.selectedCells[i][j] || 
+                        state.selectedRows.includes(i) || 
+                        state.selectedColumns.includes(j) || 
+                        state.selectAll ||
+                        (state.selectedCell && state.selectedCell.row === i && state.selectedCell.col === j)) {
+                        newData[i][j] = {
+                            ...newData[i][j],
+                            content: "",
+                            link: undefined
+                        };
+                    }
+                }
+            }
+
+            // Update the data with cleared cells
+            state.data = newData;
+
+            // Keep selection state intact but clear future states
             state.future = [];
         },
         
@@ -447,7 +475,7 @@ export const {
     clearRowSelection,
     setTableSize,
     clearTable,
-    clearSelected,
+    deleteSelected,
     transposeTable,
     setSelectedCell,
     setSelectedColumn,

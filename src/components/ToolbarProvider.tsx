@@ -1,52 +1,97 @@
-import React, { createContext } from "react";
-import { useAppDispatch } from '../store/hooks'
-import { 
-    applyTextFormatting,
-    clearTable,
-    clearSelected,
-    undo,
-    redo
-} from '../store/spreadsheetSlice'
-import { ToolbarContextType, ToolbarProviderProps } from "../types";
+import React, { useState, createContext } from 'react';
+import { ToolbarContextType } from '../types';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { applyTextFormatting } from '../store/spreadsheetSlice';
+import LinkModal from './LinkModal';
 
 export const ToolbarContext = createContext<ToolbarContextType | undefined>(undefined);
 
-export const ToolbarProvider: React.FC<ToolbarProviderProps> = ({ children, ...handlers }) => {
-    const dispatch = useAppDispatch()
+export interface ToolbarProviderProps {
+    children: React.ReactNode;
+    onClickUndo: () => void;
+    onClickRedo: () => void;
+    onClickAlignLeft: () => void;
+    onClickAlignCenter: () => void;
+    onClickAlignRight: () => void;
+    onClickAddRow: () => void;
+    onClickRemoveRow: () => void;
+    onClickAddColumn: () => void;
+    onClickRemoveColumn: () => void;
+    onClickSetBold: () => void;
+    onClickSetItalic: () => void;
+    onClickSetCode: () => void;
+    setTableSize: (row: number, col: number) => void;
+    currentRows: number;
+    currentCols: number;
+    clearTable: () => void;
+    deleteSelected: () => void;
+    transposeTable: () => void;
+}
 
-    const contextValue: ToolbarContextType = {
-        ...handlers,
-        onClickSetBold: () => {
-            dispatch(applyTextFormatting({ operation: 'BOLD' }))
-        },
-        onClickSetItalic: () => {
-            dispatch(applyTextFormatting({ operation: 'ITALIC' }))
-        },
-        onClickSetCode: () => {
-            dispatch(applyTextFormatting({ operation: 'CODE' }))
-        },
-        onClickAlignLeft: () => {
-            dispatch(applyTextFormatting({ operation: 'ALIGN_LEFT' }))
-        },
-        onClickAlignCenter: () => {
-            dispatch(applyTextFormatting({ operation: 'ALIGN_CENTER' }))
-        },
-        onClickAlignRight: () => {
-            dispatch(applyTextFormatting({ operation: 'ALIGN_RIGHT' }))
-        },
-        clearTable: () => {
-            dispatch(clearTable())
-        },
-        clearSelected: () => {
-            dispatch(clearSelected())
-        },
-        onClickUndo: () => {
-            dispatch(undo())
-        },
-        onClickRedo: () => {
-            dispatch(redo())
-        }
+export const ToolbarProvider: React.FC<ToolbarProviderProps> = ({ 
+    children,
+    onClickUndo,
+    onClickRedo,
+    onClickAlignLeft,
+    onClickAlignCenter,
+    onClickAlignRight,
+    onClickAddRow,
+    onClickRemoveRow,
+    onClickAddColumn,
+    onClickRemoveColumn,
+    onClickSetBold,
+    onClickSetItalic,
+    onClickSetCode,
+    setTableSize,
+    currentRows,
+    currentCols,
+    clearTable,
+    deleteSelected,
+    transposeTable
+}) => {
+    const dispatch = useAppDispatch();
+    const [showLinkModal, setShowLinkModal] = useState(false);
+    const { selectedCell, data } = useAppSelector(state => state.spreadsheet);
+    const selectedCellData = selectedCell ? data[selectedCell.row]?.[selectedCell.col] : undefined;
+
+    const handleLinkSubmit = (url: string | undefined) => {
+        dispatch(applyTextFormatting({ operation: 'LINK', payload: url }));
+        setShowLinkModal(false);
     };
 
-    return <ToolbarContext.Provider value={contextValue}>{children}</ToolbarContext.Provider>;
+    const contextValue: ToolbarContextType = {
+        onClickUndo,
+        onClickRedo,
+        onClickAlignLeft,
+        onClickAlignCenter,
+        onClickAlignRight,
+        onClickAddRow,
+        onClickRemoveRow,
+        onClickAddColumn,
+        onClickRemoveColumn,
+        onClickSetBold,
+        onClickSetItalic,
+        onClickSetCode,
+        onClickSetLink: () => setShowLinkModal(true),
+        setTableSize,
+        currentRows,
+        currentCols,
+        clearTable,
+        deleteSelected,
+        transposeTable
+    };
+
+    return (
+        <>
+            <ToolbarContext.Provider value={contextValue}>
+                {children}
+            </ToolbarContext.Provider>
+            <LinkModal
+                open={showLinkModal}
+                onClose={() => setShowLinkModal(false)}
+                onSubmit={handleLinkSubmit}
+                initialUrl={selectedCellData?.link}
+            />
+        </>
+    );
 };

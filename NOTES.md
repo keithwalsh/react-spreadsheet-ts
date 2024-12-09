@@ -1,6 +1,8 @@
 #### Tests
 
 -   Paste data from clipboard
+-   Apply formatting when single cell is selected and when multiple cells are selected
+-   Apply alignment when single cell is selected and when multiple cells are selected
 -   Delete rows
 -   Delete columns
 -   Highlight part of the contents of a cell
@@ -8,7 +10,7 @@
 -   Column header and row number selection via click-and-drag
 -   Clicking a selected cell should not trigger a re-render that momentarily removes and reapplies the selection outline.
 -   Column and row headers corresponding to selected cells should be automatically highlighted, to help users quickly track their position within the spreadsheet.
-
+- The system must allow users to exit cell edit mode by clicking outside the active cell, without requiring them to enter edit mode on a different cell.
 ---
 
 -   Multiple row selection via click-and-drag on row numbers is broken; only single row selection works.

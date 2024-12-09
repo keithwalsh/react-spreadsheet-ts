@@ -11,7 +11,8 @@ import {
     setSelectedColumn,
     undo,
     redo,
-    clearSelected
+    deleteSelected,
+    applyTextFormatting
 } from '../store/spreadsheetSlice'
 import {
     Box,
@@ -188,9 +189,9 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
             <ToolbarProvider
                 onClickUndo={() => dispatch(undo())}
                 onClickRedo={() => dispatch(redo())}
-                onClickAlignLeft={() => {}}
-                onClickAlignCenter={() => {}}
-                onClickAlignRight={() => {}}
+                onClickAlignLeft={() => dispatch(applyTextFormatting({ operation: "ALIGN_LEFT" }))}
+                onClickAlignCenter={() => dispatch(applyTextFormatting({ operation: "ALIGN_CENTER" }))}
+                onClickAlignRight={() => dispatch(applyTextFormatting({ operation: "ALIGN_RIGHT" }))}
                 onClickAddRow={() => {
                     const { newData, newSelectedCells } = addRow({
                         data: state.data,
@@ -216,8 +217,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                 onClickAddColumn={() => {
                     const { newData, newSelectedCells } = addColumn({
                         data: state.data,
-                        selectedCells: state.selectedCells,
-                        index: state.selectedColumns?.[0] ?? state.data[0].length - 1
+                        selectedCells: state.selectedCells
                     });
                     dispatch(setData({
                         ...state,
@@ -228,8 +228,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                 onClickRemoveColumn={() => {
                     const { newData, newSelectedCells } = removeColumn({
                         data: state.data,
-                        selectedCells: state.selectedCells,
-                        index: state.selectedColumns?.[0] ?? state.data[0].length - 1
+                        selectedCells: state.selectedCells
                     });
                     dispatch(setData({
                         ...state,
@@ -237,15 +236,15 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                         selectedCells: newSelectedCells
                     }));
                 }}
-                onClickSetBold={() => {}}
-                onClickSetItalic={() => {}}
-                onClickSetCode={() => {}}
+                onClickSetBold={() => dispatch(applyTextFormatting({ operation: "BOLD" }))}
+                onClickSetItalic={() => dispatch(applyTextFormatting({ operation: "ITALIC" }))}
+                onClickSetCode={() => dispatch(applyTextFormatting({ operation: "CODE" }))}
                 setTableSize={handleSetTableSize}
                 currentRows={state.data.length}
-                currentCols={state.data[0].length}
-                clearTable={clearTable}
-                clearSelected={() => dispatch(clearSelected())}
-                transposeTable={transposeTable}
+                currentCols={state.data[0]?.length || 0}
+                clearTable={() => dispatch(clearTable())}
+                deleteSelected={() => dispatch(deleteSelected())}
+                transposeTable={() => dispatch(transposeTable())}
             >
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                     <TableMenu 
