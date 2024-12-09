@@ -1,34 +1,28 @@
-import { Alignment } from "../types";
+import { Alignment, CellData } from "../types";
 
-type OperationParams = {
-    data: string[][];
-    alignments: Alignment[][];
+interface OperationParams {
+    data: CellData[][];
     selectedCells: boolean[][];
     index?: number;
     position?: "left" | "right";
+}
+
+const spliceColumn = <T>(array: T[][], index: number, count: number): T[][] => {
+    return array.map(row => {
+        const newRow = [...row];
+        newRow.splice(index, count);
+        return newRow;
+    });
 };
 
-/**
- * Transposes a 2D array
- */
-export function transpose<T>(matrix: T[][]): T[][] {
-    return matrix[0].map((_, colIndex) => matrix.map(row => row[colIndex]))
-}
-
-/**
- * Helper function to splice a column from a 2D array
- */
-function spliceColumn<T>(matrix: T[][], index: number, deleteCount: number, value?: T): T[][] {
-    return matrix.map(row => {
-        const newRow = [...row]
-        newRow.splice(index, deleteCount, ...(value ? [value] : []))
-        return newRow
-    })
-}
-
-export const addRow = ({ data, alignments, selectedCells, index = data.length }: OperationParams) => {
-    const newRow = Array(data[0].length).fill("");
-    const newAlignmentRow = Array(alignments[0].length).fill("left" as Alignment);
+export const addRow = ({ data, selectedCells, index = data.length }: OperationParams) => {
+    const newRow = Array(data[0].length).fill(null).map(() => ({
+        content: "",
+        alignment: "left" as Alignment,
+        bold: false,
+        italic: false,
+        code: false
+    }));
     const newSelectedCellsRow = Array(selectedCells[0].length).fill(false);
     
     return {
@@ -36,11 +30,6 @@ export const addRow = ({ data, alignments, selectedCells, index = data.length }:
             ...data.slice(0, index),
             newRow,
             ...data.slice(index)
-        ],
-        newAlignments: [
-            ...alignments.slice(0, index),
-            newAlignmentRow,
-            ...alignments.slice(index)
         ],
         newSelectedCells: [
             ...selectedCells.slice(0, index),
@@ -50,44 +39,82 @@ export const addRow = ({ data, alignments, selectedCells, index = data.length }:
     };
 };
 
-export const removeRow = ({ data, alignments, selectedCells, index = data.length - 1 }: OperationParams) => {
-    if (data.length > 1) {
-        return {
-            newData: [...data.slice(0, index), ...data.slice(index + 1)],
-            newAlignments: [...alignments.slice(0, index), ...alignments.slice(index + 1)],
-            newSelectedCells: [...selectedCells.slice(0, index), ...selectedCells.slice(index + 1)],
-        };
-    }
-    return { newData: data, newAlignments: alignments, newSelectedCells: selectedCells };
+export const removeRow = ({ data, selectedCells, index = data.length - 1 }: OperationParams) => {
+    return {
+        newData: [
+            ...data.slice(0, index),
+            ...data.slice(index + 1)
+        ],
+        newSelectedCells: [
+            ...selectedCells.slice(0, index),
+            ...selectedCells.slice(index + 1)
+        ],
+    };
 };
 
-export const addColumn = ({ data, alignments, selectedCells, index = 0, position = "right" }: OperationParams) => {
-    const insertIndex = position === "left" ? index : index + 1;
-    const newData = data.map((row) => {
+export const addColumn = ({ data, selectedCells, index = 0, position = "right" }: OperationParams) => {
+    const columnIndex = position === "right" ? index + 1 : index;
+    const newData = data.map(row => {
         const newRow = [...row];
-        newRow.splice(insertIndex, 0, "");
+        newRow.splice(columnIndex, 0, {
+            content: "",
+            alignment: "left" as Alignment,
+            bold: false,
+            italic: false,
+            code: false
+        });
         return newRow;
     });
-    const newAlignments = alignments.map((row) => {
+
+    const newSelectedCells = selectedCells.map(row => {
         const newRow = [...row];
-        newRow.splice(insertIndex, 0, "left" as Alignment);
+        newRow.splice(columnIndex, 0, false);
         return newRow;
     });
-    const newSelectedCells = selectedCells.map((row) => {
-        const newRow = [...row];
-        newRow.splice(insertIndex, 0, false);
-        return newRow;
-    });
-    return { newData, newAlignments, newSelectedCells };
+
+    return {
+        newData,
+        newSelectedCells,
+    };
 };
 
-export const removeColumn = ({ data, alignments, selectedCells, index = 0 }: OperationParams) => {
-    if (data[0].length > 1) {
-        return {
-            newData: spliceColumn(data, index, 1),
-            newAlignments: spliceColumn(alignments, index, 1),
-            newSelectedCells: spliceColumn(selectedCells, index, 1)
+export const removeColumn = ({ data, selectedCells, index = 0 }: OperationParams) => {
+    return {
+        newData: spliceColumn(data, index, 1),
+        newSelectedCells: spliceColumn(selectedCells, index, 1),
+    };
+};
+
+export const transpose = ({ data, selectedCells }: OperationParams) => {
+    const rows = data[0].length;
+    const cols = data.length;
+    const newData: CellData[][] = Array.from({ length: rows }, () =>
+        Array(cols).fill(null).map(() => ({
+            content: "",
+            alignment: "left" as Alignment,
+            bold: false,
+            italic: false,
+            code: false
+        }))
+    );
+
+    // Transpose the data
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+            newData[i][j] = { ...data[j][i] };
         }
     }
-    return { newData: data, newAlignments: alignments, newSelectedCells: selectedCells }
-}
+
+    // Transpose the selected cells
+    const newSelectedCells = Array.from({ length: rows }, () => Array(cols).fill(false));
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+            newSelectedCells[i][j] = selectedCells[j][i];
+        }
+    }
+
+    return {
+        newData,
+        newSelectedCells,
+    };
+};

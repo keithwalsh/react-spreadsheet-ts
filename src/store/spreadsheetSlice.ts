@@ -5,7 +5,7 @@
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { initialState } from './initialState'
-import { State, DataPayload } from '../types'
+import { State, DataPayload, CellData } from '../types'
 
 type TableSizePayload = {
     row: number
@@ -23,11 +23,7 @@ const spreadsheetSlice = createSlice({
     reducers: {
         setData: (state, action: PayloadAction<DataPayload>) => {
             const { 
-                data, 
-                alignments, 
-                bold, 
-                italic, 
-                code,
+                data,
                 selectedCell,
                 selectedCells,
                 selectedRows,
@@ -37,16 +33,9 @@ const spreadsheetSlice = createSlice({
             } = action.payload
 
             // Only save state if data actually changed
-            if (
-                JSON.stringify(state.data) !== JSON.stringify(data) ||
-                JSON.stringify(state.alignments) !== JSON.stringify(alignments)
-            ) {
+            if (JSON.stringify(state.data) !== JSON.stringify(data)) {
                 state.past.push({
                     data: state.data,
-                    alignments: state.alignments,
-                    bold: state.bold,
-                    italic: state.italic,
-                    code: state.code,
                     selectedCell: state.selectedCell,
                     selectedCells: state.selectedCells,
                     selectedRows: state.selectedRows,
@@ -54,16 +43,10 @@ const spreadsheetSlice = createSlice({
                     isDragging: state.isDragging,
                     selectAll: state.selectAll
                 })
-                state.future = [] // Clear future when new changes are made
+                state.future = []
             }
 
             state.data = data
-            state.alignments = alignments
-            state.bold = bold
-            state.italic = italic
-            state.code = code
-
-            // Update optional state properties if provided
             if (selectedCell !== undefined) state.selectedCell = selectedCell
             if (selectedCells !== undefined) state.selectedCells = selectedCells
             if (selectedRows !== undefined) state.selectedRows = selectedRows
@@ -161,15 +144,29 @@ const spreadsheetSlice = createSlice({
 
         setTableSize: (state, action: PayloadAction<TableSizePayload & { isInitialSetup?: boolean }>) => {
             const { row, col, isInitialSetup } = action.payload
+            const newData: CellData[][] = Array.from({ length: row }, () =>
+                Array(col).fill(null).map(() => ({
+                    content: "",
+                    alignment: "left",
+                    bold: false,
+                    italic: false,
+                    code: false
+                }))
+            )
+
+            // Copy existing data
+            for (let i = 0; i < Math.min(state.data.length, row); i++) {
+                for (let j = 0; j < Math.min(state.data[0].length, col); j++) {
+                    newData[i][j] = { ...state.data[i][j] }
+                }
+            }
+
+            state.data = newData
+            state.selectedCells = Array.from({ length: row }, () => Array(col).fill(false))
             
-            // Only save to history if it's not the initial setup
             if (!isInitialSetup) {
                 state.past.push({
                     data: state.data,
-                    alignments: state.alignments,
-                    bold: state.bold,
-                    italic: state.italic,
-                    code: state.code,
                     selectedCell: state.selectedCell,
                     selectedCells: state.selectedCells,
                     selectedRows: state.selectedRows,
@@ -177,65 +174,15 @@ const spreadsheetSlice = createSlice({
                     isDragging: state.isDragging,
                     selectAll: state.selectAll
                 })
-                state.future = [] // Clear future states
             }
-            
-            // Update state
-            state.data = Array.from({ length: row }, () => Array(col).fill(""))
-            state.alignments = Array.from({ length: row }, () => Array(col).fill("left"))
-            state.bold = Array.from({ length: row }, () => Array(col).fill(false))
-            state.italic = Array.from({ length: row }, () => Array(col).fill(false))
-            state.code = Array.from({ length: row }, () => Array(col).fill(false))
-            state.selectedCells = Array.from({ length: row }, () => Array(col).fill(false))
         },
 
         clearTable: (state) => {
-            const numRows = state.data.length
-            const numCols = state.data[0].length
-            
-            // Save current state before clearing
-            state.past.push({
-                data: state.data,
-                alignments: state.alignments,
-                bold: state.bold,
-                italic: state.italic,
-                code: state.code,
-                selectedCell: state.selectedCell,
-                selectedCells: state.selectedCells,
-                selectedRows: state.selectedRows,
-                selectedColumns: state.selectedColumns,
-                isDragging: state.isDragging,
-                selectAll: state.selectAll
-            })
-            state.future = [] // Clear future states
-            
-            // Clear all arrays while maintaining dimensions
-            state.data = Array.from({ length: numRows }, () => Array(numCols).fill(""))
-            state.alignments = Array.from({ length: numRows }, () => Array(numCols).fill("left"))
-            state.bold = Array.from({ length: numRows }, () => Array(numCols).fill(false))
-            state.italic = Array.from({ length: numRows }, () => Array(numCols).fill(false))
-            state.code = Array.from({ length: numRows }, () => Array(numCols).fill(false))
-            state.selectedCells = Array.from({ length: numRows }, () => Array(numCols).fill(false))
-            
-            // Reset selection state
-            state.selectedCell = null
-            state.selectedRows = []
-            state.selectedColumns = []
-            state.selectAll = false
-            state.isDragging = false
-            state.dragStart = null
-            state.dragStartRow = null
-            state.dragStartColumn = null
-        },
+            const rows = state.data.length
+            const cols = state.data[0].length
 
-        clearSelected: (state) => {
-            // Save current state before clearing
             state.past.push({
                 data: state.data,
-                alignments: state.alignments,
-                bold: state.bold,
-                italic: state.italic,
-                code: state.code,
                 selectedCell: state.selectedCell,
                 selectedCells: state.selectedCells,
                 selectedRows: state.selectedRows,
@@ -243,51 +190,47 @@ const spreadsheetSlice = createSlice({
                 isDragging: state.isDragging,
                 selectAll: state.selectAll
             })
-            state.future = [] // Clear future states
-            
-            const numRows = state.data.length
-            const numCols = state.data[0].length
-            
-            for (let i = 0; i < numRows; i++) {
-                for (let j = 0; j < numCols; j++) {
-                    // Check if cell is selected through any selection mechanism
-                    const isSelected = 
-                        state.selectedCells[i][j] || 
-                        state.selectedRows.includes(i) || 
-                        state.selectedColumns.includes(j) ||
-                        (state.selectedCell?.row === i && state.selectedCell?.col === j) ||
-                        state.selectAll
-                    
-                    if (isSelected) {
-                        state.data[i][j] = ""
-                        state.alignments[i][j] = "left"
-                        state.bold[i][j] = false
-                        state.italic[i][j] = false
-                        state.code[i][j] = false
-                    }
-                }
-            }
-            
-            // Clear selection state after operation
+
+            state.data = Array.from({ length: rows }, () =>
+                Array(cols).fill(null).map(() => ({
+                    content: "",
+                    alignment: "left",
+                    bold: false,
+                    italic: false,
+                    code: false
+                }))
+            )
+
             state.selectedCell = null
-            state.selectedCells = Array.from({ length: numRows }, () => Array(numCols).fill(false))
+            state.selectedCells = Array.from({ length: rows }, () => Array(cols).fill(false))
             state.selectedRows = []
             state.selectedColumns = []
             state.selectAll = false
-            state.isDragging = false
-            state.dragStart = null
-            state.dragStartRow = null
-            state.dragStartColumn = null
+            state.future = []
         },
 
         transposeTable: (state) => {
-            // Save current state before transposing
+            const rows = state.data[0].length;
+            const cols = state.data.length;
+            const newData: CellData[][] = Array.from({ length: rows }, () =>
+                Array(cols).fill(null).map(() => ({
+                    content: "",
+                    alignment: "left",
+                    bold: false,
+                    italic: false,
+                    code: false
+                }))
+            );
+
+            // Transpose the data
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    newData[i][j] = { ...state.data[j][i] };
+                }
+            }
+
             state.past.push({
                 data: state.data,
-                alignments: state.alignments,
-                bold: state.bold,
-                italic: state.italic,
-                code: state.code,
                 selectedCell: state.selectedCell,
                 selectedCells: state.selectedCells,
                 selectedRows: state.selectedRows,
@@ -295,27 +238,14 @@ const spreadsheetSlice = createSlice({
                 isDragging: state.isDragging,
                 selectAll: state.selectAll
             })
-            state.future = [] // Clear future states
 
-            // Transpose arrays
-            state.data = state.data[0].map((_, colIndex) => 
-                state.data.map(row => row[colIndex])
-            )
-            state.alignments = state.alignments[0].map((_, colIndex) => 
-                state.alignments.map(row => row[colIndex])
-            )
-            state.bold = state.bold[0].map((_, colIndex) => 
-                state.bold.map(row => row[colIndex])
-            )
-            state.italic = state.italic[0].map((_, colIndex) => 
-                state.italic.map(row => row[colIndex])
-            )
-            state.code = state.code[0].map((_, colIndex) => 
-                state.code.map(row => row[colIndex])
-            )
-            state.selectedCells = state.selectedCells[0].map((_, colIndex) => 
-                state.selectedCells.map(row => row[colIndex])
-            )
+            state.data = newData
+            state.selectedCell = null
+            state.selectedCells = Array.from({ length: rows }, () => Array(cols).fill(false))
+            state.selectedRows = []
+            state.selectedColumns = []
+            state.selectAll = false
+            state.future = []
         },
 
         setSelectedCell: (state, action: PayloadAction<{ row: number, col: number }>) => {
@@ -368,88 +298,64 @@ const spreadsheetSlice = createSlice({
         },
 
         applyTextFormatting: (state, action: PayloadAction<{ operation: 'BOLD' | 'ITALIC' | 'CODE' | 'ALIGN_LEFT' | 'ALIGN_CENTER' | 'ALIGN_RIGHT' }>) => {
-            const { operation } = action.payload
-            
-            // Collect all cells that need formatting
-            const cellsToFormat: [number, number][] = []
+            const { operation } = action.payload;
+            let modified = false;
 
-            // If any cells are specifically selected
-            if (state.selectedCells.some(row => row.some(cell => cell))) {
-                state.selectedCells.forEach((row, rowIndex) => {
-                    row.forEach((selected, colIndex) => {
-                        if (selected) {
-                            cellsToFormat.push([rowIndex, colIndex])
+            const newData = state.data.map((row, i) =>
+                row.map((cell, j) => {
+                    if (state.selectedCells[i][j] || 
+                        (state.selectedCell && state.selectedCell.row === i && state.selectedCell.col === j) ||
+                        state.selectedRows.includes(i) ||
+                        state.selectedColumns.includes(j) ||
+                        state.selectAll) {
+                        modified = true;
+                        const newCell = { ...cell };
+                        switch (operation) {
+                            case 'BOLD':
+                                newCell.bold = !cell.bold;
+                                break;
+                            case 'ITALIC':
+                                newCell.italic = !cell.italic;
+                                break;
+                            case 'CODE':
+                                newCell.code = !cell.code;
+                                break;
+                            case 'ALIGN_LEFT':
+                                newCell.alignment = 'left';
+                                break;
+                            case 'ALIGN_CENTER':
+                                newCell.alignment = 'center';
+                                break;
+                            case 'ALIGN_RIGHT':
+                                newCell.alignment = 'right';
+                                break;
                         }
-                    })
+                        return newCell;
+                    }
+                    return cell;
                 })
-            }
-            // If a single cell is selected
-            else if (state.selectedCell) {
-                cellsToFormat.push([state.selectedCell.row, state.selectedCell.col])
-            }
-            // If entire rows are selected
-            else if (state.selectedRows.length > 0) {
-                state.selectedRows.forEach(rowIndex => {
-                    state.data[0].forEach((_, colIndex) => {
-                        cellsToFormat.push([rowIndex, colIndex])
-                    })
-                })
-            }
-            // If columns are selected
-            else if (state.selectedColumns.length > 0) {
-                state.selectedColumns.forEach(colIndex => {
-                    state.data.forEach((_, rowIndex) => {
-                        cellsToFormat.push([rowIndex, colIndex])
-                    })
-                })
-            }
+            );
 
-            if (cellsToFormat.length === 0) return
-
-            // Create deep copies of the current state
-            const newBold = state.bold.map(row => [...row])
-            const newItalic = state.italic.map(row => [...row])
-            const newCode = state.code.map(row => [...row])
-            const newAlignments = state.alignments.map(row => [...row])
-
-            // Apply the formatting to the copies
-            cellsToFormat.forEach(([row, col]) => {
-                switch (operation) {
-                    case 'BOLD':
-                        newBold[row][col] = !state.bold[row][col]
-                        break
-                    case 'ITALIC':
-                        newItalic[row][col] = !state.italic[row][col]
-                        break
-                    case 'CODE':
-                        newCode[row][col] = !state.code[row][col]
-                        break
-                    case 'ALIGN_LEFT':
-                        newAlignments[row][col] = 'left'
-                        break
-                    case 'ALIGN_CENTER':
-                        newAlignments[row][col] = 'center'
-                        break
-                    case 'ALIGN_RIGHT':
-                        newAlignments[row][col] = 'right'
-                        break
-                }
-            })
-
-            // Save current state to history only if there are actual changes
-            const hasChanges = 
-                operation === 'BOLD' ? JSON.stringify(newBold) !== JSON.stringify(state.bold) :
-                operation === 'ITALIC' ? JSON.stringify(newItalic) !== JSON.stringify(state.italic) :
-                operation === 'CODE' ? JSON.stringify(newCode) !== JSON.stringify(state.code) :
-                JSON.stringify(newAlignments) !== JSON.stringify(state.alignments)
-
-            if (hasChanges) {
+            if (modified) {
                 state.past.push({
                     data: state.data,
-                    alignments: state.alignments,
-                    bold: state.bold,
-                    italic: state.italic,
-                    code: state.code,
+                    selectedCell: state.selectedCell,
+                    selectedCells: state.selectedCells,
+                    selectedRows: state.selectedRows,
+                    selectedColumns: state.selectedColumns,
+                    isDragging: state.isDragging,
+                    selectAll: state.selectAll
+                });
+                state.data = newData;
+                state.future = [];
+            }
+        },
+
+        undo: (state) => {
+            if (state.past.length > 0) {
+                const previous = state.past[state.past.length - 1]
+                state.future.push({
+                    data: state.data,
                     selectedCell: state.selectedCell,
                     selectedCells: state.selectedCells,
                     selectedRows: state.selectedRows,
@@ -457,80 +363,66 @@ const spreadsheetSlice = createSlice({
                     isDragging: state.isDragging,
                     selectAll: state.selectAll
                 })
-                state.future = []
+
+                state.data = previous.data
+                if (previous.selectedCell !== undefined) state.selectedCell = previous.selectedCell
+                if (previous.selectedCells !== undefined) state.selectedCells = previous.selectedCells
+                if (previous.selectedRows !== undefined) state.selectedRows = previous.selectedRows
+                if (previous.selectedColumns !== undefined) state.selectedColumns = previous.selectedColumns
+                if (previous.isDragging !== undefined) state.isDragging = previous.isDragging
+                if (previous.selectAll !== undefined) state.selectAll = previous.selectAll
+
+                state.past.pop()
             }
-
-            // Update the state with the new values
-            state.bold = newBold
-            state.italic = newItalic
-            state.code = newCode
-            state.alignments = newAlignments
-        },
-
-        undo: (state) => {
-            if (state.past.length === 0) return
-
-            const previousState = state.past.pop()
-            if (!previousState) return
-
-            state.future.push({
-                data: state.data,
-                alignments: state.alignments,
-                bold: state.bold,
-                italic: state.italic,
-                code: state.code,
-                selectedCell: state.selectedCell,
-                selectedCells: state.selectedCells,
-                selectedRows: state.selectedRows,
-                selectedColumns: state.selectedColumns,
-                isDragging: state.isDragging,
-                selectAll: state.selectAll
-            })
-
-            state.data = previousState.data
-            state.alignments = previousState.alignments
-            state.bold = previousState.bold ?? state.bold
-            state.italic = previousState.italic ?? state.italic
-            state.code = previousState.code ?? state.code
-            state.selectedCell = previousState.selectedCell ?? state.selectedCell
-            state.selectedCells = previousState.selectedCells ?? state.selectedCells
-            state.selectedRows = previousState.selectedRows ?? state.selectedRows
-            state.selectedColumns = previousState.selectedColumns ?? state.selectedColumns
-            state.isDragging = previousState.isDragging ?? state.isDragging
-            state.selectAll = previousState.selectAll ?? state.selectAll
         },
 
         redo: (state) => {
-            if (state.future.length === 0) return
+            if (state.future.length > 0) {
+                const next = state.future[state.future.length - 1]
+                state.past.push({
+                    data: state.data,
+                    selectedCell: state.selectedCell,
+                    selectedCells: state.selectedCells,
+                    selectedRows: state.selectedRows,
+                    selectedColumns: state.selectedColumns,
+                    isDragging: state.isDragging,
+                    selectAll: state.selectAll
+                })
 
-            const nextState = state.future.pop()
-            if (!nextState) return
+                state.data = next.data
+                if (next.selectedCell !== undefined) state.selectedCell = next.selectedCell
+                if (next.selectedCells !== undefined) state.selectedCells = next.selectedCells
+                if (next.selectedRows !== undefined) state.selectedRows = next.selectedRows
+                if (next.selectedColumns !== undefined) state.selectedColumns = next.selectedColumns
+                if (next.isDragging !== undefined) state.isDragging = next.isDragging
+                if (next.selectAll !== undefined) state.selectAll = next.selectAll
 
+                state.future.pop()
+            }
+        },
+        
+        clearSelected: (state) => {
+            // Save current state before clearing
             state.past.push({
                 data: state.data,
-                alignments: state.alignments,
-                bold: state.bold,
-                italic: state.italic,
-                code: state.code,
                 selectedCell: state.selectedCell,
                 selectedCells: state.selectedCells,
                 selectedRows: state.selectedRows,
                 selectedColumns: state.selectedColumns,
                 isDragging: state.isDragging,
                 selectAll: state.selectAll
-            })
+            });
 
-            state.data = nextState.data
-            state.alignments = nextState.alignments
-            state.bold = nextState.bold ?? state.bold
-            state.italic = nextState.italic ?? state.italic
-            state.code = nextState.code ?? state.code
-            state.selectedCell = nextState.selectedCell ?? state.selectedCell
-            state.selectedCells = nextState.selectedCells ?? state.selectedCells
-            state.selectedRows = nextState.selectedRows ?? state.selectedRows
-            state.selectedColumns = nextState.selectedColumns ?? state.selectedColumns
-            state.isDragging = nextState.isDragging ?? state.isDragging
-            state.selectAll = nextState.selectAll ?? state.selectAll
+            // Clear selected cells
+            state.selectedCells = Array.from(
+                { length: state.data.length }, 
+                () => Array(state.data[0].length).fill(false)
+            );
+            state.selectedCell = null;
+            state.selectedRows = [];
+            state.selectedColumns = [];
+            state.selectAll = false;
+            state.future = [];
         },
         
         // ... other reducers remain the same

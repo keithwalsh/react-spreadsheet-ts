@@ -2,14 +2,14 @@
  * @fileoverview Selection state utility functions for the spreadsheet component
  */
 
-import { SelectionRange, State } from '../types'
+import { SelectionRange, State, CellData } from '../types'
 import { markSelectedCells } from './markSelectedCells'
 
 export function createSelectionMatrix({
     data,
     selection
 }: {
-    data: string[][]
+    data: CellData[][]
     selection: SelectionRange
 }): boolean[][] {
     return markSelectedCells(
@@ -30,8 +30,8 @@ export function isCellSelected({
 }): boolean {
     return (
         state.selectAll ||
-        (state.selectedColumn !== null && colIndex === state.selectedColumn) ||
-        (state.selectedRow !== null && rowIndex === state.selectedRow) ||
+        (state.selectedColumns.includes(colIndex)) ||
+        (state.selectedRows.includes(rowIndex)) ||
         (state.selectedCell !== null && 
             rowIndex === state.selectedCell.row && 
             colIndex === state.selectedCell.col) ||

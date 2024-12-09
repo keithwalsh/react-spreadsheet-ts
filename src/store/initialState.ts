@@ -1,11 +1,15 @@
-import { State } from "../types";
+import { State, CellData } from "../types";
 
 export const initialState = (rows: number, columns: number): State => ({
-    data: Array.from({ length: rows }, () => Array(columns).fill("")),
-    alignments: Array.from({ length: rows }, () => Array(columns).fill("left")),
-    bold: Array.from({ length: rows }, () => Array(columns).fill(false)),
-    italic: Array.from({ length: rows }, () => Array(columns).fill(false)),
-    code: Array.from({ length: rows }, () => Array(columns).fill(false)),
+    data: Array.from({ length: rows }, () => 
+        Array(columns).fill(null).map(() => ({
+            content: "",
+            alignment: "left",
+            bold: false,
+            italic: false,
+            code: false
+        } as CellData))
+    ),
     past: [],
     future: [],
     selectedColumn: null,

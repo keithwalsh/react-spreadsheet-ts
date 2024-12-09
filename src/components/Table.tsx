@@ -13,23 +13,25 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(({ children, classN
         event.preventDefault()
         const clipboardText = event.clipboardData?.getData('text') || ''
         
+        // Extract formatting arrays from current data
+        const alignments = state.data.map(row => row.map(cell => cell.alignment || 'left'))
+        const bold = state.data.map(row => row.map(cell => cell.bold || false))
+        const italic = state.data.map(row => row.map(cell => cell.italic || false))
+        const code = state.data.map(row => row.map(cell => cell.code || false))
+        
         const result = handlePaste(
             clipboardText,
             state.data,
             state.selectedCell,
-            state.alignments,
-            state.bold,
-            state.italic,
-            state.code
+            alignments,
+            bold,
+            italic,
+            code
         )
         
         dispatch(setData({
             ...state,
-            data: result.newData,
-            alignments: result.newAlignments,
-            bold: result.newBold,
-            italic: result.newItalic,
-            code: result.newCode
+            data: result.newData
         }))
     }, [dispatch, state])
 

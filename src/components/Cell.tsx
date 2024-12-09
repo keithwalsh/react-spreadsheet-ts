@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { TableCell as TableCellMui, useTheme } from "@mui/material";
 import { CellProps } from "../types";
-import { useAppSelector } from '../store/hooks'
 
 const Cell: React.FC<CellProps> = React.memo(
     ({
         rowIndex,
         colIndex,
-        align,
         selectedCells,
         selectedCell,
         handleCellSelection,
@@ -20,13 +18,9 @@ const Cell: React.FC<CellProps> = React.memo(
         selectedColumns,
         selectedRows,
     }) => {
-        const { bold, italic, code } = useAppSelector(state => state.spreadsheet)
         const theme = useTheme();
         const isDarkMode = theme.palette.mode === 'dark';
         const [isEditing, setIsEditing] = useState(false);
-        const [fontWeight, setFontWeight] = useState("normal");
-        const [fontStyle, setFontStyle] = useState("normal");
-        const [isFontCode, setIsFontCode] = useState(false);
         const cellRef = useRef<HTMLDivElement>(null);
 
         const isSingleCellSelected = selectedCell?.row === rowIndex && selectedCell?.col === colIndex;
@@ -105,90 +99,63 @@ const Cell: React.FC<CellProps> = React.memo(
         )
 
         useEffect(() => {
-            if (cellRef.current) {
-                const currentContent = cellRef.current.textContent
-                if (currentContent !== cellData) {
-                    cellRef.current.textContent = cellData || ""
-                }
-                setFontWeight(bold[rowIndex][colIndex] ? "bold" : "normal")
-                setFontStyle(italic[rowIndex][colIndex] ? "italic" : "normal")
-                setIsFontCode(code[rowIndex][colIndex])
+            if (!isEditing && cellRef.current) {
+                cellRef.current.textContent = cellData?.content || "";
             }
-        }, [cellData, bold, italic, code, rowIndex, colIndex])
+        }, [isEditing, cellData]);
 
-        const handleBlur = useCallback(() => {
-            if (cellRef.current) {
-                const newContent = cellRef.current.textContent || ""
-                if (newContent !== cellData) {
-                    handleCellChange(rowIndex, colIndex, newContent)
-                }
+        const getBackgroundColor = () => {
+            if (isMultiSelected && multipleCellsSelected) {
+                return "rgba(25, 118, 210, 0.12)"
             }
-            setIsEditing(false)
-        }, [rowIndex, colIndex, handleCellChange, cellData])
-
-        useEffect(() => {
-            if (!isSingleCellSelected && isEditing) {
-                handleBlur()
+            if (isColumnSelected || isRowSelected) {
+                return "rgba(25, 118, 210, 0.08)"
             }
-        }, [isSingleCellSelected, isEditing, handleBlur])
+            return "transparent"
+        }
 
         const cellStyles = useMemo(() => {
             const themeStyles = isDarkMode
                 ? {
                       borderRight: "1px solid #686868",
                       borderBottom: "1px solid #686868",
-                      "&:last-child": {
-                          borderRight: "1px solid #686868",
-                      },
                   }
                 : {
                       borderRight: "1px solid #e0e0e0",
                       borderBottom: "1px solid #e0e0e0",
-                      "&:last-child": {
-                          borderRight: "1px solid #e0e0e0",
-                      },
-                  }
-
-            const getBackgroundColor = () => {
-                if (isMultiSelected && multipleCellsSelected) {
-                    return "rgba(25, 118, 210, 0.12)"
-                }
-                if (isColumnSelected || isRowSelected) {
-                    return "rgba(25, 118, 210, 0.08)"
-                }
-                return "transparent"
-            }
-
-            const outlineStyle = isSingleCellSelected ? {
-                outline: "#1976d2 solid 1px",
-                outlineOffset: "-1px"
-            } : {
-                outline: "none",
-                outlineOffset: "0"
-            }
+                  };
 
             return {
                 ...themeStyles,
-                ...outlineStyle,
-                height: "37.02px",
-                cursor: isEditing ? "text" : "pointer",
+                padding: "4px 8px",
+                position: "relative",
+                cursor: "cell",
+                userSelect: isEditing ? "text" : "none",
                 backgroundColor: getBackgroundColor(),
-                p: 1,
-                ...(isEditing && {
-                    boxShadow: "rgba(0, 0, 0, 0.2) 0px 3px 1px -2px, rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px",
-                    textIndent: "3px",
-                    zIndex: 1,
-                }),
-            }
+                fontWeight: cellData?.bold ? "bold" : "normal",
+                fontStyle: cellData?.italic ? "italic" : "normal",
+                fontFamily: cellData?.code ? "monospace" : "inherit",
+                textAlign: cellData?.alignment || "left",
+                outline: isSingleCellSelected ? "#1976d2 solid 1px" : "none",
+                outlineOffset: isSingleCellSelected ? "-1px" : "0",
+                ...style,
+            } as React.CSSProperties;
         }, [
-            isDarkMode, 
-            isEditing, 
-            isMultiSelected,
-            isColumnSelected,
-            isRowSelected,
+            isDarkMode,
+            isEditing,
+            getBackgroundColor,
+            cellData,
             isSingleCellSelected,
-            multipleCellsSelected
-        ])
+            style,
+        ]);
+
+        const handleBlur = () => {
+            if (isEditing && cellRef.current) {
+                const newValue = cellRef.current.textContent || "";
+                handleCellChange(rowIndex, colIndex, newValue);
+                setIsEditing(false);
+            }
+        };
 
         const handleClick = useCallback((e: React.MouseEvent) => {
             e.stopPropagation()
@@ -219,7 +186,7 @@ const Cell: React.FC<CellProps> = React.memo(
 
         return (
             <TableCellMui
-                align={align}
+                align={cellData?.alignment || "left"}
                 onMouseUp={handleMouseUpEvent}
                 onClick={handleClick}
                 onMouseDown={handleMouseDownEvent}
@@ -239,9 +206,6 @@ const Cell: React.FC<CellProps> = React.memo(
                         outline: "none",
                         cursor: "inherit",
                         userSelect: isEditing ? "text" : "none",
-                        fontWeight: fontWeight,
-                        fontStyle: fontStyle,
-                        fontFamily: isFontCode ? "'Courier New', Consolas, monospace" : "inherit",
                         ...style,
                     }}
                 />

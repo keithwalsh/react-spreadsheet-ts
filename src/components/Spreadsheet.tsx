@@ -27,10 +27,10 @@ import {
     Button,
 } from "@mui/material"
 import { ButtonGroup, ToolbarProvider, Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, Table, TableMenu } from "."
-import { SpreadsheetProps } from "../types"
+import { SpreadsheetProps, CellData, Alignment } from "../types"
 import { useDragSelection } from '../hooks'
 import { addRow, removeRow, addColumn, removeColumn } from '../utils/spreadsheetOperations'
-import { downloadCSV, handlePaste } from '../utils'
+import { downloadCSV } from '../utils'
 
 export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     initialRows = 4,
@@ -47,14 +47,31 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
 
     useEffect(() => {
         if (value) {
+            // Convert value to CellData if it's just string[][]
+            const cellData: CellData[][] = value.map(row => 
+                row.map(cell => {
+                    if (typeof cell === 'string') {
+                        return {
+                            content: cell,
+                            alignment: 'left' as Alignment,
+                            bold: false,
+                            italic: false,
+                            code: false
+                        }
+                    }
+                    return {
+                        content: cell.content,
+                        alignment: cell.alignment || 'left',
+                        bold: cell.bold || false,
+                        italic: cell.italic || false,
+                        code: cell.code || false
+                    }
+                })
+            )
             dispatch(setData({
-                data: value,
-                alignments: Array(value.length).fill(Array(value[0].length).fill("left")),
-                bold: Array(value.length).fill(Array(value[0].length).fill(false)),
-                italic: Array(value.length).fill(Array(value[0].length).fill(false)),
-                code: Array(value.length).fill(Array(value[0].length).fill(false)),
+                data: cellData,
                 selectedCell: null,
-                selectedCells: Array(value.length).fill(Array(value[0].length).fill(false)),
+                selectedCells: Array(cellData.length).fill(Array(cellData[0].length).fill(false)),
                 selectedRows: [],
                 selectedColumns: [],
                 isDragging: false,
@@ -68,23 +85,17 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
 
     const handleCellChange = useCallback(
         (rowIndex: number, colIndex: number, value: string) => {
-            const newData = [...state.data.map(row => [...row])]
-            newData[rowIndex][colIndex] = value
+            const newData = state.data.map(row => [...row])
+            newData[rowIndex][colIndex] = {
+                ...newData[rowIndex][colIndex],
+                content: value
+            }
             dispatch(setData({
-                data: newData,
-                alignments: state.alignments,
-                bold: state.bold,
-                italic: state.italic,
-                code: state.code,
-                selectedCell: state.selectedCell,
-                selectedCells: state.selectedCells,
-                selectedRows: state.selectedRows,
-                selectedColumns: state.selectedColumns,
-                isDragging: state.isDragging,
-                selectAll: state.selectAll
+                ...state,
+                data: newData
             }))
         },
-        [dispatch, state.data, state.alignments, state.bold, state.italic, state.code, state.selectedCell, state.selectedCells, state.selectedRows, state.selectedColumns, state.isDragging, state.selectAll]
+        [dispatch, state]
     )
 
     const handleMouseDown = useCallback(
@@ -132,23 +143,33 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     // Add global paste handler
     const handleGlobalPaste = useCallback((event: ClipboardEvent) => {
         const clipboardText = event.clipboardData?.getData('text') || ''
-        const result = handlePaste(
-            clipboardText,
-            state.data,
-            state.selectedCell,
-            state.alignments,
-            state.bold,
-            state.italic,
-            state.code
-        )
+        const rows = clipboardText.split('\n').map(row => row.split('\t'))
+        
+        if (!state.selectedCell) return
+        
+        const { row: startRow, col: startCol } = state.selectedCell
+        
+        const newData = state.data.map((dataRow, rowIndex) => {
+            if (rowIndex < startRow || rowIndex >= startRow + rows.length) {
+                return dataRow
+            }
+            
+            return dataRow.map((cell, colIndex) => {
+                if (colIndex < startCol || colIndex >= startCol + rows[0].length) {
+                    return cell
+                }
+                
+                const pasteContent = rows[rowIndex - startRow][colIndex - startCol]
+                return {
+                    ...cell,
+                    content: pasteContent || ''
+                }
+            })
+        })
         
         dispatch(setData({
             ...state,
-            data: result.newData,
-            alignments: result.newAlignments,
-            bold: result.newBold,
-            italic: result.newItalic,
-            code: result.newCode
+            data: newData
         }))
     }, [dispatch, state])
 
@@ -170,56 +191,48 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                 onClickAlignCenter={() => {}}
                 onClickAlignRight={() => {}}
                 onClickAddRow={() => {
-                    const { newData, newAlignments, newSelectedCells } = addRow({
+                    const { newData, newSelectedCells } = addRow({
                         data: state.data,
-                        alignments: state.alignments,
                         selectedCells: state.selectedCells
                     });
                     dispatch(setData({
                         ...state,
                         data: newData,
-                        alignments: newAlignments,
                         selectedCells: newSelectedCells
                     }));
                 }}
                 onClickRemoveRow={() => {
-                    const { newData, newAlignments, newSelectedCells } = removeRow({
+                    const { newData, newSelectedCells } = removeRow({
                         data: state.data,
-                        alignments: state.alignments,
                         selectedCells: state.selectedCells
                     });
                     dispatch(setData({
                         ...state,
                         data: newData,
-                        alignments: newAlignments,
                         selectedCells: newSelectedCells
                     }));
                 }}
                 onClickAddColumn={() => {
-                    const { newData, newAlignments, newSelectedCells } = addColumn({
+                    const { newData, newSelectedCells } = addColumn({
                         data: state.data,
-                        alignments: state.alignments,
                         selectedCells: state.selectedCells,
                         index: state.selectedColumns?.[0] ?? state.data[0].length - 1
                     });
                     dispatch(setData({
                         ...state,
                         data: newData,
-                        alignments: newAlignments,
                         selectedCells: newSelectedCells
                     }));
                 }}
                 onClickRemoveColumn={() => {
-                    const { newData, newAlignments, newSelectedCells } = removeColumn({
+                    const { newData, newSelectedCells } = removeColumn({
                         data: state.data,
-                        alignments: state.alignments,
                         selectedCells: state.selectedCells,
                         index: state.selectedColumns?.[0] ?? state.data[0].length - 1
                     });
                     dispatch(setData({
                         ...state,
                         data: newData,
-                        alignments: newAlignments,
                         selectedCells: newSelectedCells
                     }));
                 }}
@@ -238,7 +251,15 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                         onCreateNewTable={(rows, columns) => {
                             dispatch(setTableSize({ row: rows, col: columns }))
                         }}
-                        onDownloadCSV={() => downloadCSV(state.data)}
+                        onDownloadCSV={() => downloadCSV(state.data.map(row => 
+                            row.map(cell => ({
+                                content: cell.content,
+                                alignment: cell.alignment || 'left',
+                                bold: cell.bold || false,
+                                italic: cell.italic || false,
+                                code: cell.code || false
+                            }))
+                        ))}
                     />
                 </Box>
                 <div ref={buttonGroupRef}>
@@ -264,9 +285,8 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                                     handleColumnSelection={() => dispatch(setSelectedColumn(index))}
                                     selectedColumns={state.selectedColumns}
                                     onAddColumnLeft={() => {
-                                        const { newData, newAlignments, newSelectedCells } = addColumn({
+                                        const { newData, newSelectedCells } = addColumn({
                                             data: state.data,
-                                            alignments: state.alignments,
                                             selectedCells: state.selectedCells,
                                             index: index,
                                             position: "left"
@@ -274,14 +294,12 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                                         dispatch(setData({
                                             ...state,
                                             data: newData,
-                                            alignments: newAlignments,
                                             selectedCells: newSelectedCells
                                         }));
                                     }}
                                     onAddColumnRight={() => {
-                                        const { newData, newAlignments, newSelectedCells } = addColumn({
+                                        const { newData, newSelectedCells } = addColumn({
                                             data: state.data,
-                                            alignments: state.alignments,
                                             selectedCells: state.selectedCells,
                                             index: index,
                                             position: "right"
@@ -289,21 +307,18 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                                         dispatch(setData({
                                             ...state,
                                             data: newData,
-                                            alignments: newAlignments,
                                             selectedCells: newSelectedCells
                                         }));
                                     }}
                                     onRemoveColumn={() => {
-                                        const { newData, newAlignments, newSelectedCells } = removeColumn({
+                                        const { newData, newSelectedCells } = removeColumn({
                                             data: state.data,
-                                            alignments: state.alignments,
                                             selectedCells: state.selectedCells,
                                             index: index
                                         });
                                         dispatch(setData({
                                             ...state,
                                             data: newData,
-                                            alignments: newAlignments,
                                             selectedCells: newSelectedCells
                                         }));
                                     }}
@@ -324,37 +339,32 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                                     onDragEnter={(row) => handleDragEnter(row, -1)}
                                     onDragEnd={handleDragEnd}
                                     onAddAbove={() => {
-                                        const { newData, newAlignments, newSelectedCells } = addRow({
+                                        const { newData, newSelectedCells } = addRow({
                                             data: state.data,
-                                            alignments: state.alignments,
                                             selectedCells: state.selectedCells,
                                             index: rowIndex
                                         });
                                         dispatch(setData({
                                             ...state,
                                             data: newData,
-                                            alignments: newAlignments,
                                             selectedCells: newSelectedCells
                                         }));
                                     }}
                                     onAddBelow={() => {
-                                        const { newData, newAlignments, newSelectedCells } = addRow({
+                                        const { newData, newSelectedCells } = addRow({
                                             data: state.data,
-                                            alignments: state.alignments,
                                             selectedCells: state.selectedCells,
                                             index: rowIndex + 1
                                         });
                                         dispatch(setData({
                                             ...state,
                                             data: newData,
-                                            alignments: newAlignments,
                                             selectedCells: newSelectedCells
                                         }));
                                     }}
                                     onRemove={() => {
-                                        const { newData, newAlignments, newSelectedCells } = removeRow({
+                                        const { newData, newSelectedCells } = removeRow({
                                             data: state.data,
-                                            alignments: state.alignments,
                                             selectedCells: state.selectedCells,
                                             index: rowIndex
                                         });
@@ -367,7 +377,6 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                                         dispatch(setData({
                                             ...state,
                                             data: newData,
-                                            alignments: newAlignments,
                                             selectedCells: newSelectedCells,
                                             selectedRows: newSelectedRows
                                         }));
@@ -380,17 +389,17 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
                                         key={colIndex}
                                         rowIndex={rowIndex}
                                         colIndex={colIndex}
-                                        align={state.alignments[rowIndex][colIndex]}
+                                        align={cell.alignment || 'left'}
                                         selectedCells={state.selectedCells}
                                         selectedCell={state.selectedCell}
-                                        selectedColumns={state.selectedColumns}
-                                        selectedRows={state.selectedRows}
                                         handleCellSelection={handleCellSelection}
                                         handleCellChange={handleCellChange}
                                         cellData={cell}
-                                        onMouseDown={handleMouseDown}
-                                        onMouseEnter={handleDragEnter}
+                                        onMouseDown={() => handleMouseDown(rowIndex, colIndex)}
+                                        onMouseEnter={() => handleDragEnter(rowIndex, colIndex)}
                                         onMouseUp={handleDragEnd}
+                                        selectedColumns={state.selectedColumns}
+                                        selectedRows={state.selectedRows}
                                     />
                                 ))}
                             </Row>

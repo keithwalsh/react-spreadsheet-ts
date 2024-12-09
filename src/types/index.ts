@@ -3,7 +3,7 @@ import { TableCellProps } from "@mui/material";
 import { IconBaseProps } from "react-icons";
 
 export type Action =
-    | { type: "SET_DATA"; payload: string[][] }
+    | { type: "SET_DATA"; payload: CellData[][] }
     | { type: "UNDO" }
     | { type: "REDO" }
     | { type: "SET_ALIGNMENTS"; payload: Alignment[][] }
@@ -86,11 +86,13 @@ export interface ButtonGroupProps {
         | "top";
 }
 
-export interface CellFormat {
-    bold: boolean
-    italic: boolean
-    code: boolean
-    alignment: Alignment
+export interface CellData {
+    content: string;
+    alignment?: Alignment;
+    bold?: boolean;
+    italic?: boolean;
+    code?: boolean;
+    link?: string;
 }
 
 export interface CellProps {
@@ -102,7 +104,7 @@ export interface CellProps {
     handleCellSelection: (rowIndex: number, colIndex: number) => void;
     handleCellChange: (rowIndex: number, colIndex: number, value: string) => void;
     style?: CSSProperties;
-    cellData?: string;
+    cellData?: CellData;
     onMouseDown: (row: number, col: number) => void;
     onMouseEnter: (row: number, col: number) => void;
     onMouseUp: () => void;
@@ -139,15 +141,11 @@ export interface NewTableModalProps {
 }
 
 export interface PasteOperationResult {
-    newData: string[][]
-    newAlignments: Alignment[][]
-    newBold: boolean[][]
-    newItalic: boolean[][]
-    newCode: boolean[][]
+    newData: CellData[][];
     dimensions: {
-        rows: number
-        cols: number
-    }
+        rows: number;
+        cols: number;
+    };
 }
 
 export interface RowContextMenuProps {
@@ -191,12 +189,8 @@ export interface SelectionRange {
     endCol: number
 }
 
-export type DataPayload = {
-    data: string[][]
-    alignments: Alignment[][]
-    bold: boolean[][]
-    italic: boolean[][]
-    code: boolean[][]
+export interface DataPayload {
+    data: CellData[][];
     selectedCell?: { row: number, col: number } | null
     selectedCells?: boolean[][]
     selectedRows?: number[]
@@ -206,11 +200,7 @@ export type DataPayload = {
 }
 
 export interface State {
-    data: string[][]
-    alignments: Alignment[][]
-    bold: boolean[][]
-    italic: boolean[][]
-    code: boolean[][]
+    data: CellData[][];
     past: DataPayload[]
     future: DataPayload[]
     selectedColumn: number | null
@@ -227,12 +217,12 @@ export interface State {
 }
 
 export interface SpreadsheetProps {
-    initialRows?: number
-    initialColumns?: number
-    tableHeight?: string
-    value?: string[][]
-    onChange?: (data: string[][]) => void
-    onFormatChange?: (row: number, col: number, format: CellFormat) => void
+    initialRows?: number;
+    initialColumns?: number;
+    tableHeight?: string;
+    value?: CellData[][];
+    onChange?: (data: CellData[][]) => void;
+    onFormatChange?: (row: number, col: number, format: Partial<CellData>) => void;
 }
 
 export interface TableDimensionInputProps {

@@ -1,4 +1,4 @@
-import { Alignment, PasteOperationResult } from "../types";
+import { Alignment, CellData, PasteOperationResult } from "../types";
 
 /**
  * Handles pasting clipboard data into the table.
@@ -6,7 +6,7 @@ import { Alignment, PasteOperationResult } from "../types";
  */
 export const handlePaste = (
     clipboardText: string,
-    data: string[][],
+    data: CellData[][],
     selectedCell: { row: number; col: number } | null,
     alignments: Alignment[][],
     bold: boolean[][] = [],
@@ -40,20 +40,33 @@ export const handlePaste = (
         startCol + Math.max(...parsedData.map(row => row.length))
     );
 
-    // Create new arrays with required dimensions
+    // Create new array with required dimensions
     const newData = Array.from({ length: requiredRows }, (_, rowIndex) => {
         if (rowIndex < data.length) {
             // Existing row: copy and extend if needed
             const existingRow = [...data[rowIndex]];
             while (existingRow.length < requiredCols) {
-                existingRow.push("");
+                existingRow.push({
+                    content: "",
+                    alignment: "left" as Alignment,
+                    bold: false,
+                    italic: false,
+                    code: false
+                });
             }
             return existingRow;
         }
-        // New row: create with empty strings
-        return Array(requiredCols).fill("");
+        // New row: create with empty cells
+        return Array(requiredCols).fill(null).map(() => ({
+            content: "",
+            alignment: "left" as Alignment,
+            bold: false,
+            italic: false,
+            code: false
+        }));
     });
 
+    // Create new formatting arrays with required dimensions
     const newAlignments = Array.from({ length: requiredRows }, (_, rowIndex) => {
         if (rowIndex < alignments.length) {
             // Existing row: copy and extend if needed
@@ -67,7 +80,6 @@ export const handlePaste = (
         return Array(requiredCols).fill("left" as Alignment);
     });
 
-    // Create new formatting arrays with required dimensions
     const newBold = Array.from({ length: requiredRows }, (_, rowIndex) => {
         if (rowIndex < bold.length) {
             // Existing row: copy and extend if needed
@@ -113,7 +125,10 @@ export const handlePaste = (
             const targetRow = startRow + rIdx;
             const targetCol = startCol + cIdx;
             if (targetRow < newData.length && targetCol < newData[0].length) {
-                newData[targetRow][targetCol] = cellData;
+                newData[targetRow][targetCol] = {
+                    ...newData[targetRow][targetCol],
+                    content: cellData
+                };
             }
         });
     });
