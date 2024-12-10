@@ -14,6 +14,8 @@ import { useDragSelection } from "../hooks";
 import { addRow, removeRow, addColumn, removeColumn } from "../utils/spreadsheetOperations";
 import { ToolbarProvider } from "./ToolbarProvider";
 import { initialState } from "../store/initialState";
+import TableMenu from "./Menu";
+import { downloadCSV } from "../utils";
 
 interface SpreadsheetProps {
     atom: PrimitiveAtom<State>;
@@ -200,7 +202,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
         (alignment: "left" | "center" | "right") => {
             const newData = state.data.map((row, rowIndex) =>
                 row.map((cell, colIndex) => {
-                    if ((state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) || state.selectedCells[rowIndex]?.[colIndex]) {
+                    if ((state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) || state.selectedCells[rowIndex] && state.selectedCells[rowIndex][colIndex]) {
                         return { ...cell, align: alignment };
                     }
                     return cell;
@@ -216,7 +218,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
         (format: "bold" | "italic" | "code") => {
             const newData = state.data.map((row, rowIndex) =>
                 row.map((cell, colIndex) => {
-                    if ((state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) || state.selectedCells[rowIndex]?.[colIndex]) {
+                    if ((state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) || state.selectedCells[rowIndex] && state.selectedCells[rowIndex][colIndex]) {
                         return { ...cell, [format]: !cell[format] };
                     }
                     return cell;
@@ -227,6 +229,22 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
         },
         [state, setState]
     );
+
+    const handleCreateNewTable = useCallback((rows: number, cols: number) => {
+        setState({
+            ...state,
+            data: initialState(rows, cols).data,
+            selectedCells: Array(rows).fill(Array(cols).fill(false)),
+            selectedCell: null,
+            selectedRows: [],
+            selectedColumns: [],
+            selectAll: false,
+        });
+    }, [state, setState]);
+
+    const handleDownloadCSV = useCallback(() => {
+        downloadCSV(state.data, 'spreadsheet.csv');
+    }, [state.data]);
 
     const toolbarHandlers = {
         onClickUndo: handleUndo,
@@ -268,6 +286,12 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
     return (
         <ToolbarProvider {...toolbarHandlers} spreadsheetAtom={atom as PrimitiveAtom<State> & { init: State }}>
             <div className="spreadsheet" ref={containerRef} tabIndex={0}>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <TableMenu 
+                        onCreateNewTable={handleCreateNewTable}
+                        onDownloadCSV={handleDownloadCSV}
+                    />
+                </Box>
                 <Box sx={{ mb: 2 }}>
                     <ButtonGroup
                         visibleButtons={[
@@ -285,7 +309,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
                             "Add Row",
                             "Remove Row",
                             "Add Column",
-                            "Remove Column"
+                            "Remove Column",
                         ]}
                     />
                 </Box>
