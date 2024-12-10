@@ -4,7 +4,7 @@
  * a selection range.
  */
 
-import { SelectionRange } from "../types";
+import { SelectionRange } from "../types/index";
 
 function isWithinRange({ startRow, startCol, endRow, endCol }: SelectionRange, row: number, col: number): boolean {
     return row >= Math.min(startRow, endRow) && 

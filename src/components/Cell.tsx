@@ -1,33 +1,39 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { TableCell as TableCellMui, useTheme } from "@mui/material";
-import { CellProps } from "../types";
-import { getCellStyles, getSelectionBackground } from "../styles";
+import type { CellProps } from "../types";
+import { getCellStyles, CellStyleProps } from "../styles/cellStyles";
 
 const Cell: React.FC<CellProps> = React.memo(
     ({
         rowIndex,
         colIndex,
+        cellData,
         selectedCells,
         selectedCell,
-        handleCellSelection,
-        handleCellChange,
+        selectedColumns = [],
+        selectedRows = [],
         style,
-        cellData,
         onMouseDown,
         onMouseEnter,
         onMouseUp,
-        selectedColumns,
-        selectedRows,
+        onDoubleClick,
+        onCellBlur,
+        onCellKeyDown,
+        onCellChange,
     }) => {
         const theme = useTheme();
         const isDarkMode = theme.palette.mode === "dark";
         const [isEditing, setIsEditing] = useState(false);
+        const [fontWeight, setFontWeight] = useState("normal");
+        const [fontStyle, setFontStyle] = useState("normal");
+        const [isFontCode, setIsFontCode] = useState(false);
         const cellRef = useRef<HTMLDivElement>(null);
 
         const isSingleCellSelected = selectedCell?.row === rowIndex && selectedCell?.col === colIndex;
         const isColumnSelected = selectedColumns?.includes(colIndex);
         const isRowSelected = selectedRows?.includes(rowIndex);
         const isMultiSelected = selectedCells[rowIndex]?.[colIndex];
+        const isSelected = isSingleCellSelected || isColumnSelected || isRowSelected || isMultiSelected;
 
         const enableEditMode = useCallback(() => {
             if (cellRef.current) {
@@ -46,194 +52,119 @@ const Cell: React.FC<CellProps> = React.memo(
             }
         }, []);
 
-        const handleMouseEvent = useCallback(
-            ({
-                event,
-                shouldPreventDefault = false,
-                shouldStopPropagation = false,
-                handler,
-            }: {
-                event: React.MouseEvent;
-                shouldPreventDefault?: boolean;
-                shouldStopPropagation?: boolean;
-                handler: () => void;
-            }) => {
-                if (shouldPreventDefault) event.preventDefault();
-                if (shouldStopPropagation) event.stopPropagation();
-                handler();
+        const handleDocumentClick = useCallback(
+            (e: MouseEvent) => {
+                const target = e.target as Node;
+                if (cellRef.current && !cellRef.current.contains(target)) {
+                    const newValue = cellRef.current.textContent || "";
+                    onCellChange?.(rowIndex, colIndex, newValue);
+                    setIsEditing(false);
+                    onCellBlur?.();
+                }
             },
-            []
-        );
-
-        const createMouseEventHandler = useCallback(
-            ({
-                    shouldPreventDefault = false,
-                    shouldStopPropagation = false,
-                    handler,
-                }: {
-                    shouldPreventDefault?: boolean;
-                    shouldStopPropagation?: boolean;
-                    handler: () => void;
-                }) =>
-                (e: React.MouseEvent) => {
-                    handleMouseEvent({
-                        event: e,
-                        shouldPreventDefault,
-                        shouldStopPropagation,
-                        handler,
-                    });
-                },
-            [handleMouseEvent]
-        );
-
-        const handleMouseUpEvent = useCallback(
-            createMouseEventHandler({
-                shouldPreventDefault: true,
-                handler: onMouseUp,
-            }),
-            [onMouseUp, createMouseEventHandler]
-        );
-
-        const handleDoubleClick = useCallback(
-            createMouseEventHandler({
-                shouldStopPropagation: true,
-                handler: enableEditMode,
-            }),
-            [enableEditMode, createMouseEventHandler]
+            [onCellBlur, onCellChange, rowIndex, colIndex]
         );
 
         useEffect(() => {
-            const handleDocumentClick = (e: MouseEvent) => {
-                if (isEditing && cellRef.current && !cellRef.current.contains(e.target as Node)) {
-                    const newValue = cellRef.current.textContent || "";
-                    handleCellChange(rowIndex, colIndex, newValue);
-                    setIsEditing(false);
-                }
-            };
-
             if (isEditing) {
                 document.addEventListener("mousedown", handleDocumentClick);
             }
-
             return () => {
                 document.removeEventListener("mousedown", handleDocumentClick);
             };
-        }, [isEditing, handleCellChange, rowIndex, colIndex]);
+        }, [isEditing, handleDocumentClick]);
 
-        useEffect(() => {
-            if (!isEditing && cellRef.current) {
-                cellRef.current.textContent = cellData?.content || "";
-            }
-        }, [isEditing, cellData]);
+        const handleMouseEvent = useCallback(
+            (event: React.MouseEvent) => {
+                if (event.type === "mousedown") {
+                    onMouseDown?.(rowIndex, colIndex, event.shiftKey, event.ctrlKey);
+                } else if (event.type === "mouseenter") {
+                    onMouseEnter?.(rowIndex, colIndex);
+                } else if (event.type === "mouseup") {
+                    onMouseUp?.();
+                }
+            },
+            [rowIndex, colIndex, onMouseDown, onMouseEnter, onMouseUp]
+        );
 
-        const backgroundColor = getSelectionBackground(isDarkMode, isColumnSelected, isRowSelected, isMultiSelected, isSingleCellSelected);
+        const handleDoubleClick = useCallback(() => {
+            onDoubleClick?.(rowIndex, colIndex);
+            enableEditMode();
+        }, [rowIndex, colIndex, onDoubleClick, enableEditMode]);
 
-        const cellStyles = useMemo(
-            () => ({
-                ...getCellStyles({
-                    isDarkMode,
-                    theme,
-                    isEditing,
-                    isSelected: isSingleCellSelected,
-                    style,
-                }),
-                backgroundColor,
-            }),
-            [isDarkMode, theme, isEditing, isSingleCellSelected, style, backgroundColor]
+        const handleKeyDown = useCallback(
+            (event: React.KeyboardEvent) => {
+                onCellKeyDown?.(event);
+                if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    const newValue = cellRef.current?.textContent || "";
+                    onCellChange?.(rowIndex, colIndex, newValue);
+                    setIsEditing(false);
+                }
+            },
+            [onCellKeyDown, onCellChange, rowIndex, colIndex]
         );
 
         const handleBlur = useCallback(() => {
-            if (isEditing) {
-                const content = cellRef.current?.textContent || "";
-                handleCellChange(rowIndex, colIndex, content);
-                setIsEditing(false);
-                // Refocus the container after a short delay to allow other events to process
-                setTimeout(() => {
-                    const container = document.querySelector('[data-spreadsheet-container="true"]') as HTMLDivElement;
-                    container?.focus();
-                }, 0);
+            const newValue = cellRef.current?.textContent || "";
+            onCellChange?.(rowIndex, colIndex, newValue);
+            setIsEditing(false);
+            onCellBlur?.();
+        }, [onCellBlur, onCellChange, rowIndex, colIndex]);
+
+        const cellStyles = useMemo(() => {
+            const styleProps: CellStyleProps = {
+                isDarkMode,
+                theme,
+                isEditing,
+                isSelected,
+                isMultiSelected,
+                style,
+            };
+            return getCellStyles(styleProps);
+        }, [isDarkMode, theme, isEditing, isSelected, isMultiSelected, style]);
+
+        // Update text formatting based on cell content
+        useEffect(() => {
+            if (cellRef.current) {
+                const content = cellData.value || "";
+                const regexBold = /^\*\*(.+)\*\*$/;
+                const regexItalic = /^\*?\*?_(.+)_\*?\*?$/;
+                const regexCode = /^\*?\*?\_?\`(.+)\`\_?\*?\*?$/;
+
+                setFontWeight(regexBold.test(content) ? "bold" : "normal");
+                setFontStyle(regexItalic.test(content) ? "italic" : "normal");
+                setIsFontCode(regexCode.test(content));
             }
-        }, [isEditing, handleCellChange, rowIndex, colIndex]);
-
-        const handleClick = useCallback(
-            (e: React.MouseEvent) => {
-                e.stopPropagation();
-                if (!isSingleCellSelected) {
-                    handleCellSelection(rowIndex, colIndex);
-                }
-            },
-            [isSingleCellSelected, handleCellSelection, rowIndex, colIndex]
-        );
-
-        const handleMouseDownEvent = useCallback(
-            createMouseEventHandler({
-                shouldPreventDefault: true,
-                handler: () => {
-                    onMouseDown(rowIndex, colIndex);
-                },
-            }),
-            [onMouseDown, rowIndex, colIndex, createMouseEventHandler]
-        );
-
-        const handlePaste = useCallback(
-            (e: React.ClipboardEvent<HTMLDivElement>) => {
-                if (isEditing) {
-                    // Allow default paste behavior when editing
-                    return;
-                }
-                // Prevent default paste when not editing
-                e.preventDefault();
-                e.stopPropagation();
-            },
-            [isEditing]
-        );
+        }, [cellData]);
 
         return (
             <TableCellMui
-                align={cellData?.alignment || "left"}
-                onMouseUp={handleMouseUpEvent}
-                onClick={handleClick}
-                onMouseDown={handleMouseDownEvent}
-                onMouseEnter={() => onMouseEnter(rowIndex, colIndex)}
+                ref={cellRef}
+                contentEditable={isEditing}
+                onMouseDown={handleMouseEvent}
+                onMouseEnter={handleMouseEvent}
+                onMouseUp={handleMouseEvent}
                 onDoubleClick={handleDoubleClick}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
                 sx={cellStyles}
+                suppressContentEditableWarning
             >
                 <div
-                    ref={cellRef}
-                    contentEditable={isEditing}
-                    suppressContentEditableWarning
-                    spellCheck={false}
-                    onBlur={handleBlur}
-                    onPaste={handlePaste}
-                    onMouseDown={(e) => {
-                        if (isEditing) {
-                            e.stopPropagation();
-                            return;
-                        }
-                        handleMouseDownEvent(e);
-                    }}
                     style={{
                         minWidth: "80px",
                         outline: "none",
-                        cursor: isEditing ? "text" : (cellData?.link ? "pointer" : "inherit"),
+                        cursor: "inherit",
                         userSelect: isEditing ? "text" : "none",
-                        WebkitUserSelect: isEditing ? "text" : "none",
-                        MozUserSelect: isEditing ? "text" : "none",
-                        msUserSelect: isEditing ? "text" : "none",
-                        fontWeight: cellData?.bold ? "bold" : "normal",
-                        fontStyle: cellData?.italic ? "italic" : "normal",
-                        fontFamily: cellData?.code ? "monospace" : "inherit",
-                        textDecoration: cellData?.link ? "underline" : "none",
-                        color: cellData?.link ? theme.palette.primary.main : "inherit",
+                        fontWeight,
+                        fontStyle,
+                        fontFamily: isFontCode ? "'Courier New', Consolas, monospace" : "inherit",
                         ...style,
                     }}
-                    onClick={(e) => {
-                        if (!isEditing && cellData?.link) {
-                            e.stopPropagation();
-                            window.open(cellData.link, '_blank', 'noopener,noreferrer');
-                        }
-                    }}
-                />
+                >
+                    {cellData.value}
+                </div>
             </TableCellMui>
         );
     }

@@ -1,26 +1,27 @@
-import { State, CellData } from "../types";
+import { State } from "../types/index";
 
 export const initialState = (rows: number, columns: number): State => ({
     data: Array.from({ length: rows }, () => 
-        Array(columns).fill(null).map(() => ({
-            content: "",
-            alignment: "left",
+        Array(columns).fill(undefined).map(() => ({
+            value: "",
+            align: "left" as const,
             bold: false,
             italic: false,
-            code: false
-        } as CellData))
+            code: false,
+            link: undefined
+        }))
     ),
     past: [],
     future: [],
+    selectedCell: null,
     selectedColumn: null,
     selectedRow: null,
-    selectedCell: null,
     selectedCells: Array.from({ length: rows }, () => Array(columns).fill(false)),
     selectedRows: [],
+    selectedColumns: [],
     selectAll: false,
     isDragging: false,
     dragStart: null,
     dragStartRow: null,
-    dragStartColumn: null,
-    selectedColumns: [],
+    dragStartColumn: null
 });

@@ -1,7 +1,7 @@
 import React, { useState, createContext } from 'react';
+import { useAtom } from 'jotai';
 import { ToolbarContextType } from '../types';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { applyTextFormatting } from '../store/spreadsheetSlice';
+import { createSpreadsheetAtom, createSelectedCellAtom, createSelectedCellsAtom, createSelectedRowsAtom, createSelectedColumnsAtom, createSelectAllAtom } from '../store/atoms';
 import LinkModal from './LinkModal';
 import { Snackbar } from '@mui/material';
 
@@ -9,6 +9,7 @@ export const ToolbarContext = createContext<ToolbarContextType | undefined>(unde
 
 export interface ToolbarProviderProps {
     children: React.ReactNode;
+    spreadsheetAtom: ReturnType<typeof createSpreadsheetAtom>;
     onClickUndo: () => void;
     onClickRedo: () => void;
     onClickAlignLeft: () => void;
@@ -31,6 +32,7 @@ export interface ToolbarProviderProps {
 
 export const ToolbarProvider: React.FC<ToolbarProviderProps> = ({ 
     children,
+    spreadsheetAtom,
     onClickUndo,
     onClickRedo,
     onClickAlignLeft,
@@ -50,17 +52,28 @@ export const ToolbarProvider: React.FC<ToolbarProviderProps> = ({
     deleteSelected,
     transposeTable
 }) => {
-    const dispatch = useAppDispatch();
     const [showLinkModal, setShowLinkModal] = useState(false);
     const [showSnackbar, setShowSnackbar] = useState(false);
-    const { selectedCell, selectedCells, selectedRows, selectedColumns, selectAll, data } = useAppSelector(state => state.spreadsheet);
+    
+    const [selectedCell] = useAtom(createSelectedCellAtom(spreadsheetAtom));
+    const [selectedCells] = useAtom(createSelectedCellsAtom(spreadsheetAtom));
+    const [selectedRows] = useAtom(createSelectedRowsAtom(spreadsheetAtom));
+    const [selectedColumns] = useAtom(createSelectedColumnsAtom(spreadsheetAtom));
+    const [selectAll] = useAtom(createSelectAllAtom(spreadsheetAtom));
+    const [state, setState] = useAtom(spreadsheetAtom);
+    const data = state.data;
+    
     const selectedCellData = selectedCell ? data[selectedCell.row]?.[selectedCell.col] : undefined;
 
     const hasMultipleSelections = () => {
         return selectedRows.length > 0 || 
             selectedColumns.length > 0 || 
             selectAll ||
-            selectedCells.some(row => row.some(cell => cell));
+            selectedCells.some((row: boolean[], rowIndex: number) => 
+                row.some((isSelected: boolean, colIndex: number) => 
+                    isSelected && data[rowIndex]?.[colIndex]?.value !== ''
+                )
+            );
     };
 
     const handleSetLink = () => {
@@ -72,7 +85,13 @@ export const ToolbarProvider: React.FC<ToolbarProviderProps> = ({
     };
 
     const handleLinkSubmit = (url: string | undefined) => {
-        dispatch(applyTextFormatting({ operation: 'LINK', payload: url }));
+        if (selectedCell) {
+            const { row, col } = selectedCell;
+            const newData = [...data];
+            if (!newData[row]) newData[row] = [];
+            newData[row][col] = { ...newData[row][col], link: url };
+            setState({ ...state, data: newData });
+        }
         setShowLinkModal(false);
     };
 

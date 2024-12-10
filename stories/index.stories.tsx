@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react"
-import { fn } from '@storybook/test'
-import { ThemeProvider, createTheme } from '@mui/material'
+import { ThemeProvider, createTheme, Box } from '@mui/material'
 import { useMemo } from 'react'
-import Spreadsheet from "../src"  // Updated to use the wrapped version
-import type { SpreadsheetProps } from "../src/types"
+import SpreadsheetWrapper from "../src"
 
-interface SpreadsheetStoryArgs extends SpreadsheetProps {
+interface SpreadsheetStoryArgs {
     mode?: 'light' | 'dark'
+    rows?: number
+    cols?: number
 }
 
-const SpreadsheetWithTheme = ({ mode, ...props }: SpreadsheetStoryArgs) => {
+const SpreadsheetWithTheme = ({ mode, rows = 10, cols = 10 }: SpreadsheetStoryArgs) => {
     const theme = useMemo(() => createTheme({
         palette: {
             mode: mode || 'light'
@@ -18,14 +18,21 @@ const SpreadsheetWithTheme = ({ mode, ...props }: SpreadsheetStoryArgs) => {
 
     return (
         <ThemeProvider theme={theme}>
-            <Spreadsheet {...props} />
+            <Box sx={{ 
+                width: '100%', 
+                height: '100vh', 
+                padding: 2,
+                backgroundColor: theme.palette.background.default
+            }}>
+                <SpreadsheetWrapper rows={rows} cols={cols} />
+            </Box>
         </ThemeProvider>
     )
 }
 
 const SpreadsheetMeta: Meta<SpreadsheetStoryArgs> = {
     title: "Spreadsheet",
-    component: Spreadsheet,
+    component: SpreadsheetWithTheme,
     tags: ["autodocs"],
     argTypes: {
         mode: {
@@ -34,13 +41,24 @@ const SpreadsheetMeta: Meta<SpreadsheetStoryArgs> = {
             description: "Select the theme mode",
             defaultValue: "light"
         },
+        rows: {
+            control: { type: 'number' },
+            description: "Number of rows",
+            defaultValue: 10
+        },
+        cols: {
+            control: { type: 'number' },
+            description: "Number of columns",
+            defaultValue: 10
+        }
     },
     decorators: [
         (Story) => (
             <div style={{
-                display: "inline-block",
-                padding: 0,
-                margin: 0
+                width: '100%',
+                height: '100vh',
+                margin: 0,
+                padding: 0
             }}>
                 <Story />
             </div>
@@ -54,6 +72,7 @@ export const Default: StoryObj<SpreadsheetStoryArgs> = {
     render: (args) => <SpreadsheetWithTheme {...args} />,
     args: {
         mode: "light",
-        onChange: fn(),
+        rows: 10,
+        cols: 10
     }
 }

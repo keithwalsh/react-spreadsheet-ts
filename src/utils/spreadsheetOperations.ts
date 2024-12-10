@@ -1,4 +1,4 @@
-import { Alignment, CellData } from "../types";
+import { CellData } from "../types/index";
 
 interface OperationParams {
     data: CellData[][];
@@ -17,8 +17,8 @@ const spliceColumn = <T>(array: T[][], index: number, count: number): T[][] => {
 
 export const addRow = ({ data, selectedCells, index = data.length }: OperationParams) => {
     const newRow = Array(data[0].length).fill(null).map(() => ({
-        content: "",
-        alignment: "left" as Alignment,
+        value: "",
+        align: "left" as const,
         bold: false,
         italic: false,
         code: false
@@ -35,11 +35,13 @@ export const addRow = ({ data, selectedCells, index = data.length }: OperationPa
             ...selectedCells.slice(0, index),
             newSelectedCellsRow,
             ...selectedCells.slice(index)
-        ],
+        ]
     };
 };
 
 export const removeRow = ({ data, selectedCells, index = data.length - 1 }: OperationParams) => {
+    if (data.length <= 1) return { newData: data, newSelectedCells: selectedCells };
+    
     return {
         newData: [
             ...data.slice(0, index),
@@ -48,73 +50,67 @@ export const removeRow = ({ data, selectedCells, index = data.length - 1 }: Oper
         newSelectedCells: [
             ...selectedCells.slice(0, index),
             ...selectedCells.slice(index + 1)
-        ],
+        ]
     };
 };
 
 export const addColumn = ({ data, selectedCells, index = 0, position = "right" }: OperationParams) => {
-    const columnIndex = position === "right" ? index + 1 : index;
+    const actualIndex = position === "right" ? index + 1 : index;
+    
     const newData = data.map(row => {
         const newRow = [...row];
-        newRow.splice(columnIndex, 0, {
-            content: "",
-            alignment: "left" as Alignment,
+        newRow.splice(actualIndex, 0, {
+            value: "",
+            align: "left" as const,
             bold: false,
             italic: false,
             code: false
         });
         return newRow;
     });
-
+    
     const newSelectedCells = selectedCells.map(row => {
         const newRow = [...row];
-        newRow.splice(columnIndex, 0, false);
+        newRow.splice(actualIndex, 0, false);
         return newRow;
     });
-
+    
     return {
         newData,
-        newSelectedCells,
+        newSelectedCells
     };
 };
 
 export const removeColumn = ({ data, selectedCells, index = 0 }: OperationParams) => {
+    if (data[0].length <= 1) return { newData: data, newSelectedCells: selectedCells };
+    
     return {
         newData: spliceColumn(data, index, 1),
-        newSelectedCells: spliceColumn(selectedCells, index, 1),
+        newSelectedCells: spliceColumn(selectedCells, index, 1)
     };
 };
 
 export const transpose = ({ data, selectedCells }: OperationParams) => {
-    const rows = data[0].length;
-    const cols = data.length;
-    const newData: CellData[][] = Array.from({ length: rows }, () =>
-        Array(cols).fill(null).map(() => ({
-            content: "",
-            alignment: "left" as Alignment,
-            bold: false,
-            italic: false,
-            code: false
-        }))
-    );
-
-    // Transpose the data
+    const rows = data.length;
+    const cols = data[0].length;
+    
+    const newData: CellData[][] = Array(cols)
+        .fill(null)
+        .map(() => Array(rows).fill(null));
+    
+    const newSelectedCells: boolean[][] = Array(cols)
+        .fill(null)
+        .map(() => Array(rows).fill(false));
+    
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
-            newData[i][j] = { ...data[j][i] };
+            newData[j][i] = { ...data[i][j] };
+            newSelectedCells[j][i] = selectedCells[i][j];
         }
     }
-
-    // Transpose the selected cells
-    const newSelectedCells = Array.from({ length: rows }, () => Array(cols).fill(false));
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-            newSelectedCells[i][j] = selectedCells[j][i];
-        }
-    }
-
+    
     return {
         newData,
-        newSelectedCells,
+        newSelectedCells
     };
 };

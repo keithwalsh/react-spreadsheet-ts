@@ -19,13 +19,14 @@ export const adjustTableSize = (
             if (existingData[rowIndex] && existingData[rowIndex][colIndex] !== undefined) {
                 rowData.push({ ...existingData[rowIndex][colIndex] });
             } else {
-                rowData.push({
-                    content: "",
-                    alignment: "left",
+                const newCell: CellData = {
+                    value: "",
+                    align: "left" as const,
                     bold: false,
                     italic: false,
                     code: false
-                });
+                };
+                rowData.push(newCell);
             }
 
             // Selected Cells

@@ -14,7 +14,7 @@ import {
     RiDeleteRow,
     RiLinkM,
 } from "react-icons/ri";
-import { ButtonDefinition } from "../types";
+import { ButtonDefinition } from "../types/index";
 
 export const buttonConfig = (theme: string) => ({
     borderColor: theme === "light" ? "divider" : "#686868",

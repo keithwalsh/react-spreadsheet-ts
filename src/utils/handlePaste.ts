@@ -1,4 +1,4 @@
-import { Alignment, CellData, PasteOperationResult } from "../types";
+import { Alignment, CellData, PasteOperationResult } from "../types/index";
 
 /**
  * Handles pasting clipboard data into the table.
@@ -23,6 +23,9 @@ export const handlePaste = (
             newBold: bold,
             newItalic: italic,
             newCode: code,
+            newSelectedCells: Array.from({ length: data.length }, () =>
+                Array(data[0].length).fill(false)
+            ),
             dimensions: {
                 rows: data.length,
                 cols: data[0].length
@@ -47,8 +50,8 @@ export const handlePaste = (
             const existingRow = [...data[rowIndex]];
             while (existingRow.length < requiredCols) {
                 existingRow.push({
-                    content: "",
-                    alignment: "left" as Alignment,
+                    value: "",
+                    align: "left" as const,
                     bold: false,
                     italic: false,
                     code: false
@@ -58,8 +61,8 @@ export const handlePaste = (
         }
         // New row: create with empty cells
         return Array(requiredCols).fill(null).map(() => ({
-            content: "",
-            alignment: "left" as Alignment,
+            value: "",
+            align: "left" as const,
             bold: false,
             italic: false,
             code: false
@@ -119,6 +122,22 @@ export const handlePaste = (
         return Array(requiredCols).fill(false);
     });
 
+    // Create a new array for selected cells
+    const newSelectedCells = Array.from({ length: requiredRows }, () =>
+        Array(requiredCols).fill(false)
+    );
+
+    // Mark the target cells as selected
+    if (startRow !== null && startCol !== null) {
+        for (let i = 0; i < parsedData.length; i++) {
+            for (let j = 0; j < parsedData[i].length; j++) {
+                if (startRow + i < newSelectedCells.length && startCol + j < newSelectedCells[0].length) {
+                    newSelectedCells[startRow + i][startCol + j] = true;
+                }
+            }
+        }
+    }
+
     // Update data with pasted values
     parsedData.forEach((rowData, rIdx) => {
         rowData.forEach((cellData, cIdx) => {
@@ -127,7 +146,7 @@ export const handlePaste = (
             if (targetRow < newData.length && targetCol < newData[0].length) {
                 newData[targetRow][targetCol] = {
                     ...newData[targetRow][targetCol],
-                    content: cellData
+                    value: cellData
                 };
             }
         });
@@ -139,6 +158,7 @@ export const handlePaste = (
         newBold,
         newItalic,
         newCode,
+        newSelectedCells,
         dimensions: {
             rows: requiredRows,
             cols: requiredCols

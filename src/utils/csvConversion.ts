@@ -7,12 +7,12 @@ export const convertToCSV = (data: CellData[][]): string => {
         .map((row) =>
             row
                 .map((cell) => {
-                    const content = cell.content;
+                    const value = cell.value;
                     // Escape quotes and wrap in quotes if cell contains comma or newline
-                    if (content.includes('"') || content.includes(",") || content.includes("\n")) {
-                        return `"${content.replace(/"/g, '""')}"`;
+                    if (value.includes('"') || value.includes(",") || value.includes("\n")) {
+                        return `"${value.replace(/"/g, '""')}"`;
                     }
-                    return content;
+                    return value;
                 })
                 .join(",")
         )

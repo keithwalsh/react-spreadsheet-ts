@@ -3,29 +3,42 @@
  * handles row selection through click and drag interactions.
  */
 
-import { TableCell as TableCellMui } from "@mui/material";
-import { RowNumberCellProps } from "../types";
+import React from "react";
+import { TableCell } from "@mui/material";
+import { useAtom } from "jotai";
+import { PrimitiveAtom } from "jotai";
+import { State, HeaderCellStylesParams } from "../types";
 import { useHeaderCellStyles } from "../styles";
-import { useState } from "react";
 import RowContextMenu from "./RowContextMenu";
-import { useAppSelector } from "../store/hooks";
-import { RootState } from "../store";
 
-export function RowNumberCell({ children, selectedRows, rowIndex, onDragStart, onDragEnter, onAddAbove, onAddBelow, onRemove }: RowNumberCellProps) {
-    const isSelected = selectedRows?.includes(rowIndex) ?? false;
-    const [isHovered, setIsHovered] = useState(false);
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+interface RowNumberCellProps {
+    atom: PrimitiveAtom<State>;
+    rowIndex: number;
+    onDragStart: (event: React.DragEvent<HTMLDivElement>) => void;
+    onDragEnter: (event: React.DragEvent<HTMLDivElement>) => void;
+    onDragEnd: (event: React.DragEvent<HTMLDivElement>) => void;
+    onAddAbove: () => void;
+    onAddBelow: () => void;
+    onRemove: () => void;
+}
 
-    const { selectAll, selectedCell, selectedCells, isDragging } = useAppSelector((state: RootState) => state.spreadsheet);
+export function RowNumberCell({ atom, rowIndex, onDragStart, onDragEnter, onDragEnd, onAddAbove, onAddBelow, onRemove }: RowNumberCellProps) {
+    const [state] = useAtom(atom);
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
-    // Check if any cell in this row is selected
-    const isHighlighted = selectedCell?.row === rowIndex || (selectedCells && selectedCells[rowIndex]?.some((cell) => cell));
+    const isHighlighted = React.useMemo(() => {
+        return state.selectedCell?.row === rowIndex || (state.selectedCells && state.selectedCells[rowIndex]?.some((cell) => cell));
+    }, [state.selectedCell, state.selectedCells, rowIndex]);
+
+    const isSelected = React.useMemo(() => {
+        return state.selectedRows.includes(rowIndex);
+    }, [state.selectedRows, rowIndex]);
 
     const styles = useHeaderCellStyles({
-        isSelected: isSelected || selectAll,
-        isHovered,
+        isSelected: isSelected || state.selectAll,
         isHighlighted,
-    });
+        isHovered: false,
+    } as HeaderCellStylesParams);
 
     const handleContextMenu = (event: React.MouseEvent<HTMLTableCellElement>) => {
         event.preventDefault();
@@ -38,54 +51,52 @@ export function RowNumberCell({ children, selectedRows, rowIndex, onDragStart, o
 
     const handleMouseDown = (e: React.MouseEvent) => {
         e.preventDefault();
-        onDragStart(rowIndex);
+        const dragEvent = e.nativeEvent as unknown as React.DragEvent<HTMLDivElement>;
+        onDragStart(dragEvent);
     };
 
     const handleMouseEnter = (e: React.MouseEvent) => {
-        setIsHovered(true);
-        if (isDragging) {
+        if (state.isDragging) {
             e.preventDefault();
-            onDragEnter(rowIndex);
+            const dragEvent = e.nativeEvent as unknown as React.DragEvent<HTMLDivElement>;
+            onDragEnter(dragEvent);
         }
     };
 
-    const handleMouseLeave = () => {
-        setIsHovered(false);
-    };
-
-    const handleAddAbove = () => {
+    const handleAddAboveClick = () => {
         onAddAbove();
         handleCloseMenu();
     };
 
-    const handleAddBelow = () => {
+    const handleAddBelowClick = () => {
         onAddBelow();
         handleCloseMenu();
     };
 
-    const handleRemove = () => {
+    const handleRemoveClick = () => {
         onRemove();
         handleCloseMenu();
     };
 
     return (
         <>
-            <TableCellMui
+            <TableCell
                 sx={styles}
+                onContextMenu={handleContextMenu}
                 onMouseDown={handleMouseDown}
                 onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-                onContextMenu={handleContextMenu}
+                onDragEnd={onDragEnd}
+                draggable
             >
-                {children}
-            </TableCellMui>
+                {rowIndex + 1}
+            </TableCell>
             <RowContextMenu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={handleCloseMenu}
-                onAddAbove={handleAddAbove}
-                onAddBelow={handleAddBelow}
-                onRemove={handleRemove}
+                onAddAbove={handleAddAboveClick}
+                onAddBelow={handleAddBelowClick}
+                onRemove={handleRemoveClick}
             />
         </>
     );

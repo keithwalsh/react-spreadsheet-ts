@@ -1,123 +1,101 @@
-import React, { useContext, useCallback } from "react";
-import {
-    Box as BoxMui,
-    IconButton as IconButtonMui,
-    ButtonGroup as ButtonGroupMui,
-    Tooltip as TooltipMui,
-    Divider as DividerMui,
-    Paper as PaperMui,
-} from "@mui/material";
-import { buttonConfig, buttonDefinitions, defaultVisibleButtons } from "../config";
-import { ButtonGroupProps } from "../types";
-import { ToolbarContext } from "./ToolbarProvider";
+import React from 'react';
+import { IconButton, Tooltip, Divider, Box, ButtonGroup as ButtonGroupMui } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { buttonDefinitions, buttonConfig, defaultVisibleButtons } from '../config';
+import { ButtonGroupProps, ButtonId } from '../types';
 
 const ButtonGroup: React.FC<ButtonGroupProps> = ({
-    visibleButtons,
-    orientation = "horizontal",
-    iconSize = 20,
-    iconMargin = 0.25,
-    dividerMargin = 0.5,
+    visibleButtons = defaultVisibleButtons,
+    orientation = 'horizontal',
+    iconSize = 24,
+    iconMargin = 4,
+    dividerMargin = 8,
     tooltipArrow = true,
-    tooltipPlacement = "top",
+    tooltipPlacement = 'bottom'
 }) => {
     const theme = useTheme();
-    const isDarkMode = theme.palette.mode === 'dark';
-    
-    const handlers = useContext(ToolbarContext);
 
-    if (!handlers) {
-        throw new Error("ButtonGroup must be used within a ToolbarProvider");
-    }
+    const renderButtons = () => {
+        const groups = Object.entries(buttonConfig).map(([groupName, groupButtons]) => {
+            const filteredButtons = groupButtons.filter(buttonId => 
+                visibleButtons.includes(buttonId)
+            );
 
-    const config = buttonConfig(isDarkMode ? 'dark' : 'light');
-
-    const renderButton = useCallback(
-        (item: string, index: number) => {
-            if (item === "divider") {
-                return <DividerMui key={`divider-${index}`} orientation={orientation === "horizontal" ? "vertical" : "horizontal"} flexItem />;
-            }
-
-            const btn = buttonDefinitions.find((btn) => btn.title === item);
-            if (!btn) return null;
-
-            const { title, icon: Icon, handlerKey } = btn;
-
-            const handleClick = () => {
-                switch (title) {
-                    case "Undo":
-                        handlers.onClickUndo()
-                        break
-                    case "Redo":
-                        handlers.onClickRedo()
-                        break
-                    case "Set Bold":
-                        handlers.onClickSetBold()
-                        break
-                    case "Set Italic":
-                        handlers.onClickSetItalic()
-                        break
-                    case "Set Code":
-                        handlers.onClickSetCode()
-                        break
-                    case "Align Left":
-                        handlers.onClickAlignLeft()
-                        break
-                    case "Align Center":
-                        handlers.onClickAlignCenter()
-                        break
-                    case "Align Right":
-                        handlers.onClickAlignRight()
-                        break
-                    default:
-                        handlers[handlerKey]?.()
-                }
-            }
+            if (filteredButtons.length === 0) return null;
 
             return (
-                <TooltipMui key={title} title={title} placement={tooltipPlacement} arrow={tooltipArrow}>
-                    <IconButtonMui
-                        onClick={handleClick}
-                        disabled={!handlers[handlerKey] && !["Set Bold", "Set Italic", "Set Code"].includes(title)}
+                <React.Fragment key={groupName}>
+                    <Box
                         sx={{
-                            borderRadius: 0,
-                            "&:hover": config.hoverStyle,
-                            "& .MuiTouchRipple-root .MuiTouchRipple-child": {
-                                borderRadius: 0,
-                            },
+                            display: 'flex',
+                            flexDirection: orientation === 'horizontal' ? 'row' : 'column',
+                            gap: `${iconMargin}px`
                         }}
                     >
-                        <Icon size={iconSize} />
-                    </IconButtonMui>
-                </TooltipMui>
+                        {filteredButtons.map((buttonId: ButtonId) => {
+                            const button = buttonDefinitions[buttonId];
+                            const Icon = button.icon;
+                            return (
+                                <Tooltip
+                                    key={buttonId}
+                                    title={button.tooltip}
+                                    arrow={tooltipArrow}
+                                    placement={tooltipPlacement}
+                                >
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => console.log(button.action)}
+                                        sx={{
+                                            padding: theme.spacing(1),
+                                            '& svg': {
+                                                width: iconSize,
+                                                height: iconSize,
+                                                transform: button.rotate ? `rotate(${button.rotate}deg)` : 'none'
+                                            }
+                                        }}
+                                    >
+                                        <Icon />
+                                    </IconButton>
+                                </Tooltip>
+                            );
+                        })}
+                    </Box>
+                    <Divider
+                        orientation={orientation}
+                        flexItem
+                        sx={{
+                            margin: orientation === 'horizontal'
+                                ? `0 ${dividerMargin}px`
+                                : `${dividerMargin}px 0`
+                        }}
+                    />
+                </React.Fragment>
             );
-        },
-        [orientation, tooltipPlacement, tooltipArrow, handlers, config.hoverStyle, iconSize]
-    );
+        });
 
-    const buttonsToRender = visibleButtons && visibleButtons.length > 0 ? visibleButtons : defaultVisibleButtons;
+        // Remove the last divider
+        return groups.filter(Boolean).slice(0, -1);
+    };
 
     return (
-        <BoxMui
-            component={isDarkMode ? PaperMui : "div"}
+        <Box
             sx={{
-                display: "flex",
-                alignItems: "center",
-                border: 1,
-                borderRadius: 1,
-                maxWidth: "max-content",
-                ...(orientation === "vertical" ? { marginRight: 2 } : { marginBottom: 2 }),
-                borderColor: config.borderColor,
-                "& svg": { m: iconMargin, ...config.svgStyle },
-                "& .MuiDivider-root": {
-                    borderColor: config.borderColor,
-                    ...(orientation === "horizontal" ? { mx: dividerMargin } : { my: dividerMargin }),
-                },
+                display: 'flex',
+                flexDirection: orientation === 'horizontal' ? 'row' : 'column',
+                alignItems: 'center',
+                padding: theme.spacing(1),
+                backgroundColor: theme.palette.background.paper,
+                borderRadius: theme.shape.borderRadius,
+                border: `1px solid ${theme.palette.divider}`
             }}
         >
-            <ButtonGroupMui orientation={orientation}>{buttonsToRender.map(renderButton)}</ButtonGroupMui>
-        </BoxMui>
+            <ButtonGroupMui orientation={orientation}>
+                {renderButtons()}
+            </ButtonGroupMui>
+        </Box>
     );
 };
+
+ButtonGroup.displayName = 'ButtonGroup';
 
 export default ButtonGroup;

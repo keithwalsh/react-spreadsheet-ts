@@ -1,19 +1,25 @@
 // src/components/SpreadsheetWrapper.tsx
 import React from 'react';
-import { Provider } from 'react-redux';
-import { createStore } from '../store';
+import { Provider } from 'jotai';
+import { createSpreadsheetAtom } from '../store/atoms';
 import Spreadsheet from './Spreadsheet';
-import type { SpreadsheetProps } from '../types';
 
-const SpreadsheetWrapper: React.FC<SpreadsheetProps> = (props) => {
-    // Create store instance for this specific spreadsheet
-    const store = createStore();
+interface SpreadsheetWrapperProps {
+    rows?: number
+    cols?: number
+}
 
+export const SpreadsheetWrapper: React.FC<SpreadsheetWrapperProps> = ({ 
+    rows = 4,
+    cols = 4 
+}) => {
+    const spreadsheetAtom = React.useMemo(() => createSpreadsheetAtom(rows, cols), [rows, cols])
+    
     return (
-        <Provider store={store}>
-            <Spreadsheet {...props} />
+        <Provider>
+            <Spreadsheet atom={spreadsheetAtom as any} />
         </Provider>
-    );
-};
+    )
+}
 
 export default SpreadsheetWrapper;
