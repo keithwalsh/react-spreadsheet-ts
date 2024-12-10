@@ -1,101 +1,111 @@
-import React from 'react';
-import { IconButton, Tooltip, Divider, Box, ButtonGroup as ButtonGroupMui } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import { buttonDefinitions, buttonConfig, defaultVisibleButtons } from '../config';
-import { ButtonGroupProps, ButtonId } from '../types';
+/**
+ * @fileoverview Configurable button group component for toolbar actions with
+ * support for horizontal/vertical orientation and theme-aware styling.
+ */
+
+import React, { useContext, useCallback } from "react";
+import {
+    Box as BoxMui,
+    IconButton as IconButtonMui,
+    ButtonGroup as ButtonGroupMui,
+    Tooltip as TooltipMui,
+    Divider as DividerMui,
+    Paper as PaperMui,
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { buttonConfig, buttonDefinitions, defaultVisibleButtons } from "../config";
+import { ButtonGroupProps } from "../types";
+import { ToolbarContext } from "./ToolbarProvider";
 
 const ButtonGroup: React.FC<ButtonGroupProps> = ({
-    visibleButtons = defaultVisibleButtons,
-    orientation = 'horizontal',
-    iconSize = 24,
-    iconMargin = 4,
-    dividerMargin = 8,
+    visibleButtons,
+    orientation = "horizontal",
+    iconSize = 20,
+    iconMargin = 0.25,
+    dividerMargin = 0.5,
     tooltipArrow = true,
-    tooltipPlacement = 'bottom'
+    tooltipPlacement = "top",
 }) => {
     const theme = useTheme();
+    const isDarkMode = theme.palette.mode === "dark";
+    const handlers = useContext(ToolbarContext);
 
-    const renderButtons = () => {
-        const groups = Object.entries(buttonConfig).map(([groupName, groupButtons]) => {
-            const filteredButtons = groupButtons.filter(buttonId => 
-                visibleButtons.includes(buttonId)
-            );
+    if (!handlers) {
+        throw new Error("ButtonGroup must be used within a ToolbarProvider");
+    }
 
-            if (filteredButtons.length === 0) return null;
+    const themeConfig = buttonConfig(isDarkMode ? "dark" : "light");
+
+    const renderButton = useCallback(
+        (item: string, index: number) => {
+            if (item === "divider") {
+                return <DividerMui key={`divider-${index}`} orientation={orientation === "horizontal" ? "vertical" : "horizontal"} flexItem />;
+            }
+
+            const btn = buttonDefinitions.find((btn) => btn.title === item);
+            if (!btn) return null;
+
+            const { title, icon: Icon, handlerKey } = btn;
+
+            const handleClick = () => {
+                if (title === "Set Bold") {
+                    handlers.onClickSetBold();
+                } else if (title === "Set Italic") {
+                    handlers.onClickSetItalic();
+                } else if (title === "Set Code") {
+                    handlers.onClickSetCode();
+                } else {
+                    handlers[handlerKey]?.();
+                }
+            };
 
             return (
-                <React.Fragment key={groupName}>
-                    <Box
+                <TooltipMui key={title} title={title} placement={tooltipPlacement} arrow={tooltipArrow}>
+                    <IconButtonMui
+                        onClick={handleClick}
+                        disabled={!handlers[handlerKey] && !["Set Bold", "Set Italic", "Set Code"].includes(title)}
                         sx={{
-                            display: 'flex',
-                            flexDirection: orientation === 'horizontal' ? 'row' : 'column',
-                            gap: `${iconMargin}px`
+                            borderRadius: 0,
+                            "&:hover": themeConfig.hoverStyle,
+                            "& .MuiTouchRipple-root .MuiTouchRipple-child": {
+                                borderRadius: 0,
+                            },
                         }}
                     >
-                        {filteredButtons.map((buttonId: ButtonId) => {
-                            const button = buttonDefinitions[buttonId];
-                            const Icon = button.icon;
-                            return (
-                                <Tooltip
-                                    key={buttonId}
-                                    title={button.tooltip}
-                                    arrow={tooltipArrow}
-                                    placement={tooltipPlacement}
-                                >
-                                    <IconButton
-                                        size="small"
-                                        onClick={() => console.log(button.action)}
-                                        sx={{
-                                            padding: theme.spacing(1),
-                                            '& svg': {
-                                                width: iconSize,
-                                                height: iconSize,
-                                                transform: button.rotate ? `rotate(${button.rotate}deg)` : 'none'
-                                            }
-                                        }}
-                                    >
-                                        <Icon />
-                                    </IconButton>
-                                </Tooltip>
-                            );
-                        })}
-                    </Box>
-                    <Divider
-                        orientation={orientation}
-                        flexItem
-                        sx={{
-                            margin: orientation === 'horizontal'
-                                ? `0 ${dividerMargin}px`
-                                : `${dividerMargin}px 0`
-                        }}
-                    />
-                </React.Fragment>
+                        <Icon size={iconSize} />
+                    </IconButtonMui>
+                </TooltipMui>
             );
-        });
+        },
+        [orientation, tooltipPlacement, tooltipArrow, handlers, themeConfig.hoverStyle, iconSize]
+    );
 
-        // Remove the last divider
-        return groups.filter(Boolean).slice(0, -1);
-    };
+    const buttonsToRender = visibleButtons && visibleButtons.length > 0 ? visibleButtons : defaultVisibleButtons;
 
     return (
-        <Box
+        <BoxMui
+            component={isDarkMode ? PaperMui : "div"}
             sx={{
-                display: 'flex',
-                flexDirection: orientation === 'horizontal' ? 'row' : 'column',
-                alignItems: 'center',
-                padding: theme.spacing(1),
-                backgroundColor: theme.palette.background.paper,
-                borderRadius: theme.shape.borderRadius,
-                border: `1px solid ${theme.palette.divider}`
+                display: "flex",
+                alignItems: "center",
+                border: 1,
+                borderRadius: 1,
+                maxWidth: "max-content",
+                ...(orientation === "vertical" ? { marginRight: 2 } : { marginBottom: 2 }),
+                borderColor: themeConfig.borderColor,
+                "& svg": {
+                    m: iconMargin,
+                    ...themeConfig.svgStyle,
+                },
+                "& .MuiDivider-root": {
+                    borderColor: themeConfig.borderColor,
+                    ...(orientation === "horizontal" ? { mx: dividerMargin } : { my: dividerMargin }),
+                },
             }}
         >
-            <ButtonGroupMui orientation={orientation}>
-                {renderButtons()}
-            </ButtonGroupMui>
-        </Box>
+            <ButtonGroupMui orientation={orientation}>{buttonsToRender.map(renderButton)}</ButtonGroupMui>
+        </BoxMui>
     );
 };
-
-ButtonGroup.displayName = 'ButtonGroup';
 
 export default ButtonGroup;

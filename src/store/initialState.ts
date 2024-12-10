@@ -1,15 +1,17 @@
-import { State } from "../types/index";
+import { State } from "../types";
 
 export const initialState = (rows: number, columns: number): State => ({
-    data: Array.from({ length: rows }, () => 
-        Array(columns).fill(undefined).map(() => ({
-            value: "",
-            align: "left" as const,
-            bold: false,
-            italic: false,
-            code: false,
-            link: undefined
-        }))
+    data: Array.from({ length: rows }, () =>
+        Array(columns)
+            .fill(undefined)
+            .map(() => ({
+                value: "",
+                align: "left" as const,
+                bold: false,
+                italic: false,
+                code: false,
+                link: undefined,
+            }))
     ),
     past: [],
     future: [],
@@ -23,5 +25,5 @@ export const initialState = (rows: number, columns: number): State => ({
     isDragging: false,
     dragStart: null,
     dragStartRow: null,
-    dragStartColumn: null
+    dragStartColumn: null,
 });

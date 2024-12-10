@@ -1,6 +1,6 @@
-import { atom } from 'jotai';
-import { State } from '../types/index';
-import { initialState } from './initialState';
+import { atom } from "jotai";
+import { State } from "../types";
+import { initialState } from "./initialState";
 
 // Create the root atom with initial state
 export const createSpreadsheetAtom = (rows: number = 4, cols: number = 4) => {
@@ -19,7 +19,7 @@ export const createSpreadsheetAtom = (rows: number = 4, cols: number = 4) => {
         isDragging: false,
         dragStart: null,
         dragStartRow: null,
-        dragStartColumn: null
+        dragStartColumn: null,
     });
 };
 
