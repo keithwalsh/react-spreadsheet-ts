@@ -140,18 +140,17 @@ const Cell: React.FC<CellProps> = React.memo(
 
         return (
             <TableCellMui
-                ref={cellRef}
-                contentEditable={isEditing}
                 onMouseDown={handleMouseEvent}
                 onMouseEnter={handleMouseEvent}
                 onMouseUp={handleMouseEvent}
                 onDoubleClick={handleDoubleClick}
-                onBlur={handleBlur}
-                onKeyDown={handleKeyDown}
                 sx={cellStyles}
-                suppressContentEditableWarning
             >
                 <div
+                    ref={cellRef}
+                    contentEditable={isEditing}
+                    onBlur={handleBlur}
+                    onKeyDown={handleKeyDown}
                     style={{
                         minWidth: "80px",
                         outline: "none",
@@ -162,6 +161,7 @@ const Cell: React.FC<CellProps> = React.memo(
                         fontFamily: isFontCode ? "'Courier New', Consolas, monospace" : "inherit",
                         ...style,
                     }}
+                    suppressContentEditableWarning
                 >
                     {cellData.value}
                 </div>
