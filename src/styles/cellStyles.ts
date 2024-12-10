@@ -49,3 +49,22 @@ export const getCellStyles = ({ isDarkMode, theme, isEditing, isSelected, isMult
     },
     ...style,
 });
+
+export interface CellContentStyleProps {
+    isEditing: boolean;
+    fontWeight: string;
+    fontStyle: string;
+    isFontCode: boolean;
+    style?: CSSProperties;
+}
+
+export const getCellContentStyles = ({ isEditing, fontWeight, fontStyle, isFontCode, style }: CellContentStyleProps): CSSProperties => ({
+    minWidth: "80px",
+    outline: "none",
+    cursor: "inherit",
+    userSelect: isEditing ? "text" : "none",
+    fontWeight,
+    fontStyle,
+    fontFamily: isFontCode ? "'Courier New', Consolas, monospace" : "inherit",
+    ...style,
+});

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { TableCell as TableCellMui, useTheme } from "@mui/material";
 import type { CellProps } from "../types";
-import { getCellStyles, CellStyleProps } from "../styles/cellStyles";
+import { getCellStyles, CellStyleProps, getCellContentStyles, CellContentStyleProps } from "../styles/cellStyles";
 
 const Cell: React.FC<CellProps> = React.memo(
     ({
@@ -138,6 +138,17 @@ const Cell: React.FC<CellProps> = React.memo(
             }
         }, [cellData]);
 
+        const cellContentStyles = useMemo(() => {
+            const contentStyleProps: CellContentStyleProps = {
+                isEditing,
+                fontWeight,
+                fontStyle,
+                isFontCode,
+                style,
+            };
+            return getCellContentStyles(contentStyleProps);
+        }, [isEditing, fontWeight, fontStyle, isFontCode, style]);
+
         return (
             <TableCellMui
                 onMouseDown={handleMouseEvent}
@@ -151,16 +162,7 @@ const Cell: React.FC<CellProps> = React.memo(
                     contentEditable={isEditing}
                     onBlur={handleBlur}
                     onKeyDown={handleKeyDown}
-                    style={{
-                        minWidth: "80px",
-                        outline: "none",
-                        cursor: "inherit",
-                        userSelect: isEditing ? "text" : "none",
-                        fontWeight,
-                        fontStyle,
-                        fontFamily: isFontCode ? "'Courier New', Consolas, monospace" : "inherit",
-                        ...style,
-                    }}
+                    style={cellContentStyles}
                     suppressContentEditableWarning
                 >
                     {cellData.value}
