@@ -1,5 +1,5 @@
 import * as React from "react";
-import { TableContainer as TableContainerMui, Table as TableMui, Paper as PaperMui, TableHead, TableBody, useTheme } from "@mui/material";
+import { TableContainer as TableContainerMui, Table as TableMui, Paper as PaperMui, TableHead, TableBody, useTheme, createTheme } from "@mui/material";
 import { useAtom } from "jotai";
 import { PrimitiveAtom } from "jotai";
 import { State } from "../types";
@@ -8,6 +8,8 @@ import Cell from "./Cell";
 import RowNumberCell from "./RowNumberCell";
 import ColumnHeaderCell from "./ColumnHeaderCell";
 import SelectAllCell from "./SelectAllCell";
+
+const defaultTheme = createTheme();
 
 interface TableProps {
     atom: PrimitiveAtom<State>;
@@ -33,8 +35,8 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(({ atom, onCellChan
         [state.selectedCell, onCellChange]
     );
 
-    const theme = useTheme();
-    const isDarkMode = theme.palette.mode === "dark";
+    const theme = useTheme() || defaultTheme;
+    const isDarkMode = theme?.palette?.mode === "dark" || false;
 
     const lightThemeStyles = {
         border: "1px solid #e0e0e0",
@@ -49,8 +51,11 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(({ atom, onCellChan
         width: "auto",
         display: "inline-block",
         backgroundColor: "transparent",
-        borderRight: "none",
-        borderBottom: "none",
+    };
+
+    const tableStyles = {
+        ...commonStyles,
+        ...(isDarkMode ? darkThemeStyles : lightThemeStyles),
     };
 
     const handleRowDragStart = React.useCallback(
@@ -85,10 +90,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(({ atom, onCellChan
         <div>
             <TableContainerMui
                 component={!isDarkMode ? PaperMui : "div"}
-                sx={{
-                    ...(isDarkMode ? darkThemeStyles : lightThemeStyles),
-                    ...commonStyles,
-                }}
+                sx={tableStyles}
                 onPaste={handlePasteEvent}
             >
                 <TableMui

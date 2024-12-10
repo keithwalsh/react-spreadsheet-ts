@@ -3,10 +3,10 @@
  * through a combination of Jotai atoms and React hooks.
  */
 
-import React, { useCallback, useRef, useEffect } from "react";
+import React, { useCallback, useRef, useEffect, useMemo } from "react";
 import { useAtom } from "jotai";
 import { PrimitiveAtom } from "jotai";
-import { State } from "../types";
+import { State, CellData, DataPayload } from "../types";
 import { Box } from "@mui/material";
 import Table from "./Table";
 import ButtonGroup from "./ButtonGroup";
@@ -14,7 +14,8 @@ import { useDragSelection } from "../hooks";
 import { addRow, removeRow, addColumn, removeColumn } from "../utils/spreadsheetOperations";
 import { ToolbarProvider } from "./ToolbarProvider";
 import { initialState } from "../store/initialState";
-import TableMenu from "./Menu";
+import Menu from "./Menu";
+import TableSizeChooser from "./TableSizeChooser";
 import { downloadCSV } from "../utils";
 
 interface SpreadsheetProps {
@@ -28,38 +29,150 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const tableRef = useRef<HTMLTableElement>(null);
 
-    const handleCellChange = useCallback(
-        (rowIndex: number, colIndex: number, value: string) => {
-            const newData = state.data.map((row, i) => (i === rowIndex ? row.map((cell, j) => (j === colIndex ? { ...cell, value } : cell)) : row));
+    const saveToHistory = useCallback(
+        (newData: CellData[][]) => {
+            const historyEntry: DataPayload = {
+                data: state.data,
+                selectedCell: state.selectedCell,
+                selectedCells: state.selectedCells,
+                selectedRows: state.selectedRows,
+                selectedColumns: state.selectedColumns,
+                isDragging: state.isDragging,
+                selectAll: state.selectAll,
+            };
 
             setState({
                 ...state,
                 data: newData,
+                past: [...state.past, historyEntry],
+                future: [],
             });
         },
         [state, setState]
     );
 
+    const handleCellChange = useCallback(
+        (rowIndex: number, colIndex: number, value: string) => {
+            const newData = state.data.map((row, i) => (i === rowIndex ? row.map((cell, j) => (j === colIndex ? { ...cell, value } : cell)) : row));
+            saveToHistory(newData);
+        },
+        [state, saveToHistory]
+    );
+
+    const handleUndo = useCallback(() => {
+        if (state.past.length === 0) return;
+
+        const previous = state.past[state.past.length - 1];
+        const newPast = state.past.slice(0, -1);
+
+        setState({
+            ...state,
+            data: previous.data,
+            selectedCell: previous.selectedCell || null,
+            selectedCells: previous.selectedCells || state.selectedCells,
+            selectedRows: previous.selectedRows || [],
+            selectedColumns: previous.selectedColumns || [],
+            isDragging: previous.isDragging || false,
+            selectAll: previous.selectAll || false,
+            past: newPast,
+            future: [
+                {
+                    data: state.data,
+                    selectedCell: state.selectedCell,
+                    selectedCells: state.selectedCells,
+                    selectedRows: state.selectedRows,
+                    selectedColumns: state.selectedColumns,
+                    isDragging: state.isDragging,
+                    selectAll: state.selectAll,
+                },
+                ...state.future,
+            ],
+        });
+    }, [state, setState]);
+
+    const handleRedo = useCallback(() => {
+        if (state.future.length === 0) return;
+
+        const next = state.future[0];
+        const newFuture = state.future.slice(1);
+
+        setState({
+            ...state,
+            data: next.data,
+            selectedCell: next.selectedCell || null,
+            selectedCells: next.selectedCells || state.selectedCells,
+            selectedRows: next.selectedRows || [],
+            selectedColumns: next.selectedColumns || [],
+            isDragging: next.isDragging || false,
+            selectAll: next.selectAll || false,
+            past: [
+                ...state.past,
+                {
+                    data: state.data,
+                    selectedCell: state.selectedCell,
+                    selectedCells: state.selectedCells,
+                    selectedRows: state.selectedRows,
+                    selectedColumns: state.selectedColumns,
+                    isDragging: state.isDragging,
+                    selectAll: state.selectAll,
+                },
+            ],
+            future: newFuture,
+        });
+    }, [state, setState]);
+
     const handleAddRow = useCallback(() => {
         const result = addRow({
             data: state.data,
             selectedCells: state.selectedCells,
+            index: state.selectedCell?.row ?? state.data.length
         });
+
         setState({
             ...state,
             data: result.newData,
+            past: [
+                ...state.past,
+                {
+                    data: state.data,
+                    selectedCell: state.selectedCell,
+                    selectedCells: state.selectedCells,
+                    selectedRows: state.selectedRows,
+                    selectedColumns: state.selectedColumns,
+                    isDragging: state.isDragging,
+                    selectAll: state.selectAll,
+                },
+            ],
+            future: [],
             selectedCells: result.newSelectedCells,
         });
     }, [state, setState]);
 
     const handleRemoveRow = useCallback(() => {
+        if (state.selectedCell === null) return;
         const result = removeRow({
             data: state.data,
             selectedCells: state.selectedCells,
+            index: state.selectedCell.row
         });
+
         setState({
             ...state,
             data: result.newData,
+            past: [
+                ...state.past,
+                {
+                    data: state.data,
+                    selectedCell: state.selectedCell,
+                    selectedCells: state.selectedCells,
+                    selectedRows: state.selectedRows,
+                    selectedColumns: state.selectedColumns,
+                    isDragging: state.isDragging,
+                    selectAll: state.selectAll,
+                },
+            ],
+            future: [],
+            selectedCell: null,
             selectedCells: result.newSelectedCells,
         });
     }, [state, setState]);
@@ -68,22 +181,55 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
         const result = addColumn({
             data: state.data,
             selectedCells: state.selectedCells,
+            index: state.selectedCell?.col ?? state.data[0].length,
+            position: "right"
         });
+
         setState({
             ...state,
             data: result.newData,
+            past: [
+                ...state.past,
+                {
+                    data: state.data,
+                    selectedCell: state.selectedCell,
+                    selectedCells: state.selectedCells,
+                    selectedRows: state.selectedRows,
+                    selectedColumns: state.selectedColumns,
+                    isDragging: state.isDragging,
+                    selectAll: state.selectAll,
+                },
+            ],
+            future: [],
             selectedCells: result.newSelectedCells,
         });
     }, [state, setState]);
 
     const handleRemoveColumn = useCallback(() => {
+        if (state.selectedCell === null) return;
         const result = removeColumn({
             data: state.data,
             selectedCells: state.selectedCells,
+            index: state.selectedCell.col
         });
+
         setState({
             ...state,
             data: result.newData,
+            past: [
+                ...state.past,
+                {
+                    data: state.data,
+                    selectedCell: state.selectedCell,
+                    selectedCells: state.selectedCells,
+                    selectedRows: state.selectedRows,
+                    selectedColumns: state.selectedColumns,
+                    isDragging: state.isDragging,
+                    selectAll: state.selectAll,
+                },
+            ],
+            future: [],
+            selectedCell: null,
             selectedCells: result.newSelectedCells,
         });
     }, [state, setState]);
@@ -103,11 +249,105 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
             });
         });
 
-        setState({
-            ...state,
-            data: newData,
-        });
-    }, [state, setState]);
+        saveToHistory(newData);
+    }, [state, saveToHistory]);
+
+    const handleTextFormatting = useCallback(
+        (format: "bold" | "italic" | "code") => {
+            if (!state.selectedCell && !state.selectedCells.some(row => row.some(cell => cell))) {
+                return;
+            }
+
+            const newData = state.data.map((row, rowIndex) =>
+                row.map((cell, colIndex) => {
+                    if (
+                        (state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) ||
+                        (state.selectedCells[rowIndex] && state.selectedCells[rowIndex][colIndex])
+                    ) {
+                        return { ...cell, [format]: !cell[format] };
+                    }
+                    return cell;
+                })
+            );
+
+            setState({
+                ...state,
+                data: newData,
+                past: [
+                    ...state.past,
+                    {
+                        data: state.data,
+                        selectedCell: state.selectedCell,
+                        selectedCells: state.selectedCells,
+                        selectedRows: state.selectedRows,
+                        selectedColumns: state.selectedColumns,
+                        isDragging: state.isDragging,
+                        selectAll: state.selectAll,
+                    },
+                ],
+                future: [],
+            });
+        },
+        [state, setState]
+    );
+
+    const handleSetAlignment = useCallback(
+        (alignment: "left" | "center" | "right") => {
+            if (!state.selectedCell && !state.selectedCells.some(row => row.some(cell => cell))) {
+                return;
+            }
+
+            const newData = state.data.map((row, rowIndex) =>
+                row.map((cell, colIndex) => {
+                    if (
+                        (state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) ||
+                        (state.selectedCells[rowIndex] && state.selectedCells[rowIndex][colIndex])
+                    ) {
+                        return { ...cell, align: alignment };
+                    }
+                    return cell;
+                })
+            );
+
+            setState({
+                ...state,
+                data: newData,
+                past: [
+                    ...state.past,
+                    {
+                        data: state.data,
+                        selectedCell: state.selectedCell,
+                        selectedCells: state.selectedCells,
+                        selectedRows: state.selectedRows,
+                        selectedColumns: state.selectedColumns,
+                        isDragging: state.isDragging,
+                        selectAll: state.selectAll,
+                    },
+                ],
+                future: [],
+            });
+        },
+        [state, setState]
+    );
+
+    const handleCreateNewTable = useCallback(
+        (rows: number, cols: number) => {
+            setState({
+                ...state,
+                data: initialState(rows, cols).data,
+                selectedCells: Array(rows).fill(Array(cols).fill(false)),
+                selectedCell: null,
+                selectedRows: [],
+                selectedColumns: [],
+                selectAll: false,
+            });
+        },
+        [state, setState]
+    );
+
+    const handleDownloadCSV = useCallback(() => {
+        downloadCSV(state.data, "spreadsheet.csv");
+    }, [state.data]);
 
     // Add global paste handler
     const handleGlobalPaste = useCallback(
@@ -147,106 +387,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
         return () => document.removeEventListener("paste", handleGlobalPaste);
     }, [handleGlobalPaste]);
 
-    // Toolbar action handlers
-    const handleUndo = useCallback(() => {
-        if (state.past.length === 0) return;
-        const previous = state.past[state.past.length - 1];
-        const newPast = state.past.slice(0, -1);
-
-        setState({
-            ...state,
-            data: previous.data,
-            selectedCell: previous.selectedCell ?? null,
-            selectedCells: previous.selectedCells ?? state.selectedCells,
-            selectedRows: previous.selectedRows ?? [],
-            selectedColumns: previous.selectedColumns ?? [],
-            past: newPast,
-            future: [
-                {
-                    data: state.data,
-                    selectedCell: state.selectedCell,
-                    selectedCells: state.selectedCells,
-                    selectedRows: state.selectedRows,
-                    selectedColumns: state.selectedColumns,
-                },
-                ...state.future,
-            ],
-        });
-    }, [state, setState]);
-
-    const handleRedo = useCallback(() => {
-        if (state.future.length === 0) return;
-        const next = state.future[0];
-        const newFuture = state.future.slice(1);
-
-        setState({
-            ...state,
-            data: next.data,
-            selectedCell: next.selectedCell ?? null,
-            selectedCells: next.selectedCells ?? state.selectedCells,
-            past: [
-                ...state.past,
-                {
-                    data: state.data,
-                    selectedCell: state.selectedCell,
-                    selectedCells: state.selectedCells,
-                    selectedRows: state.selectedRows,
-                    selectedColumns: state.selectedColumns,
-                },
-            ],
-            future: newFuture,
-        });
-    }, [state, setState]);
-
-    const handleSetAlignment = useCallback(
-        (alignment: "left" | "center" | "right") => {
-            const newData = state.data.map((row, rowIndex) =>
-                row.map((cell, colIndex) => {
-                    if ((state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) || state.selectedCells[rowIndex] && state.selectedCells[rowIndex][colIndex]) {
-                        return { ...cell, align: alignment };
-                    }
-                    return cell;
-                })
-            );
-
-            setState({ ...state, data: newData });
-        },
-        [state, setState]
-    );
-
-    const handleTextFormatting = useCallback(
-        (format: "bold" | "italic" | "code") => {
-            const newData = state.data.map((row, rowIndex) =>
-                row.map((cell, colIndex) => {
-                    if ((state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) || state.selectedCells[rowIndex] && state.selectedCells[rowIndex][colIndex]) {
-                        return { ...cell, [format]: !cell[format] };
-                    }
-                    return cell;
-                })
-            );
-
-            setState({ ...state, data: newData });
-        },
-        [state, setState]
-    );
-
-    const handleCreateNewTable = useCallback((rows: number, cols: number) => {
-        setState({
-            ...state,
-            data: initialState(rows, cols).data,
-            selectedCells: Array(rows).fill(Array(cols).fill(false)),
-            selectedCell: null,
-            selectedRows: [],
-            selectedColumns: [],
-            selectAll: false,
-        });
-    }, [state, setState]);
-
-    const handleDownloadCSV = useCallback(() => {
-        downloadCSV(state.data, 'spreadsheet.csv');
-    }, [state.data]);
-
-    const toolbarHandlers = {
+    const toolbarHandlers = useMemo(() => ({
         onClickUndo: handleUndo,
         onClickRedo: handleRedo,
         onClickAlignLeft: () => handleSetAlignment("left"),
@@ -260,6 +401,16 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
         onClickSetItalic: () => handleTextFormatting("italic"),
         onClickSetCode: () => handleTextFormatting("code"),
         setTableSize: (rows: number, cols: number) => {
+            const historyEntry: DataPayload = {
+                data: state.data,
+                selectedCell: state.selectedCell,
+                selectedCells: state.selectedCells,
+                selectedRows: state.selectedRows,
+                selectedColumns: state.selectedColumns,
+                isDragging: state.isDragging,
+                selectAll: state.selectAll,
+            };
+
             setState({
                 ...state,
                 data: initialState(rows, cols).data,
@@ -268,28 +419,80 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
                 selectedRows: [],
                 selectedColumns: [],
                 selectAll: false,
+                past: [...state.past, historyEntry],
+                future: [],
             });
         },
         currentRows: state.data.length,
         currentCols: state.data[0]?.length || 0,
-        clearTable: () =>
+        clearTable: () => {
+            const historyEntry: DataPayload = {
+                data: state.data,
+                selectedCell: state.selectedCell,
+                selectedCells: state.selectedCells,
+                selectedRows: state.selectedRows,
+                selectedColumns: state.selectedColumns,
+                isDragging: state.isDragging,
+                selectAll: state.selectAll,
+            };
+
             setState({
                 ...state,
                 data: initialState(state.data.length, state.data[0].length).data,
-            }),
+                past: [...state.past, historyEntry],
+                future: [],
+            });
+        },
         deleteSelected: handleDeleteSelected,
         transposeTable: () => {
-            /* Implement transpose */
+            const transposedData = state.data[0].map((_, colIndex) => state.data.map((row) => ({ ...row[colIndex] })));
+            const historyEntry: DataPayload = {
+                data: state.data,
+                selectedCell: state.selectedCell,
+                selectedCells: state.selectedCells,
+                selectedRows: state.selectedRows,
+                selectedColumns: state.selectedColumns,
+                isDragging: state.isDragging,
+                selectAll: state.selectAll,
+            };
+
+            setState({
+                ...state,
+                data: transposedData,
+                past: [...state.past, historyEntry],
+                future: [],
+                selectedCells: Array(transposedData.length).fill(Array(transposedData[0].length).fill(false)),
+                selectedCell: null,
+                selectedRows: [],
+                selectedColumns: [],
+                selectAll: false,
+            });
         },
-    };
+    }), [
+        handleUndo,
+        handleRedo,
+        handleSetAlignment,
+        handleAddRow,
+        handleRemoveRow,
+        handleAddColumn,
+        handleRemoveColumn,
+        handleTextFormatting,
+        handleDeleteSelected,
+        state,
+        setState,
+    ]);
 
     return (
-        <ToolbarProvider {...toolbarHandlers} spreadsheetAtom={atom as PrimitiveAtom<State> & { init: State }}>
+        <ToolbarProvider
+            spreadsheetAtom={atom}
+            {...toolbarHandlers}
+        >
             <div className="spreadsheet" ref={containerRef} tabIndex={0}>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <TableMenu 
-                        onCreateNewTable={handleCreateNewTable}
+                    <Menu 
+                        handleNewTable={handleCreateNewTable} 
                         onDownloadCSV={handleDownloadCSV}
+                        TableSizeChooser={TableSizeChooser}
                     />
                 </Box>
                 <Box sx={{ mb: 2 }}>

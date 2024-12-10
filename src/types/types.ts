@@ -46,25 +46,14 @@ export type Action =
 
 export type Alignment = "left" | "center" | "right";
 
-export type ButtonHandlerKey =
-    | "onClickUndo"
-    | "onClickRedo"
-    | "onClickAlignLeft"
-    | "onClickAlignCenter"
-    | "onClickAlignRight"
-    | "onClickAddRow"
-    | "onClickRemoveRow"
-    | "onClickAddColumn"
-    | "onClickRemoveColumn"
-    | "onClickSetBold"
-    | "onClickSetItalic"
-    | "onClickSetCode"
-    | "onClickSetLink";
+export interface ButtonHandlerKey {
+  [key: string]: () => void;
+}
 
 export type ButtonDefinition = {
     title: string;
     icon: React.ComponentType<IconBaseProps>;
-    handlerKey: ButtonHandlerKey;
+    handlerKey: string;
 };
 
 export interface CellData {
@@ -235,31 +224,37 @@ export type TableSizeChooserProps = {
     onSizeSelect: (rows: number, cols: number) => void;
 };
 
-export type ToolbarContextType = {
-    onClickUndo: () => void;
-    onClickRedo: () => void;
-    onClickAlignLeft: () => void;
-    onClickAlignCenter: () => void;
-    onClickAlignRight: () => void;
-    onClickAddRow: () => void;
-    onClickRemoveRow: () => void;
-    onClickAddColumn: () => void;
-    onClickRemoveColumn: () => void;
-    onClickSetBold: () => void;
-    onClickSetItalic: () => void;
-    onClickSetCode: () => void;
-    onClickSetLink: () => void;
-    setTableSize: (row: number, col: number) => void;
-    currentRows: number;
-    currentCols: number;
-    clearTable: () => void;
-    deleteSelected: () => void;
-    transposeTable: () => void;
-};
+export interface ToolbarContextType {
+  spreadsheetAtom: PrimitiveAtom<State>;
+  onClickUndo: () => void;
+  onClickRedo: () => void;
+  onClickAlignLeft: () => void;
+  onClickAlignCenter: () => void;
+  onClickAlignRight: () => void;
+  onClickAddRow: () => void;
+  onClickRemoveRow: () => void;
+  onClickAddColumn: () => void;
+  onClickRemoveColumn: () => void;
+  onClickSetBold: () => void;
+  onClickSetItalic: () => void;
+  onClickSetCode: () => void;
+  onClickSetLink: () => void;
+  setTableSize: (rows: number, cols: number) => void;
+  currentRows: number;
+  currentCols: number;
+  clearTable: () => void;
+  deleteSelected: () => void;
+  transposeTable: () => void;
+  handleLinkModalClose: () => void;
+  handleSnackbarClose: () => void;
+  isLinkModalOpen: boolean;
+  isSnackbarOpen: boolean;
+  snackbarMessage: string;
+}
 
-export type ToolbarProviderProps = ToolbarContextType & {
+export interface ToolbarProviderProps extends ToolbarContextType {
     children: React.ReactNode;
-};
+}
 
 export interface HeaderCellStylesParams {
     isSelected: boolean;

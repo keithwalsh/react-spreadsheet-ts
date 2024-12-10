@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 import { useAtom } from 'jotai'
 import { PrimitiveAtom } from 'jotai'
 import { State } from '../types'
-import { TextFormattingOperation } from '../store/types'
+import { TextFormattingOperation } from '../types'
 
 export const useSpreadsheetActions = (atom: PrimitiveAtom<State>) => {
     const [state, setState] = useAtom(atom)
