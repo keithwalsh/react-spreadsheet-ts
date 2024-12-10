@@ -14,9 +14,9 @@ import RowContextMenu from "./RowContextMenu";
 interface RowNumberCellProps {
     atom: PrimitiveAtom<State>;
     rowIndex: number;
-    onDragStart: (event: React.DragEvent<HTMLDivElement>) => void;
-    onDragEnter: (event: React.DragEvent<HTMLDivElement>) => void;
-    onDragEnd: (event: React.DragEvent<HTMLDivElement>) => void;
+    onDragStart: (rowIndex: number) => void;
+    onDragEnter: (rowIndex: number) => void;
+    onDragEnd: () => void;
     onAddAbove: () => void;
     onAddBelow: () => void;
     onRemove: () => void;
@@ -51,15 +51,13 @@ export function RowNumberCell({ atom, rowIndex, onDragStart, onDragEnter, onDrag
 
     const handleMouseDown = (e: React.MouseEvent) => {
         e.preventDefault();
-        const dragEvent = e.nativeEvent as unknown as React.DragEvent<HTMLDivElement>;
-        onDragStart(dragEvent);
+        onDragStart(rowIndex);
     };
 
     const handleMouseEnter = (e: React.MouseEvent) => {
         if (state.isDragging) {
             e.preventDefault();
-            const dragEvent = e.nativeEvent as unknown as React.DragEvent<HTMLDivElement>;
-            onDragEnter(dragEvent);
+            onDragEnter(rowIndex);
         }
     };
 
@@ -85,7 +83,7 @@ export function RowNumberCell({ atom, rowIndex, onDragStart, onDragEnter, onDrag
                 onContextMenu={handleContextMenu}
                 onMouseDown={handleMouseDown}
                 onMouseEnter={handleMouseEnter}
-                onDragEnd={onDragEnd}
+                onMouseUp={onDragEnd}
                 draggable
             >
                 {rowIndex + 1}

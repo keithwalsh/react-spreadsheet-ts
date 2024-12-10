@@ -53,28 +53,32 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(({ atom, onCellChan
         borderBottom: "none",
     };
 
-    const handleDragStart = React.useCallback(
-        (event: React.DragEvent<HTMLDivElement>) => {
-            event.preventDefault();
-            onDragStart(-1, -1); // Will be set by the cell components
+    const handleRowDragStart = React.useCallback(
+        (rowIndex: number) => {
+            onDragStart(rowIndex, -1);
         },
         [onDragStart]
     );
 
-    const handleDragEnter = React.useCallback(
-        (event: React.DragEvent<HTMLDivElement>) => {
-            event.preventDefault();
-            onDragEnter(-1, -1); // Will be set by the cell components
+    const handleRowDragEnter = React.useCallback(
+        (rowIndex: number) => {
+            onDragEnter(rowIndex, -1);
         },
         [onDragEnter]
     );
 
-    const handleDragEnd = React.useCallback(
-        (event: React.DragEvent<HTMLDivElement>) => {
-            event.preventDefault();
-            onDragEnd();
+    const handleColumnDragStart = React.useCallback(
+        (colIndex: number) => {
+            onDragStart(-1, colIndex);
         },
-        [onDragEnd]
+        [onDragStart]
+    );
+
+    const handleColumnDragEnter = React.useCallback(
+        (colIndex: number) => {
+            onDragEnter(-1, colIndex);
+        },
+        [onDragEnter]
     );
 
     return (
@@ -108,9 +112,9 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(({ atom, onCellChan
                                     key={colIndex}
                                     atom={atom}
                                     index={colIndex}
-                                    onDragStart={handleDragStart}
-                                    onDragEnter={handleDragEnter}
-                                    onDragEnd={handleDragEnd}
+                                    onDragStart={handleColumnDragStart}
+                                    onDragEnter={handleColumnDragEnter}
+                                    onDragEnd={onDragEnd}
                                     onAddColumnLeft={() => {}}
                                     onAddColumnRight={() => {}}
                                     onRemoveColumn={() => {}}
@@ -124,9 +128,9 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(({ atom, onCellChan
                                 <RowNumberCell
                                     atom={atom}
                                     rowIndex={rowIndex}
-                                    onDragStart={handleDragStart}
-                                    onDragEnter={handleDragEnter}
-                                    onDragEnd={handleDragEnd}
+                                    onDragStart={handleRowDragStart}
+                                    onDragEnter={handleRowDragEnter}
+                                    onDragEnd={onDragEnd}
                                     onAddAbove={() => {}}
                                     onAddBelow={() => {}}
                                     onRemove={() => {}}

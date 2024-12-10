@@ -7,13 +7,17 @@
 -   Delete columns
 -   When a cell is in edit mode and contains content, the user must be able to highlight any portion of that content.
 -   Cell range selection (when clicking inside the spreadsheet and dragging outwards)
--   Column header and row number selection via click-and-drag
+-   The system must enable users to select column headers and row numbers by clicking and dragging the mouse across the desired range.
 -   Clicking a selected cell should not trigger a re-render that momentarily removes and reapplies the selection outline.
 -   Column and row headers corresponding to selected cells should be automatically highlighted, to help users quickly track their position within the spreadsheet.
-- The system must allow users to exit cell edit mode by clicking outside the active cell, without requiring them to enter edit mode on a different cell.
-- When a single cell is selected and not in edit mode, pressing the up, down, left, or right arrow keys must move the selection to the next cell in the corresponding direction.
+-   The system must allow users to exit cell edit mode by clicking outside the active cell, without requiring them to enter edit mode on a different cell.
+-   When not in edit mode and a single cell is selected, arrow keys should move the selection to the adjacent cell.
+
 ---
 
+#### Bugs
+
+-   Entering content in spreadsheet cell edit mode, then exiting, duplicates the content on a new line.
 -   Multiple row selection via click-and-drag on row numbers is broken; only single row selection works.
 -   Users cannot exit cell edit mode by clicking outside the active cell; they must enter edit mode on a different cell instead.
 

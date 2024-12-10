@@ -11,9 +11,9 @@ import { getColumnLabel } from "../utils/columnUtils";
 import ColumnContextMenu from "./ColumnContextMenu";
 
 interface DragHandlers {
-    onDragStart: (event: React.DragEvent<HTMLTableCellElement>) => void;
-    onDragEnter: (event: React.DragEvent<HTMLTableCellElement>) => void;
-    onDragEnd: (event: React.DragEvent<HTMLTableCellElement>) => void;
+    onDragStart: (colIndex: number) => void;
+    onDragEnter: (colIndex: number) => void;
+    onDragEnd: () => void;
 }
 
 export function ColumnHeaderCell({
@@ -47,10 +47,16 @@ export function ColumnHeaderCell({
         setAnchorEl(event.currentTarget);
     };
 
-    const handleDragStart = (e: React.MouseEvent<HTMLTableCellElement>) => {
+    const handleMouseDown = (e: React.MouseEvent<HTMLTableCellElement>) => {
         e.preventDefault();
-        const dragEvent = new DragEvent("dragstart", { bubbles: true });
-        onDragStart(dragEvent as unknown as React.DragEvent<HTMLTableCellElement>);
+        onDragStart(index);
+    };
+
+    const handleMouseEnter = (e: React.MouseEvent<HTMLTableCellElement>) => {
+        if (state.isDragging) {
+            e.preventDefault();
+            onDragEnter(index);
+        }
     };
 
     const handleCloseMenu = () => {
@@ -77,10 +83,10 @@ export function ColumnHeaderCell({
             <TableCell
                 sx={styles}
                 onContextMenu={handleContextMenu}
-                onMouseDown={handleDragStart}
-                onDragEnter={onDragEnter}
+                onMouseDown={handleMouseDown}
+                onMouseEnter={handleMouseEnter}
+                onMouseUp={onDragEnd}
                 onMouseLeave={() => setIsHovered(false)}
-                onDragEnd={onDragEnd}
                 draggable
             >
                 {getColumnLabel(index)}
