@@ -2,9 +2,12 @@
 
 -   Paste data from clipboard
 -   Apply formatting/alignment when single cell is selected.
--   Apply formatting/alignment when multiple cells are selected
--   Delete rows
--   Delete columns
+-   Apply formatting/alignment when multiple cells are selected via cell range selection.
+-   Apply formatting/alignment when multiple cells are selected via column header selection.
+-   Apply formatting/alignment when multiple cells are selected via row number selection.
+-   Apply formatting/alignment when multiple cells are selected via "Select All" checkbox.
+-   Delete/add rows/columns via context menu.
+-   Delete/add rows/columns via Button Group.
 -   When a cell is in edit mode and contains content, the user must be able to highlight any portion of that content.
 -   Cell range selection (when clicking inside the spreadsheet and dragging outwards)
 -   The system must enable users to select column headers and row numbers by clicking and dragging the mouse across the desired range.

@@ -149,11 +149,15 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
     }, [state, setState]);
 
     const handleRemoveRow = useCallback(() => {
-        if (state.selectedCell === null) return;
+        // Return if no cell or row is selected
+        if (state.selectedCell === null && state.selectedRows.length === 0 && !state.selectedCells.some((row) => row.some((cell) => cell))) return;
+
+        // Get the index from either the selected cell or the first selected row
+        const index = state.selectedCell?.row ?? state.selectedRows[0];
         const result = removeRow({
             data: state.data,
             selectedCells: state.selectedCells,
-            index: state.selectedCell.row
+            index
         });
 
         setState({
@@ -174,6 +178,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
             future: [],
             selectedCell: null,
             selectedCells: result.newSelectedCells,
+            selectedRows: [], // Clear selected rows after removal
         });
     }, [state, setState]);
 
@@ -206,11 +211,15 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
     }, [state, setState]);
 
     const handleRemoveColumn = useCallback(() => {
-        if (state.selectedCell === null) return;
+        // Return if no cell or column is selected
+        if (state.selectedCell === null && state.selectedColumns.length === 0 && !state.selectedCells.some((row) => row.some((cell) => cell))) return;
+
+        // Get the index from either the selected cell or the first selected column
+        const index = state.selectedCell?.col ?? state.selectedColumns[0];
         const result = removeColumn({
             data: state.data,
             selectedCells: state.selectedCells,
-            index: state.selectedCell.col
+            index
         });
 
         setState({
@@ -231,6 +240,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
             future: [],
             selectedCell: null,
             selectedCells: result.newSelectedCells,
+            selectedColumns: [], // Clear selected columns after removal
         });
     }, [state, setState]);
 
