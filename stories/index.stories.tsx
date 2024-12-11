@@ -1,76 +1,37 @@
 import { Meta, StoryObj } from "@storybook/react";
-import { fn } from '@storybook/test'
-import { ThemeProvider, createTheme } from '@mui/material';
-import Spreadsheet from "../src/components/Spreadsheet";
-import { SpreadsheetProps } from "../src/types";
+import { ThemeProvider, createTheme } from "@mui/material";
+import SpreadsheetWrapper from "../src";
+import { SpreadsheetWrapperProps } from "../src/types";
 
-interface SpreadsheetStoryArgs extends SpreadsheetProps {
-    mode?: 'light' | 'dark';
-}
-
-// Helper function for select controls
-function createSelectControl({ options, description, defaultValue }: {
-    options: string[]
-    description: string
-    defaultValue: string
-}) {
-    return {
-        control: {
-            type: 'select' as const,
-            options,
-        },
-        description,
-        defaultValue,
-        table: {
-            type: { summary: options.map(o => `"${o}"`).join(" | ") },
-        },
-    }
-}
-
-// Use a more specific name for the meta object
-const SpreadsheetMeta: Meta<SpreadsheetStoryArgs> = {
+const SpreadsheetMeta: Meta<SpreadsheetWrapperProps> = {
     title: "Spreadsheet",
-    component: Spreadsheet,
+    component: SpreadsheetWrapper,
     tags: ["autodocs"],
     argTypes: {
-        mode: createSelectControl({
-            options: ["light", "dark"],
+        darkMode: {
+            control: "boolean",
             description: "Switch between light and dark mode.",
-            defaultValue: "light"
-        }),
-        initialRows: {
-            control: { type: "number", min: 1, max: 100, step: 1 },
-            description: "The number of initial rows.",
+            defaultValue: false,
+        },
+        rows: {
+            control: { type: "number", min: 1, max: 100 },
+            description: "Number of initial rows",
             defaultValue: 4,
         },
-        initialColumns: {
-            control: { type: "number", min: 1, max: 100, step: 1 },
-            description: "The number of initial columns.",
-            defaultValue: 5,
+        cols: {
+            control: { type: "number", min: 1, max: 100 },
+            description: "Number of initial columns",
+            defaultValue: 4,
         },
-        toolbarOrientation: createSelectControl({
-            options: ["horizontal", "vertical"],
-            description: "Select the orientation of the button toolbar.",
-            defaultValue: "horizontal"
-        }),
-        onChange: {
-            description: 'Callback fired when spreadsheet data changes'
-        },
-        onFormatChange: {
-            description: 'Callback fired when cell formatting changes'
-        }
     },
     decorators: [
         (Story, context) => {
-            const { mode = 'light' } = context.args;
+            const { darkMode = false } = context.args;
             const theme = createTheme({
                 palette: {
-                    mode,
+                    mode: darkMode ? "dark" : "light",
                 },
             });
-
-            // Create a unique key based on initialRows and initialColumns
-            const key = `rows-${context.args.initialRows}-cols-${context.args.initialColumns}`;
 
             return (
                 <ThemeProvider theme={theme}>
@@ -78,9 +39,8 @@ const SpreadsheetMeta: Meta<SpreadsheetStoryArgs> = {
                         style={{
                             display: "inline-block",
                             padding: 0,
-                            backgroundColor: mode === "dark" ? "#000" : "#fff",
+                            backgroundColor: darkMode ? "#000" : "#fff",
                         }}
-                        key={key}
                     >
                         <Story {...context.args} />
                     </div>
@@ -92,15 +52,12 @@ const SpreadsheetMeta: Meta<SpreadsheetStoryArgs> = {
 
 export default SpreadsheetMeta;
 
-type Story = StoryObj<SpreadsheetStoryArgs>;
+type Story = StoryObj<SpreadsheetWrapperProps>;
 
 export const Default: Story = {
     args: {
-        mode: "light",
-        toolbarOrientation: "horizontal",
-        initialRows: 4,
-        initialColumns: 5,
-        onChange: fn(),
-        onFormatChange: fn()
+        darkMode: false,
+        rows: 4,
+        cols: 4,
     },
 };

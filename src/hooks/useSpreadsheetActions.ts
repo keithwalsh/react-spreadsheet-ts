@@ -1,50 +1,58 @@
 // hooks/useSpreadsheetActions.ts
-import { useCallback } from "react";
-import { Alignment, State } from "../types";
+import { useCallback } from 'react'
+import { useAtom } from 'jotai'
+import { PrimitiveAtom } from 'jotai'
+import { State } from '../types'
+import { TextFormattingOperation } from '../types'
 
-const useSpreadsheetActions = (
-    dispatch: React.Dispatch<any>,
-    handleFormatChange?: (operation: string, row: number, col: number) => void
-) => {
-    const handleUndo = useCallback(() => dispatch({ type: "UNDO" }), [dispatch]);
-    const handleRedo = useCallback(() => dispatch({ type: "REDO" }), [dispatch]);
-    const handleSetBold = useCallback(() => dispatch({ type: "SET_BOLD" }), [dispatch]);
-    const handleSetItalic = useCallback(() => dispatch({ type: "SET_ITALIC" }), [dispatch]);
-    const handleSetCode = useCallback(() => dispatch({ type: "SET_CODE" }), [dispatch]);
-    const handleAddRow = useCallback(() => dispatch({ type: "ADD_ROW" }), [dispatch]);
-    const handleRemoveRow = useCallback(() => dispatch({ type: "REMOVE_ROW" }), [dispatch]);
-    const handleAddColumn = useCallback(() => {
-        dispatch({ type: "ADD_COLUMN", payload: { index: -1, position: "right" } });
-    }, [dispatch]);
-    const handleRemoveColumn = useCallback(() => {
-        dispatch({ type: "REMOVE_COLUMN", payload: { index: -1 } });
-    }, [dispatch]);
-    const clearSelection = useCallback(() => dispatch({ type: "CLEAR_SELECTION" }), [dispatch]);
-    const setAlignment = useCallback((alignment: Alignment) => {
-        dispatch({ type: "SET_ALIGNMENT", payload: alignment });
-        if (handleFormatChange) {
-            dispatch((state: State) => {
-                if (state.selectedCell) {
-                    handleFormatChange('ALIGNMENT', state.selectedCell.row, state.selectedCell.col);
-                }
-                return state;
-            });
-        }
-    }, [dispatch, handleFormatChange]);
+export const useSpreadsheetActions = (atom: PrimitiveAtom<State>) => {
+    const [state, setState] = useAtom(atom)
+
+    const applyTextFormatting = useCallback(
+        (operation: TextFormattingOperation) => {
+            const newData = state.data.map((row, rowIndex) => {
+                return row.map((cell, colIndex) => {
+                    const shouldFormat =
+                        (state.selectedCell?.row === rowIndex &&
+                            state.selectedCell?.col === colIndex) ||
+                        state.selectedCells[rowIndex][colIndex] ||
+                        (state.selectedRows.includes(rowIndex) &&
+                            state.selectedColumns.includes(colIndex))
+
+                    if (!shouldFormat) return cell
+
+                    switch (operation.operation) {
+                        case 'BOLD':
+                            return { ...cell, bold: !cell.bold }
+                        case 'ITALIC':
+                            return { ...cell, italic: !cell.italic }
+                        case 'CODE':
+                            return { ...cell, code: !cell.code }
+                        case 'LINK':
+                            return { ...cell, link: operation.payload || '' }
+                        case 'ALIGN_LEFT':
+                            return { ...cell, alignment: 'left' }
+                        case 'ALIGN_CENTER':
+                            return { ...cell, alignment: 'center' }
+                        case 'ALIGN_RIGHT':
+                            return { ...cell, alignment: 'right' }
+                        default:
+                            return cell
+                    }
+                })
+            })
+
+            setState({
+                ...state,
+                data: newData
+            })
+        },
+        [state, setState]
+    )
 
     return {
-        handleUndo,
-        handleRedo,
-        handleSetBold,
-        handleSetItalic,
-        handleSetCode,
-        handleAddRow,
-        handleRemoveRow,
-        handleAddColumn,
-        handleRemoveColumn,
-        clearSelection,
-        setAlignment,
-    };
-};
+        applyTextFormatting
+    }
+}
 
-export default useSpreadsheetActions;
+export default useSpreadsheetActions

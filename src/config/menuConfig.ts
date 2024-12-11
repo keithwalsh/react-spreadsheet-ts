@@ -10,8 +10,12 @@ import {
   SwapVert,
   Save,
   FolderOpen,
+  Undo,
+  Redo,
+  Delete
 } from "@mui/icons-material"
 import { MenuConfig } from "mui-menubar"
+import { ToolbarContextType } from "src/types"
 
 interface TableSizeChooserProps {
   onSizeSelect: (row: number, col: number) => void
@@ -19,28 +23,31 @@ interface TableSizeChooserProps {
   currentCols: number
 }
 
-type MenuConfigParams = {
+interface MenuConfigParams extends ToolbarContextType {
   handleNewTable: () => void
   onDownloadCSV: () => void
-  handleSizeSelect: (row: number, col: number) => void
-  clearTable: () => void
-  transposeTable: () => void
-  currentRows: number
-  currentCols: number
   TableSizeChooser: React.ComponentType<TableSizeChooserProps>
+  toolbarContext: ToolbarContextType
 }
 
 export function createMenuConfig(params: MenuConfigParams): MenuConfig[] {
   const {
     handleNewTable,
     onDownloadCSV,
-    handleSizeSelect,
-    clearTable,
+    TableSizeChooser,
+    toolbarContext
+  } = params
+
+  const {
+    deleteSelected,
     transposeTable,
     currentRows,
     currentCols,
-    TableSizeChooser
-  } = params
+    setTableSize,
+    onClickUndo,
+    onClickRedo,
+    clearTable
+  } = toolbarContext
 
   return [
     {
@@ -48,15 +55,44 @@ export function createMenuConfig(params: MenuConfigParams): MenuConfig[] {
       items: [
         {
           kind: "action",
-          label: "New table...",
+          label: "New table",
           action: handleNewTable,
-          icon: React.createElement(FolderOpen)
+          icon: React.createElement(FolderOpen),
+          shortcut: "Ctrl+N"
         },
         {
           kind: "action",
           label: "Download as CSV",
           action: onDownloadCSV,
-          icon: React.createElement(Save)
+          icon: React.createElement(Save),
+          shortcut: "Ctrl+S"
+        }
+      ]
+    },
+    {
+      label: "Edit",
+      items: [
+        {
+          kind: "action",
+          label: "Undo",
+          action: onClickUndo,
+          icon: React.createElement(Undo),
+          shortcut: "Ctrl+Z"
+        },
+        {
+          kind: "action",
+          label: "Redo",
+          action: onClickRedo,
+          icon: React.createElement(Redo),
+          shortcut: "Ctrl+Y"
+        },
+        { kind: "divider" },
+        {
+          kind: "action",
+          label: "Delete selected",
+          action: deleteSelected,
+          icon: React.createElement(Delete),
+          shortcut: "Delete"
         }
       ]
     },
@@ -70,7 +106,7 @@ export function createMenuConfig(params: MenuConfigParams): MenuConfig[] {
             {
               kind: "custom",
               component: React.createElement(TableSizeChooser, {
-                onSizeSelect: handleSizeSelect,
+                onSizeSelect: setTableSize,
                 currentRows,
                 currentCols
               })
@@ -94,4 +130,4 @@ export function createMenuConfig(params: MenuConfigParams): MenuConfig[] {
       ]
     }
   ]
-} 
+}

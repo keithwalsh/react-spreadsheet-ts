@@ -1,46 +1,103 @@
-import * as React from "react";
-import { TableCell as TableCellMui, useTheme } from "@mui/material";
-import { RowNumberCellProps } from "../types";
+/**
+ * @fileoverview Row number cell component for spreadsheet. Displays row numbers and
+ * handles row selection through click and drag interactions.
+ */
 
-const RowNumberCell: React.FC<RowNumberCellProps> = ({ children, className, onClick, selectedRows, rowIndex, onDragStart, onDragEnter, onDragEnd }) => {
-    const theme = useTheme();
-    const isDarkMode = theme.palette.mode === 'dark';
-    const isSelected = selectedRows?.has(rowIndex);
+import React from "react";
+import { TableCell } from "@mui/material";
+import { useAtom } from "jotai";
+import { PrimitiveAtom } from "jotai";
+import { State, HeaderCellStylesParams } from "../types";
+import { useHeaderCellStyles } from "../styles";
+import RowContextMenu from "./RowContextMenu";
 
-    const lightThemeStyles = {
-        color: "rgba(0, 0, 0, 0.54)",
-        backgroundColor: isSelected ? "#e0e0e0" : "#f0f0f0",
-        borderRight: "1px solid #e0e0e0",
-        "&:hover": { backgroundColor: "#e0e0e0" },
+interface RowNumberCellProps {
+    atom: PrimitiveAtom<State>;
+    rowIndex: number;
+    onDragStart: (rowIndex: number) => void;
+    onDragEnter: (rowIndex: number) => void;
+    onDragEnd: () => void;
+    onAddAbove: (index: number) => void;
+    onAddBelow: (index: number) => void;
+    onRemove: (index: number) => void;
+}
+
+export function RowNumberCell({ atom, rowIndex, onDragStart, onDragEnter, onDragEnd, onAddAbove, onAddBelow, onRemove }: RowNumberCellProps) {
+    const [state] = useAtom(atom);
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+
+    const isHighlighted = React.useMemo(() => {
+        return state.selectedCell?.row === rowIndex || (state.selectedCells && state.selectedCells[rowIndex]?.some((cell) => cell));
+    }, [state.selectedCell, state.selectedCells, rowIndex]);
+
+    const isSelected = React.useMemo(() => {
+        return state.selectedRows.includes(rowIndex);
+    }, [state.selectedRows, rowIndex]);
+
+    const styles = useHeaderCellStyles({
+        isSelected: isSelected || state.selectAll,
+        isHighlighted,
+        isHovered: false,
+    } as HeaderCellStylesParams);
+
+    const handleContextMenu = (event: React.MouseEvent<HTMLTableCellElement>) => {
+        event.preventDefault();
+        setAnchorEl(event.currentTarget);
     };
 
-    const darkThemeStyles = {
-        color: "#BEBFC0",
-        backgroundColor: isSelected ? "#686868" : "#414547",
-        borderBottom: "1px solid #686868",
-        borderRight: "1px solid #686868",
-        "&:hover": { backgroundColor: "#686868" },
+    const handleCloseMenu = () => {
+        setAnchorEl(null);
+    };
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        e.preventDefault();
+        onDragStart(rowIndex);
+    };
+
+    const handleMouseEnter = (e: React.MouseEvent) => {
+        if (state.isDragging) {
+            e.preventDefault();
+            onDragEnter(rowIndex);
+        }
+    };
+
+    const handleAddAboveClick = () => {
+        onAddAbove(rowIndex);
+        handleCloseMenu();
+    };
+
+    const handleAddBelowClick = () => {
+        onAddBelow(rowIndex);
+        handleCloseMenu();
+    };
+
+    const handleRemoveClick = () => {
+        onRemove(rowIndex);
+        handleCloseMenu();
     };
 
     return (
-        <TableCellMui
-            sx={{
-                ...(isDarkMode ? darkThemeStyles : lightThemeStyles),
-                cursor: "pointer",
-                userSelect: "none",
-                textAlign: "center",
-                padding: "2px",
-                width: "1px",
-            }}
-            className={className}
-            onClick={onClick}
-            onMouseDown={() => onDragStart(rowIndex)}
-            onMouseEnter={() => onDragEnter(rowIndex)}
-            onMouseUp={onDragEnd}
-        >
-            {children}
-        </TableCellMui>
+        <>
+            <TableCell
+                sx={styles}
+                onContextMenu={handleContextMenu}
+                onMouseDown={handleMouseDown}
+                onMouseEnter={handleMouseEnter}
+                onMouseUp={onDragEnd}
+                draggable
+            >
+                {rowIndex + 1}
+            </TableCell>
+            <RowContextMenu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleCloseMenu}
+                onAddAbove={handleAddAboveClick}
+                onAddBelow={handleAddBelowClick}
+                onRemove={handleRemoveClick}
+            />
+        </>
     );
-};
+}
 
 export default RowNumberCell;

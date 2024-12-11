@@ -12,8 +12,9 @@ import {
     RiDeleteColumn,
     RiInsertRowBottom,
     RiDeleteRow,
+    RiLinkM,
 } from "react-icons/ri";
-import { ButtonDefinition } from "../types";
+import { ButtonDefinition } from "../types/index";
 
 export const buttonConfig = (theme: string) => ({
     borderColor: theme === "light" ? "divider" : "#686868",
@@ -32,6 +33,7 @@ export const defaultVisibleButtons: (string | "divider")[] = [
     "Set Bold",
     "Set Italic",
     "Set Code",
+    "Set Link",
     "divider",
     "Add Row",
     "Remove Row",
@@ -48,6 +50,7 @@ export const buttonDefinitions: ButtonDefinition[] = [
     { title: "Set Bold", icon: RiBold, handlerKey: "onClickSetBold" },
     { title: "Set Italic", icon: RiItalic, handlerKey: "onClickSetItalic" },
     { title: "Set Code", icon: RiCodeSSlashFill, handlerKey: "onClickSetCode" },
+    { title: "Set Link", icon: RiLinkM, handlerKey: "onClickSetLink" },
     { title: "Add Row", icon: RiInsertRowBottom, handlerKey: "onClickAddRow" },
     { title: "Remove Row", icon: RiDeleteRow, handlerKey: "onClickRemoveRow" },
     { title: "Add Column", icon: RiInsertColumnRight, handlerKey: "onClickAddColumn" },

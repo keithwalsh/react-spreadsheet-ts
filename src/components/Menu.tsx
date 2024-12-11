@@ -3,72 +3,33 @@
  * size adjustment, CSV export, and table manipulations using mui-menubar.
  */
 
-import React, { useContext, useCallback, useState } from "react"
-import { MenuBar } from "mui-menubar"
-import { createMenuConfig } from "../config/menuConfig"
-import TableSizeChooser from "./TableSizeChooser"
-import NewTableModal from "./NewTableModal"
-import { TableMenuProps } from "../types"
-import { ToolbarContext } from "./ToolbarProvider"
+import React from "react";
+import { MenuBar } from "mui-menubar";
+import { createMenuConfig } from "../config/menuConfig";
+import { useToolbar } from "./ToolbarProvider";
+import { TableSizeChooserProps } from "../types";
 
-interface ToolbarContextType {
-    currentRows: number
-    currentCols: number
-    setTableSize: (row: number, col: number) => void
-    clearTable: () => void
-    transposeTable: () => void
-}
+const Menu: React.FC<{
+    handleNewTable: (rows: number, cols: number) => void;
+    onDownloadCSV: () => void;
+    TableSizeChooser: React.FC<TableSizeChooserProps>;
+}> = ({ handleNewTable, onDownloadCSV, TableSizeChooser }) => {
+    const toolbarContext = useToolbar();
 
-const defaultContext: ToolbarContextType = {
-    currentRows: 0,
-    currentCols: 0,
-    setTableSize: () => {},
-    clearTable: () => {},
-    transposeTable: () => {}
-}
-
-export const TableMenu: React.FC<TableMenuProps> = ({ onCreateNewTable, onDownloadCSV }) => {
-    const [isNewTableModalOpen, setNewTableModalOpen] = useState(false)
-    const handlers = useContext(ToolbarContext) ?? defaultContext
-    
-    const { currentRows, currentCols } = handlers
-
-    const handleSizeSelect = useCallback(
-        (row: number, col: number) => {
-            handlers.setTableSize(row, col)
-        },
-        [handlers]
-    )
-
-    const handleNewTable = () => setNewTableModalOpen(true)
-    const handleModalClose = () => setNewTableModalOpen(false)
-    
-    const handleCreateNewTable = (rows: number, columns: number) => {
-        onCreateNewTable(rows, columns)
-        setNewTableModalOpen(false)
-    }
+    const wrappedHandleNewTable = () => {
+        // Default to 5x5 table when called without parameters
+        handleNewTable(5, 5);
+    };
 
     const menuConfig = createMenuConfig({
-        handleNewTable,
+        handleNewTable: wrappedHandleNewTable,
         onDownloadCSV,
-        handleSizeSelect,
-        clearTable: handlers.clearTable,
-        transposeTable: handlers.transposeTable,
-        currentRows,
-        currentCols,
-        TableSizeChooser
-    })
+        TableSizeChooser,
+        toolbarContext,
+        ...toolbarContext,
+    });
 
-    return (
-        <>
-            <MenuBar config={menuConfig} />
-            <NewTableModal
-                open={isNewTableModalOpen}
-                onClose={handleModalClose}
-                onCreateNewTable={handleCreateNewTable}
-            />
-        </>
-    )
-}
+    return <MenuBar config={menuConfig} />;
+};
 
-export default TableMenu
+export default Menu;

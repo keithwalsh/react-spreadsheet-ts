@@ -1,41 +1,41 @@
 import React from "react";
-import { Divider, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
+import { ListItemText, ListItemIcon, Menu, MenuItem, Divider } from "@mui/material";
 import { 
-    ArrowBack, 
-    ArrowForward, 
+    ArrowUpward, 
+    ArrowDownward, 
     DeleteOutline 
 } from "@mui/icons-material";
-import { ColumnContextMenuProps } from "../types";
+import { RowContextMenuProps } from "../types";
 
-const ColumnContextMenu: React.FC<ColumnContextMenuProps> = ({ anchorEl, open, onClose, onAddLeft, onAddRight, onRemove }) => {
+const RowContextMenu: React.FC<RowContextMenuProps> = ({ anchorEl, open, onClose, onAddAbove, onAddBelow, onRemove }) => {
     return (
         <Menu
             anchorEl={anchorEl}
             open={open}
             onClose={onClose}
             anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "center",
+                vertical: "center",
+                horizontal: "right",
             }}
             transformOrigin={{
-                vertical: "top",
-                horizontal: "center",
+                vertical: "center",
+                horizontal: "left",
             }}
         >
-            <MenuItem dense onClick={onAddLeft}>
+            <MenuItem dense onClick={onAddAbove}>
                 <ListItemIcon>
-                    <ArrowBack fontSize="small" />
+                    <ArrowUpward fontSize="small" />
                 </ListItemIcon>
                 <ListItemText>
-                    Add column to the left
+                    Add row above
                 </ListItemText>
             </MenuItem>
-            <MenuItem dense onClick={onAddRight}>
+            <MenuItem dense onClick={onAddBelow}>
                 <ListItemIcon>
-                    <ArrowForward fontSize="small" />
+                    <ArrowDownward fontSize="small" />
                 </ListItemIcon>
                 <ListItemText>
-                    Add column to the right
+                    Add row below
                 </ListItemText>
             </MenuItem>
             <Divider />
@@ -44,11 +44,11 @@ const ColumnContextMenu: React.FC<ColumnContextMenuProps> = ({ anchorEl, open, o
                     <DeleteOutline fontSize="small" />
                 </ListItemIcon>
                 <ListItemText>
-                    Remove column
+                    Remove row
                 </ListItemText>
             </MenuItem>
         </Menu>
     );
 };
 
-export default ColumnContextMenu;
+export default RowContextMenu;
