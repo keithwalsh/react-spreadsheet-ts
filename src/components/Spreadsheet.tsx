@@ -257,13 +257,18 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
             if (!state.selectedCell && 
                 !state.selectedCells.some(row => row.some(cell => cell)) && 
                 state.selectedColumns.length === 0 && 
-                state.selectedRows.length === 0
+                state.selectedRows.length === 0 &&
+                !state.selectAll
             ) {
                 return;
             }
 
             const newData = state.data.map((row, rowIndex) =>
                 row.map((cell, colIndex) => {
+                    if (state.selectAll) {
+                        return { ...cell, [format]: !cell[format] };
+                    }
+                    
                     const isInColumnSelection = state.selectedColumns.includes(colIndex);
                     const isInRowSelection = state.selectedRows.includes(rowIndex);
                     if (
@@ -304,13 +309,18 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
             if (!state.selectedCell && 
                 !state.selectedCells.some(row => row.some(cell => cell)) && 
                 state.selectedColumns.length === 0 && 
-                state.selectedRows.length === 0
+                state.selectedRows.length === 0 &&
+                !state.selectAll
             ) {
                 return;
             }
 
             const newData = state.data.map((row, rowIndex) =>
                 row.map((cell, colIndex) => {
+                    if (state.selectAll) {
+                        return { ...cell, align: alignment };
+                    }
+
                     const isInColumnSelection = state.selectedColumns.includes(colIndex);
                     const isInRowSelection = state.selectedRows.includes(rowIndex);
                     if (

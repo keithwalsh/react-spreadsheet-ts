@@ -15,6 +15,7 @@ const Cell: React.FC<CellProps> = React.memo(
         selectedColumns = [],
         selectedRows = [],
         style,
+        selectAll = false,
         onMouseDown,
         onMouseEnter,
         onMouseUp,
@@ -126,8 +127,9 @@ const Cell: React.FC<CellProps> = React.memo(
                 style,
                 isColumnSelected,
                 isRowSelected,
+                isSelectAllSelected: selectAll
             }),
-            [isDarkMode, isEditing, isSelected, selectedCells, rowIndex, colIndex, multipleCellsSelected, style, isColumnSelected, isRowSelected]
+            [isDarkMode, isEditing, isSelected, selectedCells, rowIndex, colIndex, multipleCellsSelected, style, isColumnSelected, isRowSelected, selectAll]
         );
 
         return (

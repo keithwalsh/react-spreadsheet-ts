@@ -16,6 +16,7 @@ export interface CellStyleProps {
     style?: CSSProperties;
     isColumnSelected: boolean;
     isRowSelected: boolean;
+    isSelectAllSelected: boolean;
 }
 
 export const getThemeBorderColor = (isDarkMode: boolean) => (isDarkMode ? "#686868" : "#e0e0e0");
@@ -29,6 +30,7 @@ export const getCellStyles = ({
     multipleCellsSelected,
     isColumnSelected,
     isRowSelected,
+    isSelectAllSelected,
     style 
 }: CellStyleProps) => {
     const themeStyles = isDarkMode
@@ -47,7 +49,7 @@ export const getCellStyles = ({
               },
           };
 
-    const isAnySelected = isSelected || isColumnSelected || isRowSelected;
+    const isAnySelected = isSelected || isColumnSelected || isRowSelected || isSelectAllSelected;
     const shouldHighlight = isAnySelected;
 
     return {
@@ -60,8 +62,8 @@ export const getCellStyles = ({
                 ? getSelectionBackground(isDarkMode)
                 : "transparent",
         p: 1,
-        outline: isSelected && !(multipleCellsSelected || isColumnSelected || isRowSelected) ? "#1976d2 solid 1px" : "none",
-        outlineOffset: isSelected && !(multipleCellsSelected || isColumnSelected || isRowSelected) ? "-1px" : "0",
+        outline: isSelected && !(multipleCellsSelected || isColumnSelected || isRowSelected || isSelectAllSelected) ? "#1976d2 solid 1px" : "none",
+        outlineOffset: isSelected && !(multipleCellsSelected || isColumnSelected || isRowSelected || isSelectAllSelected) ? "-1px" : "0",
         ...(isEditing && {
             boxShadow: "rgba(0, 0, 0, 0.2) 0px 3px 1px -2px, rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px",
             textIndent: "3px",

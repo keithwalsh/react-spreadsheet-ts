@@ -21,7 +21,7 @@ interface TableProps {
 }
 
 const Table = React.forwardRef<HTMLTableElement, TableProps>(({ atom, onCellChange, onDragStart, onDragEnter, onDragEnd, children }, ref) => {
-    const [state] = useAtom(atom);
+    const [state, setState] = useAtom(atom);
 
     const handlePasteEvent = React.useCallback(
         (event: React.ClipboardEvent<HTMLDivElement>) => {
@@ -86,6 +86,20 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(({ atom, onCellChan
         [onDragEnter]
     );
 
+    const handleToggleSelectAll = React.useCallback(() => {
+        setState(prevState => ({
+            ...prevState,
+            selectAll: !prevState.selectAll,
+            // Clear other selections when toggling select all
+            selectedCell: null,
+            selectedCells: prevState.data.map(row => 
+                Array(row.length).fill(false)
+            ),
+            selectedRows: [],
+            selectedColumns: []
+        }));
+    }, [setState]);
+
     return (
         <div>
             <TableContainerMui
@@ -105,9 +119,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(({ atom, onCellChan
                         <Row>
                             <SelectAllCell
                                 selectAll={state.selectAll}
-                                toggleSelectAll={() => {
-                                    // TODO: Implement toggle all
-                                }}
+                                toggleSelectAll={handleToggleSelectAll}
                             />
                             {state.data[0].map((_, colIndex) => (
                                 <ColumnHeaderCell
@@ -148,6 +160,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(({ atom, onCellChan
                                         selectedColumns={state.selectedColumns}
                                         selectedRows={state.selectedRows}
                                         isDarkMode={theme.palette.mode === "dark"}
+                                        selectAll={state.selectAll}
                                         onMouseDown={() => onDragStart(rowIndex, colIndex)}
                                         onMouseEnter={() => onDragEnter(rowIndex, colIndex)}
                                         onMouseUp={onDragEnd}

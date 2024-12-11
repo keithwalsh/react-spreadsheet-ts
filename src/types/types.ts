@@ -78,6 +78,7 @@ export interface CellProps {
     selectedRows?: number[];
     style?: React.CSSProperties;
     isDarkMode: boolean;
+    selectAll?: boolean;
     onMouseDown?: (rowIndex: number, colIndex: number, shiftKey: boolean, ctrlKey: boolean) => void;
     onMouseEnter?: (rowIndex: number, colIndex: number) => void;
     onMouseUp?: () => void;

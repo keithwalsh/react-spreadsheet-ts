@@ -1,8 +1,8 @@
 #### Tests
 
 -   Paste data from clipboard
--   Apply formatting when single cell is selected and when multiple cells are selected
--   Apply alignment when single cell is selected and when multiple cells are selected
+-   Apply formatting/alignment when single cell is selected.
+-   Apply formatting/alignment when multiple cells are selected
 -   Delete rows
 -   Delete columns
 -   When a cell is in edit mode and contains content, the user must be able to highlight any portion of that content.
