@@ -145,6 +145,7 @@ const Cell: React.FC<CellProps> = React.memo(
                         fontWeight: cellData.bold ? "bold" : "normal",
                         fontStyle: cellData.italic ? "italic" : "normal",
                         fontFamily: cellData.code ? "'Courier New', Consolas, monospace" : "inherit",
+                        textAlign: cellData.align,
                         ...style,
                     }}
                 />
