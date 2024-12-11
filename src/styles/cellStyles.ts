@@ -14,13 +14,23 @@ export interface CellStyleProps {
     colIndex: number;
     multipleCellsSelected: boolean;
     style?: CSSProperties;
+    isColumnSelected: boolean;
+    isRowSelected: boolean;
 }
 
 export const getThemeBorderColor = (isDarkMode: boolean) => (isDarkMode ? "#686868" : "#e0e0e0");
 
 export const getSelectionBackground = (isDarkMode: boolean) => (isDarkMode ? "rgba(25, 118, 210, 0.08)" : "rgba(25, 118, 210, 0.12)");
 
-export const getCellStyles = ({ isDarkMode, isEditing, isSelected, selectedCells, rowIndex, colIndex, multipleCellsSelected }: CellStyleProps) => {
+export const getCellStyles = ({ 
+    isDarkMode, 
+    isEditing, 
+    isSelected,
+    multipleCellsSelected,
+    isColumnSelected,
+    isRowSelected,
+    style 
+}: CellStyleProps) => {
     const themeStyles = isDarkMode
         ? {
               borderRight: "1px solid #686868",
@@ -37,19 +47,27 @@ export const getCellStyles = ({ isDarkMode, isEditing, isSelected, selectedCells
               },
           };
 
+    const isAnySelected = isSelected || isColumnSelected || isRowSelected;
+    const shouldHighlight = isAnySelected;
+
     return {
         ...themeStyles,
         height: "37.02px",
         cursor: isEditing ? "text" : "pointer",
-        backgroundColor: isEditing ? "transparent" : selectedCells[rowIndex]?.[colIndex] && multipleCellsSelected ? "rgba(25, 118, 210, 0.12)" : "transparent",
+        backgroundColor: isEditing 
+            ? "transparent" 
+            : shouldHighlight 
+                ? getSelectionBackground(isDarkMode)
+                : "transparent",
         p: 1,
-        outline: isSelected ? "#1976d2 solid 1px" : "none",
-        outlineOffset: isSelected ? "-1px" : "0",
+        outline: isSelected && !(multipleCellsSelected || isColumnSelected || isRowSelected) ? "#1976d2 solid 1px" : "none",
+        outlineOffset: isSelected && !(multipleCellsSelected || isColumnSelected || isRowSelected) ? "-1px" : "0",
         ...(isEditing && {
             boxShadow: "rgba(0, 0, 0, 0.2) 0px 3px 1px -2px, rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px",
             textIndent: "3px",
             zIndex: 1,
         }),
+        ...style,
     };
 };
 

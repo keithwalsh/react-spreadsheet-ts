@@ -33,7 +33,15 @@ const Cell: React.FC<CellProps> = React.memo(
         const isRowSelected = selectedRows?.includes(rowIndex);
         const isMultiSelected = selectedCells[rowIndex]?.[colIndex];
         const isSelected = isSingleCellSelected || isColumnSelected || isRowSelected || isMultiSelected;
-        const multipleCellsSelected = useMemo(() => Object.values(selectedCells).some((row) => Object.values(row).some(Boolean)), [selectedCells]);
+        const multipleCellsSelected = useMemo(() => {
+            // Count total selected cells
+            const selectedCount = Object.values(selectedCells).reduce((total: number, row: Record<number, boolean>) => 
+                total + Object.values(row).reduce((rowTotal: number, cell: boolean) => 
+                    rowTotal + (cell ? 1 : 0), 
+                0), 
+            0);
+            return selectedCount > 1;
+        }, [selectedCells]);
 
         useEffect(() => {
             if (cellRef.current) {
@@ -108,17 +116,18 @@ const Cell: React.FC<CellProps> = React.memo(
 
         const cellStyleProps: CellStyleProps = useMemo(
             () => ({
-                isSelected,
-                isEditing,
                 isDarkMode,
+                isEditing,
+                isSelected,
                 selectedCells,
                 rowIndex,
                 colIndex,
                 multipleCellsSelected,
-                isMultiSelected: isMultiSelected || false,
                 style,
+                isColumnSelected,
+                isRowSelected,
             }),
-            [isSelected, isEditing, isDarkMode, selectedCells, rowIndex, colIndex, multipleCellsSelected, isMultiSelected, style]
+            [isDarkMode, isEditing, isSelected, selectedCells, rowIndex, colIndex, multipleCellsSelected, style, isColumnSelected, isRowSelected]
         );
 
         return (
@@ -145,7 +154,7 @@ const Cell: React.FC<CellProps> = React.memo(
                         fontWeight: cellData.bold ? "bold" : "normal",
                         fontStyle: cellData.italic ? "italic" : "normal",
                         fontFamily: cellData.code ? "'Courier New', Consolas, monospace" : "inherit",
-                        textAlign: cellData.align,
+                        textAlign: cellData.align || "left",
                         ...style,
                     }}
                 />

@@ -254,15 +254,23 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
 
     const handleTextFormatting = useCallback(
         (format: "bold" | "italic" | "code") => {
-            if (!state.selectedCell && !state.selectedCells.some(row => row.some(cell => cell))) {
+            if (!state.selectedCell && 
+                !state.selectedCells.some(row => row.some(cell => cell)) && 
+                state.selectedColumns.length === 0 && 
+                state.selectedRows.length === 0
+            ) {
                 return;
             }
 
             const newData = state.data.map((row, rowIndex) =>
                 row.map((cell, colIndex) => {
+                    const isInColumnSelection = state.selectedColumns.includes(colIndex);
+                    const isInRowSelection = state.selectedRows.includes(rowIndex);
                     if (
                         (state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) ||
-                        (state.selectedCells[rowIndex] && state.selectedCells[rowIndex][colIndex])
+                        (state.selectedCells[rowIndex] && state.selectedCells[rowIndex][colIndex]) ||
+                        isInColumnSelection ||
+                        isInRowSelection
                     ) {
                         return { ...cell, [format]: !cell[format] };
                     }
@@ -293,15 +301,23 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
 
     const handleSetAlignment = useCallback(
         (alignment: "left" | "center" | "right") => {
-            if (!state.selectedCell && !state.selectedCells.some(row => row.some(cell => cell))) {
+            if (!state.selectedCell && 
+                !state.selectedCells.some(row => row.some(cell => cell)) && 
+                state.selectedColumns.length === 0 && 
+                state.selectedRows.length === 0
+            ) {
                 return;
             }
 
             const newData = state.data.map((row, rowIndex) =>
                 row.map((cell, colIndex) => {
+                    const isInColumnSelection = state.selectedColumns.includes(colIndex);
+                    const isInRowSelection = state.selectedRows.includes(rowIndex);
                     if (
                         (state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) ||
-                        (state.selectedCells[rowIndex] && state.selectedCells[rowIndex][colIndex])
+                        (state.selectedCells[rowIndex] && state.selectedCells[rowIndex][colIndex]) ||
+                        isInColumnSelection ||
+                        isInRowSelection
                     ) {
                         return { ...cell, align: alignment };
                     }

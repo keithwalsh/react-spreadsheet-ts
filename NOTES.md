@@ -8,9 +8,9 @@
 -   When a cell is in edit mode and contains content, the user must be able to highlight any portion of that content.
 -   Cell range selection (when clicking inside the spreadsheet and dragging outwards)
 -   The system must enable users to select column headers and row numbers by clicking and dragging the mouse across the desired range.
--   Clicking a selected cell should not trigger a re-render that momentarily removes and reapplies the selection outline.
--   Column and row headers corresponding to selected cells should be automatically highlighted, to help users quickly track their position within the spreadsheet.
--   The system must allow users to exit cell edit mode by clicking outside the active cell, without requiring them to enter edit mode on a different cell.
+-   Clicking a selected cell should not trigger a re-render that removes and reapplies the selection outline.
+-   When one or more cells are selected, the corresponding row and column headers should be highlighted.
+-   Exit cell edit mode by clicking outside the active cell.
 -   When not in edit mode and a single cell is selected, arrow keys should move the selection to the adjacent cell.
 
 ---
