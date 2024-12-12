@@ -4,5 +4,20 @@ import { markSelectedCells } from "./markSelectedCells";
 import { adjustTableSize } from "./adjustTableSize";
 import { convertToCSV, downloadCSV } from "./csvConversion";
 import { isCellSelected, createSelectionMatrix } from "./selectionUtils";
+import { createHistoryEntry } from "./historyUtils";
 
-export { addRow, removeRow, createSelectionMatrix, addColumn, removeColumn, transpose, handlePaste, markSelectedCells, adjustTableSize, convertToCSV, downloadCSV, isCellSelected };
+export {
+    addRow,
+    removeRow,
+    createSelectionMatrix,
+    addColumn,
+    removeColumn,
+    transpose,
+    handlePaste,
+    markSelectedCells,
+    adjustTableSize,
+    convertToCSV,
+    downloadCSV,
+    isCellSelected,
+    createHistoryEntry,
+};

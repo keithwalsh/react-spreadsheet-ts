@@ -9,8 +9,8 @@ import { Box } from "@mui/material";
 import { defaultVisibleButtons } from "../config";
 import { useDragSelection, handlePaste, useOutsideClick, useSpreadsheetActions, useTableStructure, useUndoRedo } from "../hooks";
 import { initialState } from "../store";
-import { Alignment, CellData, DataPayload, State } from "../types";
-import { downloadCSV } from "../utils";
+import { Alignment, CellData, State } from "../types";
+import { createHistoryEntry, downloadCSV } from "../utils";
 import { ButtonGroup, Menu, NewTableModal, Table, ToolbarProvider, TableSizeChooser } from "./";
 
 interface SpreadsheetProps {
@@ -41,20 +41,10 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
 
     const saveToHistory = useCallback(
         (newData: CellData[][]) => {
-            const historyEntry: DataPayload = {
-                data: state.data,
-                selectedCell: state.selectedCell,
-                selectedCells: state.selectedCells,
-                selectedRows: state.selectedRows,
-                selectedColumns: state.selectedColumns,
-                isDragging: state.isDragging,
-                selectAll: state.selectAll,
-            };
-
             setState({
                 ...state,
                 data: newData,
-                past: [...state.past, historyEntry],
+                past: [...state.past, createHistoryEntry(state)],
                 future: [],
             });
         },
@@ -154,16 +144,6 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
             onClickSetItalic: () => handleTextFormatting("italic"),
             onClickSetCode: () => handleTextFormatting("code"),
             setTableSize: (rows: number, cols: number) => {
-                const historyEntry: DataPayload = {
-                    data: state.data,
-                    selectedCell: state.selectedCell,
-                    selectedCells: state.selectedCells,
-                    selectedRows: state.selectedRows,
-                    selectedColumns: state.selectedColumns,
-                    isDragging: state.isDragging,
-                    selectAll: state.selectAll,
-                };
-
                 setState({
                     ...state,
                     data: initialState(rows, cols).data,
@@ -172,47 +152,28 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
                     selectedRows: [],
                     selectedColumns: [],
                     selectAll: false,
-                    past: [...state.past, historyEntry],
+                    past: [...state.past, createHistoryEntry(state)],
                     future: [],
                 });
             },
             currentRows: state.data.length,
             currentCols: state.data[0]?.length || 0,
             clearTable: () => {
-                const historyEntry: DataPayload = {
-                    data: state.data,
-                    selectedCell: state.selectedCell,
-                    selectedCells: state.selectedCells,
-                    selectedRows: state.selectedRows,
-                    selectedColumns: state.selectedColumns,
-                    isDragging: state.isDragging,
-                    selectAll: state.selectAll,
-                };
-
                 setState({
                     ...state,
                     data: initialState(state.data.length, state.data[0].length).data,
-                    past: [...state.past, historyEntry],
+                    past: [...state.past, createHistoryEntry(state)],
                     future: [],
                 });
             },
             deleteSelected: handleDeleteSelected,
             transposeTable: () => {
                 const transposedData = state.data[0].map((_, colIndex) => state.data.map((row) => ({ ...row[colIndex] })));
-                const historyEntry: DataPayload = {
-                    data: state.data,
-                    selectedCell: state.selectedCell,
-                    selectedCells: state.selectedCells,
-                    selectedRows: state.selectedRows,
-                    selectedColumns: state.selectedColumns,
-                    isDragging: state.isDragging,
-                    selectAll: state.selectAll,
-                };
 
                 setState({
                     ...state,
                     data: transposedData,
-                    past: [...state.past, historyEntry],
+                    past: [...state.past, createHistoryEntry(state)],
                     future: [],
                     selectedCells: Array(transposedData.length).fill(Array(transposedData[0].length).fill(false)),
                     selectedCell: null,
