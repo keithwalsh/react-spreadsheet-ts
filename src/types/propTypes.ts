@@ -142,10 +142,18 @@ export type TableMenuProps = {
 };
 
 export type TableProps = {
+    atom: PrimitiveAtom<State>;
+    onCellChange: (rowIndex: number, colIndex: number, value: string) => void;
+    onDragStart: (row: number, col: number) => void;
+    onDragEnter: (row: number, col: number) => void;
+    onDragEnd: () => void;
+    onAddColumnLeft: (index: number) => void;
+    onAddColumnRight: (index: number) => void;
+    onRemoveColumn: (index: number) => void;
+    onAddRowAbove: (index: number) => void;
+    onAddRowBelow: (index: number) => void;
+    onRemoveRow: (index: number) => void;
     children?: React.ReactNode;
-    className?: string;
-    onPaste?: (event: React.ClipboardEvent<HTMLDivElement>) => void;
-    style?: React.CSSProperties;
 };
 
 export type TableSizeChooserProps = {

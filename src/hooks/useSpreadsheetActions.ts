@@ -55,51 +55,24 @@ export const useSpreadsheetActions = (atom: PrimitiveAtom<State>) => {
 
     const handleTextFormatting = useCallback(
         (format: "bold" | "italic" | "code") => {
-            if (
-                !state.selectedCell &&
-                !state.selectedCells.some((row) => row.some((cell) => cell)) &&
-                state.selectedColumns.length === 0 &&
-                state.selectedRows.length === 0 &&
-                !state.selectAll
-            ) {
-                return;
-            }
+            const { selectedCell, selectedCells, selectedColumns, selectedRows, selectAll, data, past } = state;
 
-            const newData = state.data.map((row, rowIndex) =>
-                row.map((cell, colIndex) => {
-                    if (state.selectAll) {
-                        return { ...cell, [format]: !cell[format] };
-                    }
-
-                    const isInColumnSelection = state.selectedColumns.includes(colIndex);
-                    const isInRowSelection = state.selectedRows.includes(rowIndex);
-                    if (
-                        (state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) ||
-                        (state.selectedCells[rowIndex] && state.selectedCells[rowIndex][colIndex]) ||
-                        isInColumnSelection ||
-                        isInRowSelection
-                    ) {
-                        return { ...cell, [format]: !cell[format] };
-                    }
-                    return cell;
-                })
-            );
+            if (!selectedCell && !selectedCells.some((row) => row.some(Boolean)) && !selectedColumns.length && !selectedRows.length && !selectAll) return;
 
             setState({
                 ...state,
-                data: newData,
-                past: [
-                    ...state.past,
-                    {
-                        data: state.data,
-                        selectedCell: state.selectedCell,
-                        selectedCells: state.selectedCells,
-                        selectedRows: state.selectedRows,
-                        selectedColumns: state.selectedColumns,
-                        isDragging: state.isDragging,
-                        selectAll: state.selectAll,
-                    },
-                ],
+                data: data.map((row, ri) =>
+                    row.map((cell, ci) =>
+                        selectAll ||
+                        (selectedCell?.row === ri && selectedCell?.col === ci) ||
+                        selectedCells[ri]?.[ci] ||
+                        selectedColumns.includes(ci) ||
+                        selectedRows.includes(ri)
+                            ? { ...cell, [format]: !cell[format] }
+                            : cell
+                    )
+                ),
+                past: [...past, { ...state }],
                 future: [],
             });
         },

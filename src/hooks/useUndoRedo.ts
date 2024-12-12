@@ -11,64 +11,26 @@ export const useUndoRedo = (atom: PrimitiveAtom<State>) => {
     const [state, setState] = useAtom(atom);
 
     const handleUndo = useCallback(() => {
-        if (state.past.length === 0) return;
+        if (!state.past.length) return;
 
-        const previous = state.past[state.past.length - 1];
-        const newPast = state.past.slice(0, -1);
-
+        const previous = state.past.at(-1)!;
         setState({
             ...state,
-            data: previous.data,
-            selectedCell: previous.selectedCell || null,
-            selectedCells: previous.selectedCells || state.selectedCells,
-            selectedRows: previous.selectedRows || [],
-            selectedColumns: previous.selectedColumns || [],
-            isDragging: previous.isDragging || false,
-            selectAll: previous.selectAll || false,
-            past: newPast,
-            future: [
-                {
-                    data: state.data,
-                    selectedCell: state.selectedCell,
-                    selectedCells: state.selectedCells,
-                    selectedRows: state.selectedRows,
-                    selectedColumns: state.selectedColumns,
-                    isDragging: state.isDragging,
-                    selectAll: state.selectAll,
-                },
-                ...state.future,
-            ],
+            ...previous,
+            past: state.past.slice(0, -1),
+            future: [{ ...state }, ...state.future],
         });
     }, [state, setState]);
 
     const handleRedo = useCallback(() => {
-        if (state.future.length === 0) return;
+        if (!state.future.length) return;
 
         const next = state.future[0];
-        const newFuture = state.future.slice(1);
-
         setState({
             ...state,
-            data: next.data,
-            selectedCell: next.selectedCell || null,
-            selectedCells: next.selectedCells || state.selectedCells,
-            selectedRows: next.selectedRows || [],
-            selectedColumns: next.selectedColumns || [],
-            isDragging: next.isDragging || false,
-            selectAll: next.selectAll || false,
-            past: [
-                ...state.past,
-                {
-                    data: state.data,
-                    selectedCell: state.selectedCell,
-                    selectedCells: state.selectedCells,
-                    selectedRows: state.selectedRows,
-                    selectedColumns: state.selectedColumns,
-                    isDragging: state.isDragging,
-                    selectAll: state.selectAll,
-                },
-            ],
-            future: newFuture,
+            ...next,
+            past: [...state.past, { ...state }],
+            future: state.future.slice(1),
         });
     }, [state, setState]);
 

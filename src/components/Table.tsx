@@ -1,31 +1,8 @@
-import * as React from "react";
-import { TableContainer as TableContainerMui, Table as TableMui, Paper as PaperMui, TableHead, TableBody, useTheme, createTheme } from "@mui/material";
+import React, { useCallback } from "react";
+import { TableContainer as TableContainerMui, Table as TableMui, Paper as PaperMui, TableHead, TableBody, useTheme } from "@mui/material";
 import { useAtom } from "jotai";
-import { PrimitiveAtom } from "jotai";
-import { State } from "../types";
-import Row from "./Row";
-import Cell from "./Cell";
-import RowNumberCell from "./RowNumberCell";
-import ColumnHeaderCell from "./ColumnHeaderCell";
-import SelectAllCell from "./SelectAllCell";
-import { useToolbar } from "./ToolbarProvider";
-
-const defaultTheme = createTheme();
-
-interface TableProps {
-    atom: PrimitiveAtom<State>;
-    onCellChange: (rowIndex: number, colIndex: number, value: string) => void;
-    onDragStart: (row: number, col: number) => void;
-    onDragEnter: (row: number, col: number) => void;
-    onDragEnd: () => void;
-    onAddColumnLeft: (index: number) => void;
-    onAddColumnRight: (index: number) => void;
-    onRemoveColumn: (index: number) => void;
-    onAddRowAbove: (index: number) => void;
-    onAddRowBelow: (index: number) => void;
-    onRemoveRow: (index: number) => void;
-    children?: React.ReactNode;
-}
+import { TableProps } from "../types";
+import { Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, useToolbar } from "./";
 
 const Table = React.forwardRef<HTMLTableElement, TableProps>(
     (
@@ -59,10 +36,10 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                 if (!element) return;
 
                 // Find the closest cell element
-                const cellElement = element.closest('[data-row]');
+                const cellElement = element.closest("[data-row]");
                 if (cellElement) {
-                    const row = parseInt(cellElement.getAttribute('data-row') || '-1');
-                    const col = parseInt(cellElement.getAttribute('data-col') || '-1');
+                    const row = parseInt(cellElement.getAttribute("data-row") || "-1");
+                    const col = parseInt(cellElement.getAttribute("data-col") || "-1");
                     if (row >= 0 && col >= 0 && (row !== lastCell.row || col !== lastCell.col)) {
                         onDragEnter(row, col);
                         setLastCell({ row, col });
@@ -70,21 +47,16 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                 }
             };
 
-            const handleMouseUp = () => {
-                if (isDragging) {
-                    setIsDragging(false);
-                    onDragEnd();
-                }
-            };
+            const handleMouseUp = () => isDragging && (setIsDragging(false), onDragEnd());
 
             if (isDragging) {
-                document.addEventListener('mousemove', handleMouseMove);
-                document.addEventListener('mouseup', handleMouseUp);
+                document.addEventListener("mousemove", handleMouseMove);
+                document.addEventListener("mouseup", handleMouseUp);
             }
 
             return () => {
-                document.removeEventListener('mousemove', handleMouseMove);
-                document.removeEventListener('mouseup', handleMouseUp);
+                document.removeEventListener("mousemove", handleMouseMove);
+                document.removeEventListener("mouseup", handleMouseUp);
             };
         }, [isDragging, lastCell, onDragEnter, onDragEnd]);
 
@@ -100,7 +72,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
             [state.selectedCell, onCellChange]
         );
 
-        const theme = useTheme() || defaultTheme;
+        const theme = useTheme();
         const isDarkMode = theme?.palette?.mode === "dark" || false;
 
         const lightThemeStyles = {
@@ -155,7 +127,6 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
             setState((prevState) => ({
                 ...prevState,
                 selectAll: !prevState.selectAll,
-                // Clear other selections when toggling select all
                 selectedCell: null,
                 selectedCells: prevState.data.map((row) => Array(row.length).fill(false)),
                 selectedRows: [],
@@ -169,7 +140,6 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                 setLastCell({ row: rowIndex, col: colIndex });
                 onDragStart(rowIndex, colIndex);
                 if (shiftKey && state.selectedCell) {
-                    // Handle range selection
                     const startRow = Math.min(state.selectedCell.row, rowIndex);
                     const endRow = Math.max(state.selectedCell.row, rowIndex);
                     const startCol = Math.min(state.selectedCell.col, colIndex);
@@ -191,7 +161,6 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                         selectedColumns: [],
                     }));
                 } else if (ctrlKey) {
-                    // Handle non-contiguous selection
                     setState((prev) => {
                         const newSelectedCells = prev.selectedCells.map((row, r) =>
                             row.map((cell, c) => {
@@ -212,7 +181,6 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                         };
                     });
                 } else {
-                    // Regular single cell selection
                     const newSelectedCells = state.data.map((row) => row.map(() => false));
                     newSelectedCells[rowIndex][colIndex] = true;
 
@@ -231,21 +199,10 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
 
         const toolbar = useToolbar();
 
-        const handleKeyDown = React.useCallback(
-            (event: React.KeyboardEvent) => {
-                if (event.key === "Delete" && toolbar) {
-                    toolbar.deleteSelected();
-                }
-            },
-            [toolbar]
-        );
+        const handleKeyDown = useCallback(({ key }: React.KeyboardEvent) => key === "Delete" && toolbar?.deleteSelected?.(), [toolbar]);
 
         return (
-            <div 
-                onKeyDown={handleKeyDown} 
-                tabIndex={0}
-                style={{ outline: 'none' }}
-            >
+            <div onKeyDown={handleKeyDown} tabIndex={0} style={{ outline: "none" }}>
                 <TableContainerMui component={!isDarkMode ? PaperMui : "div"} sx={tableStyles} onPaste={handlePasteEvent}>
                     <TableMui
                         ref={ref}
@@ -314,7 +271,5 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
         );
     }
 );
-
-Table.displayName = "Table";
 
 export default Table;

@@ -11,7 +11,7 @@ import RowNumberCell from "./RowNumberCell";
 import SelectAllCell from "./SelectAllCell";
 import Table from "./Table";
 import TableSizeChooser from "./TableSizeChooser";
-import { ToolbarProvider } from "./ToolbarProvider";
+import { ToolbarProvider, useToolbar } from "./ToolbarProvider";
 
 export {
     ButtonGroup,
@@ -28,4 +28,5 @@ export {
     Table,
     TableSizeChooser,
     ToolbarProvider,
+    useToolbar,
 };
