@@ -45,9 +45,9 @@ export type Alignment = "left" | "center" | "right";
 
 export interface CellData {
     value: string;
-    bold?: boolean;
-    italic?: boolean;
-    code?: boolean;
+    bold: boolean;
+    italic: boolean;
+    code: boolean;
     align?: "left" | "center" | "right";
     link?: string;
 }
@@ -93,7 +93,7 @@ export type State = {
 };
 
 export type TextFormattingOperation =
-    | { operation: "BOLD" | "ITALIC" | "CODE" | "LINK"; payload?: string }
+    | { operation: "BOLD" | "ITALIC" | "CODE" | "LINK" | "REMOVE_LINK"; payload?: string }
     | { operation: "ALIGN_LEFT" | "ALIGN_CENTER" | "ALIGN_RIGHT" };
 
 export type TableSizePayload = {

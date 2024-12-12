@@ -3,6 +3,8 @@ import { useAtom } from "jotai";
 import LinkModal from "./LinkModal";
 import { Snackbar } from "@mui/material";
 import { ToolbarContextType, ToolbarProviderProps } from "../types";
+import { useSpreadsheetActions } from "../hooks/useSpreadsheetActions";
+import type { State } from "../types";
 
 export const ToolbarContext = createContext<ToolbarContextType | null>(null);
 
@@ -10,50 +12,47 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
     const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
     const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [state] = useAtom(spreadsheetAtom);
+    const { handleLink } = useSpreadsheetActions(spreadsheetAtom);
+    const [activeCell, setActiveCell] = useState<State["selectedCell"]>(null);
 
-    const [state, setState] = useAtom(spreadsheetAtom);
+    const handleLinkModalClose = () => {
+        setIsLinkModalOpen(false);
+        setActiveCell(null);
+    };
 
-    const handleLinkModalClose = () => setIsLinkModalOpen(false);
     const handleSnackbarClose = () => setIsSnackbarOpen(false);
 
     const handleSetLink = () => {
-        const selectedCells = state.selectedCells;
-        const selectedCell = state.selectedCell;
+        const totalSelectedCells = state.selectedCells.flat().filter((cell) => cell).length;
 
-        if (selectedCells.some((row: boolean[]) => row.some((cell: boolean) => cell)) || !selectedCell) {
-            setSnackbarMessage("Cannot set link when multiple cells are selected");
+        if (totalSelectedCells !== 1) {
+            setSnackbarMessage("Please select exactly one cell to set a link.");
             setIsSnackbarOpen(true);
             return;
         }
+
+        setActiveCell(state.selectedCell);
         setIsLinkModalOpen(true);
     };
 
     const handleSubmitLink = (url: string | undefined) => {
-        if (state.selectedCell) {
-            const { row, col } = state.selectedCell;
-            const newData = [...state.data];
-            newData[row][col] = { ...newData[row][col], link: url };
-            setState({
-                ...state,
-                data: newData,
-                past: [
-                    ...state.past,
-                    {
-                        data: state.data,
-                        selectedCell: state.selectedCell,
-                        selectedCells: state.selectedCells,
-                        selectedRows: state.selectedRows,
-                        selectedColumns: state.selectedColumns,
-                        isDragging: state.isDragging,
-                        selectAll: state.selectAll,
-                    },
-                ],
-                future: [],
-            });
+        if (!activeCell) {
+            setSnackbarMessage("No cell selected.");
+            setIsSnackbarOpen(true);
+            return;
         }
-        setIsLinkModalOpen(false);
-        setSnackbarMessage("Link saved successfully!");
-        setIsSnackbarOpen(true);
+
+        try {
+            handleLink(url, activeCell);
+            setIsLinkModalOpen(false);
+            setActiveCell(null);
+            setSnackbarMessage(url ? "Link added successfully!" : "Link removed successfully!");
+            setIsSnackbarOpen(true);
+        } catch (error) {
+            setSnackbarMessage("Error setting link");
+            setIsSnackbarOpen(true);
+        }
     };
 
     const value: ToolbarContextType = {
@@ -74,7 +73,7 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
                 open={isLinkModalOpen}
                 onClose={handleLinkModalClose}
                 onSubmit={handleSubmitLink}
-                initialUrl={state.selectedCell ? state.data[state.selectedCell.row][state.selectedCell.col].link : undefined}
+                initialUrl={activeCell ? state.data[activeCell.row][activeCell.col].link : undefined}
             />
             <Snackbar open={isSnackbarOpen} autoHideDuration={3000} onClose={handleSnackbarClose} message={snackbarMessage} />
         </ToolbarContext.Provider>

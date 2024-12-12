@@ -3,8 +3,8 @@
  * editing, styling, and user interactions like mouse events and keyboard input.
  */
 
-import React, { useState, useRef, useCallback, useMemo, useEffect } from "react";
-import { TableCell as TableCellMui, useTheme } from "@mui/material";
+import React, { useState, useRef, useCallback, useMemo } from "react";
+import { TableCell as TableCellMui, useTheme, Link } from "@mui/material";
 import type { CellProps } from "../types";
 import { getCellStyles, CellStyleProps } from "../styles/cellStyles";
 
@@ -41,12 +41,7 @@ const Cell: React.FC<CellProps> = React.memo(
             return Object.values(selectedCells).reduce((count, row) => count + Object.values(row).filter(Boolean).length, 0) > 1;
         }, [selectedCells]);
 
-        useEffect(() => {
-            if (cellRef.current) cellRef.current.textContent = cellData.value ?? "";
-        }, [cellData.value]);
-
         const enableEditMode = useCallback(() => {
-            if (!cellRef.current) return;
             setIsEditing(true);
             requestAnimationFrame(() => {
                 if (!cellRef.current) return;
@@ -60,17 +55,31 @@ const Cell: React.FC<CellProps> = React.memo(
             });
         }, []);
 
-        const handleBlur = () => (setIsEditing(false), onCellBlur?.());
+        const handleBlur = useCallback(() => {
+            if (cellRef.current) {
+                const newValue = cellRef.current.textContent || "";
+                onCellChange?.(rowIndex, colIndex, newValue);
+            }
+            setIsEditing(false);
+            onCellBlur?.();
+        }, [onCellChange, rowIndex, colIndex, onCellBlur]);
 
         const handleKeyDown = useCallback(
-            (e: React.KeyboardEvent) => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), onCellKeyDown?.(e), handleBlur()),
-            [onCellKeyDown, handleBlur]
+            (e: React.KeyboardEvent) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleBlur();
+                } else {
+                    onCellKeyDown?.(e);
+                }
+            },
+            [handleBlur, onCellKeyDown]
         );
 
-        const handleDoubleClick = useCallback(
-            () => (onDoubleClick?.(rowIndex, colIndex), enableEditMode()),
-            [onDoubleClick, rowIndex, colIndex, enableEditMode]
-        );
+        const handleDoubleClick = useCallback(() => {
+            onDoubleClick?.(rowIndex, colIndex);
+            enableEditMode();
+        }, [onDoubleClick, rowIndex, colIndex, enableEditMode]);
 
         const handleMouseDown = useCallback(
             ({ shiftKey, ctrlKey }: React.MouseEvent) => onMouseDown?.(rowIndex, colIndex, shiftKey, ctrlKey),
@@ -79,24 +88,20 @@ const Cell: React.FC<CellProps> = React.memo(
 
         const handleMouseEnter = useCallback(() => onMouseEnter?.(rowIndex, colIndex), [onMouseEnter, rowIndex, colIndex]);
 
-        const handleContentChange = () => cellRef.current && onCellChange?.(rowIndex, colIndex, cellRef.current.textContent || "");
-
-        const cellStyleProps: CellStyleProps = useMemo(
-            () => ({
-                isDarkMode,
-                isEditing,
-                isSelected,
-                selectedCells,
-                rowIndex,
-                colIndex,
-                multipleCellsSelected,
-                style,
-                isColumnSelected,
-                isRowSelected,
-                isSelectAllSelected: selectAll,
-            }),
-            [isDarkMode, isEditing, isSelected, selectedCells, rowIndex, colIndex, multipleCellsSelected, style, isColumnSelected, isRowSelected, selectAll]
-        );
+        const cellStyleProps: CellStyleProps = {
+            isDarkMode,
+            isEditing,
+            isSelected,
+            selectedCells,
+            rowIndex,
+            colIndex,
+            multipleCellsSelected,
+            style,
+            isColumnSelected,
+            isRowSelected,
+            isSelectAllSelected: selectAll,
+            hasLink: Boolean(cellData.link),
+        };
 
         return (
             <TableCellMui
@@ -108,29 +113,69 @@ const Cell: React.FC<CellProps> = React.memo(
                 data-row={rowIndex}
                 data-col={colIndex}
             >
-                <div
-                    ref={cellRef}
-                    contentEditable={isEditing}
-                    suppressContentEditableWarning
-                    spellCheck={false}
-                    onBlur={handleBlur}
-                    onKeyDown={handleKeyDown}
-                    onInput={handleContentChange}
-                    style={{
-                        minWidth: "80px",
-                        outline: "none",
-                        cursor: "inherit",
-                        userSelect: isEditing ? "text" : "none",
-                        fontWeight: cellData.bold ? "bold" : "normal",
-                        fontStyle: cellData.italic ? "italic" : "normal",
-                        fontFamily: cellData.code ? "'Courier New', Consolas, monospace" : "inherit",
-                        textAlign: cellData.align || "left",
-                        ...style,
-                    }}
-                />
+                {isEditing ? (
+                    <div
+                        ref={cellRef}
+                        contentEditable
+                        suppressContentEditableWarning
+                        spellCheck={false}
+                        onBlur={handleBlur}
+                        onKeyDown={handleKeyDown}
+                        style={{
+                            minWidth: "80px",
+                            outline: "none",
+                            cursor: "text",
+                            userSelect: "text",
+                            fontWeight: cellData.bold ? "bold" : "normal",
+                            fontStyle: cellData.italic ? "italic" : "normal",
+                            fontFamily: cellData.code ? "'Courier New', Consolas, monospace" : "inherit",
+                            textAlign: cellData.align || "left",
+                            ...style,
+                        }}
+                    >
+                        {cellData.value}
+                    </div>
+                ) : (
+                    <div
+                        style={{
+                            minWidth: "80px",
+                            cursor: "inherit",
+                            userSelect: "none",
+                            fontWeight: cellData.bold ? "bold" : "normal",
+                            fontStyle: cellData.italic ? "italic" : "normal",
+                            fontFamily: cellData.code ? "'Courier New', Consolas, monospace" : "inherit",
+                            textAlign: cellData.align || "left",
+                            ...style,
+                        }}
+                    >
+                        {cellData.link ? (
+                            <Link
+                                href={cellData.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                underline="hover"
+                                onClick={(e) => e.stopPropagation()}
+                                sx={{
+                                    color: "inherit",
+                                    cursor: "pointer",
+                                    textDecoration: "underline",
+                                    "&:hover": {
+                                        textDecoration: "none",
+                                    },
+                                }}
+                            >
+                                {cellData.value}
+                            </Link>
+                        ) : (
+                            cellData.value
+                        )}
+                    </div>
+                )}
             </TableCellMui>
         );
     }
 );
+
+Cell.displayName = "Cell";
 
 export default Cell;
