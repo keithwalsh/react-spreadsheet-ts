@@ -5,8 +5,8 @@
 
 import React, { useState, useRef, useCallback, useMemo } from "react";
 import { TableCell as TableCellMui, useTheme, Link } from "@mui/material";
-import type { CellProps } from "../types";
-import { getCellStyles, CellStyleProps } from "../styles/cellStyles";
+import type { CellStyleProps, CellProps } from "../types";
+import { getCellStyles, getCellContentStyles, getLinkStyles } from "../styles";
 
 const Cell: React.FC<CellProps> = React.memo(
     ({
@@ -121,33 +121,12 @@ const Cell: React.FC<CellProps> = React.memo(
                         spellCheck={false}
                         onBlur={handleBlur}
                         onKeyDown={handleKeyDown}
-                        style={{
-                            minWidth: "80px",
-                            outline: "none",
-                            cursor: "text",
-                            userSelect: "text",
-                            fontWeight: cellData.bold ? "bold" : "normal",
-                            fontStyle: cellData.italic ? "italic" : "normal",
-                            fontFamily: cellData.code ? "'Courier New', Consolas, monospace" : "inherit",
-                            textAlign: cellData.align || "left",
-                            ...style,
-                        }}
+                        style={getCellContentStyles({ isEditing, cellData, style })}
                     >
                         {cellData.value}
                     </div>
                 ) : (
-                    <div
-                        style={{
-                            minWidth: "80px",
-                            cursor: "inherit",
-                            userSelect: "none",
-                            fontWeight: cellData.bold ? "bold" : "normal",
-                            fontStyle: cellData.italic ? "italic" : "normal",
-                            fontFamily: cellData.code ? "'Courier New', Consolas, monospace" : "inherit",
-                            textAlign: cellData.align || "left",
-                            ...style,
-                        }}
-                    >
+                    <div style={getCellContentStyles({ isEditing, cellData, style })}>
                         {cellData.link ? (
                             <Link
                                 href={cellData.link}
@@ -155,14 +134,7 @@ const Cell: React.FC<CellProps> = React.memo(
                                 rel="noopener noreferrer"
                                 underline="hover"
                                 onClick={(e) => e.stopPropagation()}
-                                sx={{
-                                    color: "inherit",
-                                    cursor: "pointer",
-                                    textDecoration: "underline",
-                                    "&:hover": {
-                                        textDecoration: "none",
-                                    },
-                                }}
+                                sx={getLinkStyles()}
                             >
                                 {cellData.value}
                             </Link>

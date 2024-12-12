@@ -8,6 +8,7 @@ import { TableCellProps } from "@mui/material";
 import { IconBaseProps } from "react-icons";
 import { PrimitiveAtom } from "jotai";
 import { CellData, State } from "./dataTypes";
+import { CSSProperties } from "react";
 
 export type ButtonDefinition = {
     title: string;
@@ -23,6 +24,19 @@ export interface ButtonGroupProps {
     dividerMargin?: number;
     tooltipArrow?: boolean;
     tooltipPlacement?: "top" | "bottom" | "left" | "right";
+}
+
+export interface CellContentStyleProps {
+    isEditing: boolean;
+    cellData: {
+        bold?: boolean;
+        italic?: boolean;
+        code?: boolean;
+        align?: string;
+        value: string;
+        link?: string;
+    };
+    style?: CSSProperties;
 }
 
 export interface CellProps {
@@ -43,6 +57,21 @@ export interface CellProps {
     onCellBlur?: () => void;
     onCellKeyDown?: (event: React.KeyboardEvent) => void;
     onCellChange?: (rowIndex: number, colIndex: number, value: string) => void;
+}
+
+export interface CellStyleProps {
+    isDarkMode: boolean;
+    isEditing: boolean;
+    isSelected: boolean;
+    selectedCells: Record<number, Record<number, boolean>>;
+    rowIndex: number;
+    colIndex: number;
+    multipleCellsSelected: boolean;
+    style?: CSSProperties;
+    isColumnSelected: boolean;
+    isRowSelected: boolean;
+    isSelectAllSelected: boolean;
+    hasLink?: boolean;
 }
 
 export type ColumnContextMenuProps = {

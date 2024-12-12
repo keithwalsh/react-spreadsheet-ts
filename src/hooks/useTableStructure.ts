@@ -1,6 +1,6 @@
 /**
- * @fileoverview Hook managing table structure operations like adding/removing
- * rows and columns, with history tracking support.
+ * @fileoverview Core hook exports for table structure operations. Separates
+ * concerns for row and column management with history tracking support.
  */
 
 import { useCallback } from "react";
@@ -9,7 +9,7 @@ import { State } from "../types";
 import { addRow, addColumn, removeRow, removeColumn } from "../utils";
 import { createHistoryEntry } from "../utils/historyUtils";
 
-export const useTableStructure = (atom: PrimitiveAtom<State>) => {
+export const useRowOperations = (atom: PrimitiveAtom<State>) => {
     const [state, setState] = useAtom(atom);
 
     const updateStateWithNewData = useCallback(
@@ -74,6 +74,33 @@ export const useTableStructure = (atom: PrimitiveAtom<State>) => {
         [state, setState]
     );
 
+    const handleAddRowAbove = useCallback((index: number) => handleAddRowAtIndex(index, "above"), [handleAddRowAtIndex]);
+    const handleAddRowBelow = useCallback((index: number) => handleAddRowAtIndex(index, "below"), [handleAddRowAtIndex]);
+
+    return {
+        handleAddRow,
+        handleRemoveRow,
+        handleAddRowAbove,
+        handleAddRowBelow,
+    };
+};
+
+export const useColumnOperations = (atom: PrimitiveAtom<State>) => {
+    const [state, setState] = useAtom(atom);
+
+    const updateStateWithNewData = useCallback(
+        (result: { newData: State["data"]; newSelectedCells: State["selectedCells"] }) => {
+            setState({
+                ...state,
+                data: result.newData,
+                past: [...state.past, createHistoryEntry(state)],
+                future: [],
+                selectedCells: result.newSelectedCells,
+            });
+        },
+        [state, setState]
+    );
+
     const handleAddColumn = useCallback(
         (position: "left" | "right") => {
             const result = addColumn({
@@ -124,21 +151,25 @@ export const useTableStructure = (atom: PrimitiveAtom<State>) => {
     );
 
     const handleAddColumnLeft = useCallback((index: number) => handleAddColumnAtIndex(index, "left"), [handleAddColumnAtIndex]);
-
     const handleAddColumnRight = useCallback((index: number) => handleAddColumnAtIndex(index, "right"), [handleAddColumnAtIndex]);
 
-    const handleAddRowAbove = useCallback((index: number) => handleAddRowAtIndex(index, "above"), [handleAddRowAtIndex]);
-
-    const handleAddRowBelow = useCallback((index: number) => handleAddRowAtIndex(index, "below"), [handleAddRowAtIndex]);
-
     return {
-        handleAddRow,
-        handleRemoveRow,
         handleAddColumn,
         handleRemoveColumn,
         handleAddColumnLeft,
         handleAddColumnRight,
-        handleAddRowAbove,
-        handleAddRowBelow,
     };
 };
+
+// Optional: Combine hooks if needed
+export const useTableStructure = (atom: PrimitiveAtom<State>) => {
+    const rowOperations = useRowOperations(atom);
+    const columnOperations = useColumnOperations(atom);
+
+    return {
+        ...rowOperations,
+        ...columnOperations,
+    };
+};
+
+export default useTableStructure;

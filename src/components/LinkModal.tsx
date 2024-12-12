@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Modal dialog for adding and editing hyperlinks in spreadsheet cells.
+ */
+
 import { useEffect, useState } from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Box } from "@mui/material";
 import { LinkModalProps } from "../types";

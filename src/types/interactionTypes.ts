@@ -6,6 +6,7 @@
 
 import { PrimitiveAtom } from "jotai";
 import { CellData, State } from "./dataTypes";
+import { TableSizeChooserProps } from "./propTypes";
 
 export interface TableStructureModification {
     data: CellData[][];
@@ -39,6 +40,13 @@ export type HandlerMap = {
 };
 
 export type Handler = HandlerMap[HandlerKey] | string | number | boolean | PrimitiveAtom<State>;
+
+export interface MenuConfigParams extends ToolbarContextType {
+    handleNewTable: () => void;
+    onDownloadCSV: () => void;
+    TableSizeChooser: React.ComponentType<TableSizeChooserProps>;
+    toolbarContext: ToolbarContextType;
+}
 
 export interface SelectedCell {
     row: number;

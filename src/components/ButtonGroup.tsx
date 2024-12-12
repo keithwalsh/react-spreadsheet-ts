@@ -1,5 +1,7 @@
 /**
- * Configurable toolbar button group with orientation and theme support.
+ * @fileoverview Toolbar button group component providing spreadsheet operation controls
+ * like adding rows/columns, undo/redo, and formatting. Supports customizable button
+ * visibility, orientation, icon sizing, and theming.
  */
 
 import React, { useCallback } from "react";

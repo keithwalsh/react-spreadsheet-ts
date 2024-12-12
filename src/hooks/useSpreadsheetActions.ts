@@ -1,80 +1,16 @@
 /**
- * @fileoverview Provides actions for manipulating spreadsheet state, including
- * text formatting operations like bold, italic, alignment, and links.
+ * @fileoverview Core hook exports for spreadsheet text formatting operations.
+ * Separates concerns for link handling, text formatting, and alignment.
  */
 
-// hooks/useSpreadsheetActions.ts
 import { useCallback } from "react";
-import { useAtom } from "jotai";
-import { PrimitiveAtom } from "jotai";
+import { useAtom, PrimitiveAtom } from "jotai";
 import { Alignment, State, TextFormattingOperation } from "../types";
 
-interface SpreadsheetActions {
-    handleLink: (url: string | undefined, targetCell: NonNullable<State["selectedCell"]>) => void;
-    handleTextFormatting: (format: "bold" | "italic" | "code") => void;
-    handleSetAlignment: (alignment: Alignment) => void;
-}
-
-export const useSpreadsheetActions = (atom: PrimitiveAtom<State>): SpreadsheetActions => {
+export const useTextFormatting = (atom: PrimitiveAtom<State>) => {
     const [state, setState] = useAtom(atom);
 
-    const applyTextFormatting = useCallback(
-        (operation: TextFormattingOperation, targetCell: NonNullable<State["selectedCell"]>) => {
-            console.log("applyTextFormatting - targetCell:", targetCell);
-
-            const newData = [...state.data];
-            const cell = newData[targetCell.row][targetCell.col];
-
-            switch (operation.operation) {
-                case "LINK":
-                    newData[targetCell.row][targetCell.col] = {
-                        ...cell,
-                        link: operation.payload,
-                    };
-                    break;
-                case "REMOVE_LINK": {
-                    const { link, ...rest } = cell;
-                    newData[targetCell.row][targetCell.col] = rest;
-                    break;
-                }
-                case "BOLD":
-                case "ITALIC":
-                case "CODE": {
-                    const prop = operation.operation.toLowerCase();
-                    newData[targetCell.row][targetCell.col] = {
-                        ...cell,
-                        [prop]: !cell[prop as keyof typeof cell],
-                    };
-                    break;
-                }
-            }
-
-            setState({
-                ...state,
-                data: newData,
-                past: [...state.past, { ...state }],
-                future: [],
-            });
-        },
-        [state, setState]
-    );
-
-    const handleLink = useCallback(
-        (url: string | undefined, targetCell: NonNullable<State["selectedCell"]>) => {
-            console.log("handleLink - targetCell:", targetCell);
-
-            applyTextFormatting(
-                {
-                    operation: url === undefined ? "REMOVE_LINK" : "LINK",
-                    payload: url,
-                },
-                targetCell
-            );
-        },
-        [applyTextFormatting]
-    );
-
-    const handleTextFormatting = useCallback(
+    return useCallback(
         (format: "bold" | "italic" | "code") => {
             const { selectedCell, selectedCells, selectedColumns, selectedRows, selectAll, data, past } = state;
 
@@ -99,8 +35,12 @@ export const useSpreadsheetActions = (atom: PrimitiveAtom<State>): SpreadsheetAc
         },
         [state, setState]
     );
+};
 
-    const handleSetAlignment = useCallback(
+export const useAlignment = (atom: PrimitiveAtom<State>) => {
+    const [state, setState] = useAtom(atom);
+
+    return useCallback(
         (alignment: Alignment) => {
             if (
                 !state.selectedCell &&
@@ -141,11 +81,60 @@ export const useSpreadsheetActions = (atom: PrimitiveAtom<State>): SpreadsheetAc
         },
         [state, setState]
     );
+};
 
+export const useLink = (atom: PrimitiveAtom<State>) => {
+    const [state, setState] = useAtom(atom);
+
+    const applyTextFormatting = useCallback(
+        (operation: TextFormattingOperation, targetCell: NonNullable<State["selectedCell"]>) => {
+            const newData = [...state.data];
+            const cell = newData[targetCell.row][targetCell.col];
+
+            switch (operation.operation) {
+                case "LINK":
+                    newData[targetCell.row][targetCell.col] = {
+                        ...cell,
+                        link: operation.payload,
+                    };
+                    break;
+                case "REMOVE_LINK": {
+                    const { link, ...rest } = cell;
+                    newData[targetCell.row][targetCell.col] = rest;
+                    break;
+                }
+            }
+
+            setState({
+                ...state,
+                data: newData,
+                past: [...state.past, { ...state }],
+                future: [],
+            });
+        },
+        [state, setState]
+    );
+
+    return useCallback(
+        (url: string | undefined, targetCell: NonNullable<State["selectedCell"]>) => {
+            applyTextFormatting(
+                {
+                    operation: url === undefined ? "REMOVE_LINK" : "LINK",
+                    payload: url,
+                },
+                targetCell
+            );
+        },
+        [applyTextFormatting]
+    );
+};
+
+// Optional: Combine hooks if needed
+export const useSpreadsheetActions = (atom: PrimitiveAtom<State>) => {
     return {
-        handleLink,
-        handleTextFormatting,
-        handleSetAlignment,
+        handleLink: useLink(atom),
+        handleTextFormatting: useTextFormatting(atom),
+        handleSetAlignment: useAlignment(atom),
     };
 };
 

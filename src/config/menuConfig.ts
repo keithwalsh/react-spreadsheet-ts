@@ -3,131 +3,124 @@
  * structure and default options for file and table operations.
  */
 
-import React from "react"
-import {
-  BorderAll,
-  ClearAll,
-  SwapVert,
-  Save,
-  FolderOpen,
-  Undo,
-  Redo,
-  Delete
-} from "@mui/icons-material"
-import { MenuConfig } from "mui-menubar"
-import { ToolbarContextType } from "src/types"
+import React from "react";
+import { BorderAll, ClearAll, SwapVert, Save, FolderOpen, Undo, Redo, Delete } from "@mui/icons-material";
+import { MenuConfig } from "mui-menubar";
+import { MenuConfigParams } from "../types";
 
-interface TableSizeChooserProps {
-  onSizeSelect: (row: number, col: number) => void
-  currentRows: number
-  currentCols: number
-}
-
-interface MenuConfigParams extends ToolbarContextType {
-  handleNewTable: () => void
-  onDownloadCSV: () => void
-  TableSizeChooser: React.ComponentType<TableSizeChooserProps>
-  toolbarContext: ToolbarContextType
-}
+const MENU_TEMPLATE = [
+    {
+        label: "File",
+        items: [
+            {
+                kind: "action",
+                id: "newTable",
+                label: "New table",
+                icon: React.createElement(FolderOpen),
+                shortcut: "Ctrl+N",
+            },
+            {
+                kind: "action",
+                id: "downloadCsv",
+                label: "Download as CSV",
+                icon: React.createElement(Save),
+                shortcut: "Ctrl+S",
+            },
+        ],
+    },
+    {
+        label: "Edit",
+        items: [
+            {
+                kind: "action",
+                id: "undo",
+                label: "Undo",
+                icon: React.createElement(Undo),
+                shortcut: "Ctrl+Z",
+            },
+            {
+                kind: "action",
+                id: "redo",
+                label: "Redo",
+                icon: React.createElement(Redo),
+                shortcut: "Ctrl+Y",
+            },
+            { kind: "divider" },
+            {
+                kind: "action",
+                id: "deleteSelected",
+                label: "Delete selected",
+                icon: React.createElement(Delete),
+                shortcut: "Delete",
+            },
+        ],
+    },
+    {
+        label: "Table",
+        items: [
+            {
+                kind: "submenu",
+                id: "setSize",
+                label: "Set size",
+                icon: React.createElement(BorderAll),
+                items: [{ kind: "custom" }],
+            },
+            { kind: "divider" },
+            {
+                kind: "action",
+                id: "clearTable",
+                label: "Clear table",
+                icon: React.createElement(ClearAll),
+            },
+            {
+                kind: "action",
+                id: "transposeTable",
+                label: "Transpose table",
+                icon: React.createElement(SwapVert),
+            },
+        ],
+    },
+] as const;
 
 export function createMenuConfig(params: MenuConfigParams): MenuConfig[] {
-  const {
-    handleNewTable,
-    onDownloadCSV,
-    TableSizeChooser,
-    toolbarContext
-  } = params
+    const { handleNewTable, onDownloadCSV, TableSizeChooser, toolbarContext } = params;
+    const { deleteSelected, transposeTable, currentRows, currentCols, setTableSize, onClickUndo, onClickRedo, clearTable } = toolbarContext;
 
-  const {
-    deleteSelected,
-    transposeTable,
-    currentRows,
-    currentCols,
-    setTableSize,
-    onClickUndo,
-    onClickRedo,
-    clearTable
-  } = toolbarContext
+    const actionMap = {
+        newTable: handleNewTable,
+        downloadCsv: onDownloadCSV,
+        undo: onClickUndo,
+        redo: onClickRedo,
+        deleteSelected: deleteSelected,
+        clearTable: clearTable,
+        transposeTable: transposeTable,
+    };
 
-  return [
-    {
-      label: "File",
-      items: [
-        {
-          kind: "action",
-          label: "New table",
-          action: handleNewTable,
-          icon: React.createElement(FolderOpen),
-          shortcut: "Ctrl+N"
-        },
-        {
-          kind: "action",
-          label: "Download as CSV",
-          action: onDownloadCSV,
-          icon: React.createElement(Save),
-          shortcut: "Ctrl+S"
-        }
-      ]
-    },
-    {
-      label: "Edit",
-      items: [
-        {
-          kind: "action",
-          label: "Undo",
-          action: onClickUndo,
-          icon: React.createElement(Undo),
-          shortcut: "Ctrl+Z"
-        },
-        {
-          kind: "action",
-          label: "Redo",
-          action: onClickRedo,
-          icon: React.createElement(Redo),
-          shortcut: "Ctrl+Y"
-        },
-        { kind: "divider" },
-        {
-          kind: "action",
-          label: "Delete selected",
-          action: deleteSelected,
-          icon: React.createElement(Delete),
-          shortcut: "Delete"
-        }
-      ]
-    },
-    {
-      label: "Table",
-      items: [
-        {
-          kind: "submenu",
-          label: "Set size",
-          items: [
-            {
-              kind: "custom",
-              component: React.createElement(TableSizeChooser, {
-                onSizeSelect: setTableSize,
-                currentRows,
-                currentCols
-              })
+    return MENU_TEMPLATE.map((menu) => ({
+        ...menu,
+        items: menu.items.map((item) => {
+            if (item.kind === "divider") return item;
+
+            if (item.id === "setSize") {
+                return {
+                    ...item,
+                    items: [
+                        {
+                            kind: "custom",
+                            component: React.createElement(TableSizeChooser, {
+                                onSizeSelect: setTableSize,
+                                currentRows,
+                                currentCols,
+                            }),
+                        },
+                    ],
+                };
             }
-          ],
-          icon: React.createElement(BorderAll)
-        },
-        { kind: "divider" },
-        {
-          kind: "action",
-          label: "Clear table",
-          action: clearTable,
-          icon: React.createElement(ClearAll)
-        },
-        {
-          kind: "action",
-          label: "Transpose table",
-          action: transposeTable,
-          icon: React.createElement(SwapVert)
-        }
-      ]
-    }
-  ]
+
+            return {
+                ...item,
+                action: actionMap[item.id as keyof typeof actionMap],
+            };
+        }),
+    }));
 }

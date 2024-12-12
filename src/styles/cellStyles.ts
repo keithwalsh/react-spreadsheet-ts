@@ -4,21 +4,7 @@
  */
 
 import { CSSProperties } from "react";
-
-export interface CellStyleProps {
-    isDarkMode: boolean;
-    isEditing: boolean;
-    isSelected: boolean;
-    selectedCells: Record<number, Record<number, boolean>>;
-    rowIndex: number;
-    colIndex: number;
-    multipleCellsSelected: boolean;
-    style?: CSSProperties;
-    isColumnSelected: boolean;
-    isRowSelected: boolean;
-    isSelectAllSelected: boolean;
-    hasLink?: boolean;
-}
+import { CellContentStyleProps, CellStyleProps } from "../types";
 
 export const getThemeBorderColor = (isDarkMode: boolean) => (isDarkMode ? "#686868" : "#e0e0e0");
 
@@ -97,21 +83,23 @@ export const getCellStyles = ({
     };
 };
 
-export interface CellContentStyleProps {
-    isEditing: boolean;
-    fontWeight: string;
-    fontStyle: string;
-    isFontCode: boolean;
-    style?: CSSProperties;
-}
-
-export const getCellContentStyles = ({ isEditing, fontWeight, fontStyle, isFontCode, style }: CellContentStyleProps): CSSProperties => ({
+export const getCellContentStyles = ({ isEditing, cellData, style }: CellContentStyleProps): CSSProperties => ({
     minWidth: "80px",
     outline: "none",
-    cursor: "inherit",
+    cursor: isEditing ? "text" : "inherit",
     userSelect: isEditing ? "text" : "none",
-    fontWeight,
-    fontStyle,
-    fontFamily: isFontCode ? "'Courier New', Consolas, monospace" : "inherit",
+    fontWeight: cellData.bold ? "bold" : "normal",
+    fontStyle: cellData.italic ? "italic" : "normal",
+    fontFamily: cellData.code ? "'Courier New', Consolas, monospace" : "inherit",
+    textAlign: cellData.align || "left",
     ...style,
+});
+
+export const getLinkStyles = () => ({
+    color: "inherit",
+    cursor: "pointer",
+    textDecoration: "underline",
+    "&:hover": {
+        textDecoration: "none",
+    },
 });
