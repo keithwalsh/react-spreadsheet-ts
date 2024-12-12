@@ -8,7 +8,6 @@ import { TableCellProps } from "@mui/material";
 import { IconBaseProps } from "react-icons";
 import { PrimitiveAtom } from "jotai";
 import { CellData, State } from "./dataTypes";
-import { ToolbarContextType } from "./interactionTypes";
 
 export type ButtonDefinition = {
     title: string;
@@ -157,7 +156,7 @@ export type TableSizeChooserProps = {
     onSizeSelect: (rows: number, cols: number) => void;
 };
 
-export interface ToolbarProviderProps extends ToolbarContextType {
+export interface ToolbarProviderProps {
     children: React.ReactNode;
     spreadsheetAtom: PrimitiveAtom<State>;
     onClickUndo: () => void;

@@ -7,5 +7,6 @@ import useSpreadsheetActions from "./useSpreadsheetActions";
 import { useDragSelection } from "./useDragSelection";
 import { handlePaste } from "../utils";
 import { useTableStructure } from "./useTableStructure";
+import { useUndoRedo } from "./useUndoRedo";
 
-export { useOutsideClick, useSpreadsheetActions, useDragSelection, useTableStructure, handlePaste };
+export { useOutsideClick, useSpreadsheetActions, useDragSelection, useTableStructure, handlePaste, useUndoRedo };

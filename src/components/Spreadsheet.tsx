@@ -7,7 +7,7 @@ import React, { useCallback, useRef, useEffect, useMemo, useState } from "react"
 import { PrimitiveAtom, useAtom } from "jotai";
 import { Box } from "@mui/material";
 import { defaultVisibleButtons } from "../config";
-import { useDragSelection, handlePaste, useOutsideClick, useSpreadsheetActions, useTableStructure } from "../hooks";
+import { useDragSelection, handlePaste, useOutsideClick, useSpreadsheetActions, useTableStructure, useUndoRedo } from "../hooks";
 import { initialState } from "../store";
 import { Alignment, CellData, DataPayload, State } from "../types";
 import { downloadCSV } from "../utils";
@@ -32,6 +32,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
     const { handleDragStart, handleDragEnter, handleDragEnd } = useDragSelection(atom);
     const [isNewTableModalOpen, setIsNewTableModalOpen] = useState(false);
     const { handleTextFormatting, handleSetAlignment } = useSpreadsheetActions(atom);
+    const { handleUndo, handleRedo } = useUndoRedo(atom);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const tableRef = useRef<HTMLTableElement>(null);
@@ -68,68 +69,6 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
         [state, saveToHistory]
     );
 
-    const handleUndo = useCallback(() => {
-        if (state.past.length === 0) return;
-
-        const previous = state.past[state.past.length - 1];
-        const newPast = state.past.slice(0, -1);
-
-        setState({
-            ...state,
-            data: previous.data,
-            selectedCell: previous.selectedCell || null,
-            selectedCells: previous.selectedCells || state.selectedCells,
-            selectedRows: previous.selectedRows || [],
-            selectedColumns: previous.selectedColumns || [],
-            isDragging: previous.isDragging || false,
-            selectAll: previous.selectAll || false,
-            past: newPast,
-            future: [
-                {
-                    data: state.data,
-                    selectedCell: state.selectedCell,
-                    selectedCells: state.selectedCells,
-                    selectedRows: state.selectedRows,
-                    selectedColumns: state.selectedColumns,
-                    isDragging: state.isDragging,
-                    selectAll: state.selectAll,
-                },
-                ...state.future,
-            ],
-        });
-    }, [state, setState]);
-
-    const handleRedo = useCallback(() => {
-        if (state.future.length === 0) return;
-
-        const next = state.future[0];
-        const newFuture = state.future.slice(1);
-
-        setState({
-            ...state,
-            data: next.data,
-            selectedCell: next.selectedCell || null,
-            selectedCells: next.selectedCells || state.selectedCells,
-            selectedRows: next.selectedRows || [],
-            selectedColumns: next.selectedColumns || [],
-            isDragging: next.isDragging || false,
-            selectAll: next.selectAll || false,
-            past: [
-                ...state.past,
-                {
-                    data: state.data,
-                    selectedCell: state.selectedCell,
-                    selectedCells: state.selectedCells,
-                    selectedRows: state.selectedRows,
-                    selectedColumns: state.selectedColumns,
-                    isDragging: state.isDragging,
-                    selectAll: state.selectAll,
-                },
-            ],
-            future: newFuture,
-        });
-    }, [state, setState]);
-
     const handleDeleteSelected = useCallback(() => {
         if (!state.selectedCell && !state.selectedCells.some((row) => row.some((cell) => cell))) {
             return;
@@ -164,17 +103,11 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
         [state, setState]
     );
 
-    const handleOpenNewTableModal = useCallback(() => {
-        setIsNewTableModalOpen(true);
-    }, []);
+    const handleOpenNewTableModal = useCallback(() => setIsNewTableModalOpen(true), []);
 
-    const handleCloseNewTableModal = useCallback(() => {
-        setIsNewTableModalOpen(false);
-    }, []);
+    const handleCloseNewTableModal = useCallback(() => setIsNewTableModalOpen(false), []);
 
-    const handleDownloadCSV = useCallback(() => {
-        downloadCSV(state.data, "spreadsheet.csv");
-    }, [state.data]);
+    const handleDownloadCSV = useCallback(() => downloadCSV(state.data, "spreadsheet.csv"), [state.data]);
 
     const handleGlobalPaste = useCallback(
         (event: ClipboardEvent) => {
