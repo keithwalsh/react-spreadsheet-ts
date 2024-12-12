@@ -69,6 +69,15 @@ export interface DragHandlers {
     onDragEnd: () => void;
 }
 
+export type HandlerKey = "onClickAddRow" | "onClickAddColumn";
+
+export type HandlerMap = {
+    onClickAddRow: (position: "above" | "below") => void;
+    onClickAddColumn: (position: "left" | "right") => void;
+};
+
+export type Handler = HandlerMap[HandlerKey] | string | number | boolean | PrimitiveAtom<State>;
+
 export interface SelectedCell {
     row: number;
     col: number;

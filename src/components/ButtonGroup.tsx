@@ -1,19 +1,12 @@
 /**
- * @fileoverview Configurable button group component for toolbar actions with
- * support for horizontal/vertical orientation and theme-aware styling.
+ * Configurable toolbar button group with orientation and theme support.
  */
 
 import React, { useCallback } from "react";
-import {
-    IconButton as IconButtonMui,
-    ButtonGroup as ButtonGroupMui,
-    Tooltip as TooltipMui,
-    Divider as DividerMui,
-    Paper as PaperMui,
-} from "@mui/material";
+import { IconButton, ButtonGroup as MuiButtonGroup, Tooltip, Divider, Paper } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { buttonConfig, buttonDefinitions, defaultVisibleButtons } from "../config";
-import { ButtonGroupProps, ToolbarContextType } from "../types";
+import { ButtonGroupProps, HandlerMap } from "../types";
 import { useToolbar } from "./ToolbarProvider";
 
 const ButtonGroup: React.FC<ButtonGroupProps> = ({
@@ -26,82 +19,73 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
     tooltipPlacement = "top",
 }) => {
     const theme = useTheme();
-    const isDarkMode = theme.palette.mode === "dark";
+    const isDark = theme.palette.mode === "dark";
     const handlers = useToolbar();
+    const config = buttonConfig(isDark ? "dark" : "light");
 
-    const themeConfig = buttonConfig(isDarkMode ? "dark" : "light");
+    const handleClickMap: Record<string, () => void> = {
+        onClickAddRow: () => handlers.onClickAddRow?.("below"),
+        onClickAddColumn: () => handlers.onClickAddColumn?.("right"),
+        // Add other handlers as needed
+    };
 
     const renderButton = useCallback(
         (item: string, index: number) => {
             if (item === "divider") {
-                return <DividerMui key={`divider-${index}`} orientation={orientation === "horizontal" ? "vertical" : "horizontal"} flexItem />;
+                return (
+                    <Divider
+                        key={`divider-${index}`}
+                        orientation={orientation === "horizontal" ? "vertical" : "horizontal"}
+                        flexItem
+                        sx={{ margin: dividerMargin, borderColor: config.borderColor }}
+                    />
+                );
             }
 
-            const btn = buttonDefinitions.find((btn) => btn.title === item);
+            const btn = buttonDefinitions.find((b) => b.title === item);
             if (!btn) return null;
 
             const { title, icon: Icon, handlerKey } = btn;
-            const handler = handlers[handlerKey as keyof ToolbarContextType];
-
-            const handleClick = () => {
-                if (!handler) {
-                    console.error(`No handler found for ${handlerKey}`);
-                    return;
-                }
-                if (handlerKey === "onClickAddRow") {
-                    (handler as (position: "above" | "below") => void)("below");
-                } else if (handlerKey === "onClickAddColumn") {
-                    (handler as (position: "left" | "right") => void)("right");
-                } else {
-                    (handler as () => void)();
-                }
-            };
+            const handleClick = handleClickMap[handlerKey] || handlers[handlerKey as keyof HandlerMap];
 
             return (
-                <TooltipMui key={title} title={title} arrow={tooltipArrow} placement={tooltipPlacement}>
-                    <IconButtonMui
+                <Tooltip key={title} title={title} arrow={tooltipArrow} placement={tooltipPlacement}>
+                    <IconButton
                         onClick={handleClick}
                         size="small"
                         sx={{
                             m: iconMargin,
-                            ...(isDarkMode ? {
-                                color: themeConfig.svgStyle.color,
-                                "&:hover": {
-                                    backgroundColor: themeConfig.hoverStyle.backgroundColor,
-                                }
-                            } : {})
+                            color: isDark ? config.svgStyle.color : undefined,
+                            "&:hover": isDark ? { backgroundColor: config.hoverStyle.backgroundColor } : {},
                         }}
                     >
                         <Icon size={iconSize} />
-                    </IconButtonMui>
-                </TooltipMui>
+                    </IconButton>
+                </Tooltip>
             );
         },
-        [handlers, iconMargin, iconSize, themeConfig, tooltipArrow, tooltipPlacement, isDarkMode]
+        [dividerMargin, handlers, iconMargin, iconSize, isDark, config, orientation, tooltipArrow, tooltipPlacement, handleClickMap]
     );
 
     return (
-        <PaperMui
+        <Paper
             elevation={1}
             sx={{
                 display: "inline-flex",
                 padding: 0.5,
-                borderColor: themeConfig.borderColor,
-                backgroundColor: isDarkMode ? "#1e1e1e" : undefined
+                borderColor: config.borderColor,
+                backgroundColor: isDark ? "#1e1e1e" : undefined,
             }}
         >
-            <ButtonGroupMui
+            <MuiButtonGroup
                 orientation={orientation}
                 sx={{
-                    "& .MuiDivider-root": {
-                        margin: dividerMargin,
-                        borderColor: themeConfig.borderColor
-                    },
+                    "& .MuiDivider-root": { margin: dividerMargin, borderColor: config.borderColor },
                 }}
             >
                 {visibleButtons.map(renderButton)}
-            </ButtonGroupMui>
-        </PaperMui>
+            </MuiButtonGroup>
+        </Paper>
     );
 };
 
