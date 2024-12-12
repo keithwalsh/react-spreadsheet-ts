@@ -6,6 +6,7 @@ import React, { useCallback } from "react";
 import { IconButton, ButtonGroup as MuiButtonGroup, Tooltip, Divider, Paper } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { buttonConfig, buttonDefinitions, defaultVisibleButtons } from "../config";
+import { createButtonGroupStyles } from "../styles";
 import { ButtonGroupProps, HandlerMap } from "../types";
 import { useToolbar } from "./ToolbarProvider";
 
@@ -22,6 +23,7 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
     const isDark = theme.palette.mode === "dark";
     const handlers = useToolbar();
     const config = buttonConfig(isDark ? "dark" : "light");
+    const styles = createButtonGroupStyles(isDark, config, iconMargin, dividerMargin);
 
     const handleClickMap: Record<string, () => void> = {
         onClickAddRow: () => handlers.onClickAddRow?.("below"),
@@ -36,7 +38,7 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
                         key={`divider-${index}`}
                         orientation={orientation === "horizontal" ? "vertical" : "horizontal"}
                         flexItem
-                        sx={{ margin: dividerMargin, borderColor: config.borderColor }}
+                        sx={styles.divider(orientation)}
                     />
                 );
             }
@@ -49,39 +51,18 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
 
             return (
                 <Tooltip key={title} title={title} arrow={tooltipArrow} placement={tooltipPlacement}>
-                    <IconButton
-                        onClick={handleClick}
-                        size="small"
-                        sx={{
-                            m: iconMargin,
-                            color: isDark ? config.svgStyle.color : undefined,
-                            "&:hover": isDark ? { backgroundColor: config.hoverStyle.backgroundColor } : {},
-                        }}
-                    >
+                    <IconButton onClick={handleClick} size="small" sx={styles.iconButton}>
                         <Icon size={iconSize} />
                     </IconButton>
                 </Tooltip>
             );
         },
-        [dividerMargin, handlers, iconMargin, iconSize, isDark, config, orientation, tooltipArrow, tooltipPlacement, handleClickMap]
+        [dividerMargin, handlers, iconMargin, iconSize, isDark, config, orientation, tooltipArrow, tooltipPlacement, handleClickMap, styles]
     );
 
     return (
-        <Paper
-            elevation={1}
-            sx={{
-                display: "inline-flex",
-                padding: 0.5,
-                borderColor: config.borderColor,
-                backgroundColor: isDark ? "#1e1e1e" : undefined,
-            }}
-        >
-            <MuiButtonGroup
-                orientation={orientation}
-                sx={{
-                    "& .MuiDivider-root": { margin: dividerMargin, borderColor: config.borderColor },
-                }}
-            >
+        <Paper elevation={1} sx={styles.paper}>
+            <MuiButtonGroup orientation={orientation} sx={styles.buttonGroup}>
                 {visibleButtons.map(renderButton)}
             </MuiButtonGroup>
         </Paper>

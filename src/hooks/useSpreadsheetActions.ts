@@ -7,50 +7,43 @@
 import { useCallback } from "react";
 import { useAtom } from "jotai";
 import { PrimitiveAtom } from "jotai";
-import { State } from "../types";
-import { TextFormattingOperation } from "../types";
+import { Alignment, CellData, State, TextFormattingOperation } from "../types";
 
 export const useSpreadsheetActions = (atom: PrimitiveAtom<State>) => {
     const [state, setState] = useAtom(atom);
 
     const applyTextFormatting = useCallback(
         (operation: TextFormattingOperation) => {
-            const newData = state.data.map((row, rowIndex) => {
-                return row.map((cell, colIndex) => {
-                    const shouldFormat =
-                        (state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) ||
-                        state.selectedCells[rowIndex][colIndex] ||
-                        (state.selectedRows.includes(rowIndex) && state.selectedColumns.includes(colIndex));
+            const formatMap = {
+                BOLD: (cell: CellData) => ({ ...cell, bold: !cell.bold }),
+                ITALIC: (cell: CellData) => ({ ...cell, italic: !cell.italic }),
+                CODE: (cell: CellData) => ({ ...cell, code: !cell.code }),
+                LINK: (cell: CellData, payload?: string) => ({ ...cell, link: payload || "" }),
+                ALIGN_LEFT: (cell: CellData) => ({ ...cell, align: "left" as const }),
+                ALIGN_CENTER: (cell: CellData) => ({ ...cell, align: "center" as const }),
+                ALIGN_RIGHT: (cell: CellData) => ({ ...cell, align: "right" as const }),
+            };
 
-                    if (!shouldFormat) return cell;
+            setState((prev: State) => ({
+                ...prev,
+                data: prev.data.map((row, rowIndex) =>
+                    row.map((cell, colIndex) => {
+                        const isSelected =
+                            (prev.selectedCell?.row === rowIndex && prev.selectedCell?.col === colIndex) ||
+                            prev.selectedCells[rowIndex][colIndex] ||
+                            (prev.selectedRows.includes(rowIndex) && prev.selectedColumns.includes(colIndex));
 
-                    switch (operation.operation) {
-                        case "BOLD":
-                            return { ...cell, bold: !cell.bold };
-                        case "ITALIC":
-                            return { ...cell, italic: !cell.italic };
-                        case "CODE":
-                            return { ...cell, code: !cell.code };
-                        case "LINK":
-                            return { ...cell, link: operation.payload || "" };
-                        case "ALIGN_LEFT":
-                            return { ...cell, alignment: "left" };
-                        case "ALIGN_CENTER":
-                            return { ...cell, alignment: "center" };
-                        case "ALIGN_RIGHT":
-                            return { ...cell, alignment: "right" };
-                        default:
-                            return cell;
-                    }
-                });
-            });
+                        if (!isSelected) return cell;
 
-            setState({
-                ...state,
-                data: newData,
-            });
+                        if (operation.operation === "LINK") {
+                            return formatMap.LINK(cell, operation.payload);
+                        }
+                        return formatMap[operation.operation](cell);
+                    })
+                ),
+            }));
         },
-        [state, setState]
+        [setState]
     );
 
     const handleTextFormatting = useCallback(
@@ -80,7 +73,7 @@ export const useSpreadsheetActions = (atom: PrimitiveAtom<State>) => {
     );
 
     const handleSetAlignment = useCallback(
-        (alignment: "left" | "center" | "right") => {
+        (alignment: Alignment) => {
             if (
                 !state.selectedCell &&
                 !state.selectedCells.some((row) => row.some((cell) => cell)) &&
