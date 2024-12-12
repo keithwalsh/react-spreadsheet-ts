@@ -4,19 +4,17 @@
  */
 
 import React, { useCallback, useRef, useEffect, useMemo, useState } from "react";
-import { useAtom } from "jotai";
-import { PrimitiveAtom } from "jotai";
-import { State, CellData, DataPayload } from "../types";
+import { PrimitiveAtom, useAtom } from "jotai";
 import { Box } from "@mui/material";
+import { useDragSelection, useOutsideClick, useSpreadsheetActions } from "../hooks";
+import { initialState } from "../store";
+import { CellData, DataPayload, State } from "../types";
+import { addColumn, addRow, downloadCSV, removeColumn, removeRow } from "../utils";
 import Table from "./Table";
 import ButtonGroup from "./ButtonGroup";
-import { useDragSelection, useOutsideClick } from "../hooks";
-import { addRow, removeRow, addColumn, removeColumn } from "../utils/spreadsheetOperations";
 import { ToolbarProvider } from "./ToolbarProvider";
-import { initialState } from "../store/initialState";
 import Menu from "./Menu";
 import TableSizeChooser from "./TableSizeChooser";
-import { downloadCSV } from "../utils";
 import NewTableModal from "./NewTableModal";
 
 interface SpreadsheetProps {
@@ -27,6 +25,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
     const [state, setState] = useAtom(atom);
     const { handleDragStart, handleDragEnter, handleDragEnd } = useDragSelection(atom);
     const [isNewTableModalOpen, setIsNewTableModalOpen] = useState(false);
+    const { handleTextFormatting } = useSpreadsheetActions(atom);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const tableRef = useRef<HTMLTableElement>(null);
@@ -276,59 +275,6 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
 
         saveToHistory(newData);
     }, [state, saveToHistory]);
-
-    const handleTextFormatting = useCallback(
-        (format: "bold" | "italic" | "code") => {
-            if (
-                !state.selectedCell &&
-                !state.selectedCells.some((row) => row.some((cell) => cell)) &&
-                state.selectedColumns.length === 0 &&
-                state.selectedRows.length === 0 &&
-                !state.selectAll
-            ) {
-                return;
-            }
-
-            const newData = state.data.map((row, rowIndex) =>
-                row.map((cell, colIndex) => {
-                    if (state.selectAll) {
-                        return { ...cell, [format]: !cell[format] };
-                    }
-
-                    const isInColumnSelection = state.selectedColumns.includes(colIndex);
-                    const isInRowSelection = state.selectedRows.includes(rowIndex);
-                    if (
-                        (state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) ||
-                        (state.selectedCells[rowIndex] && state.selectedCells[rowIndex][colIndex]) ||
-                        isInColumnSelection ||
-                        isInRowSelection
-                    ) {
-                        return { ...cell, [format]: !cell[format] };
-                    }
-                    return cell;
-                })
-            );
-
-            setState({
-                ...state,
-                data: newData,
-                past: [
-                    ...state.past,
-                    {
-                        data: state.data,
-                        selectedCell: state.selectedCell,
-                        selectedCells: state.selectedCells,
-                        selectedRows: state.selectedRows,
-                        selectedColumns: state.selectedColumns,
-                        isDragging: state.isDragging,
-                        selectAll: state.selectAll,
-                    },
-                ],
-                future: [],
-            });
-        },
-        [state, setState]
-    );
 
     const handleSetAlignment = useCallback(
         (alignment: "left" | "center" | "right") => {

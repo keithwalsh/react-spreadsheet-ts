@@ -1,9 +1,12 @@
+/**
+ * @fileoverview Editable cell component for the spreadsheet. Handles cell selection,
+ * editing, styling, and user interactions like mouse events and keyboard input.
+ */
+
 import React, { useState, useRef, useCallback, useMemo, useEffect } from "react";
-import { TableCell as TableCellMui, useTheme, createTheme } from "@mui/material";
+import { TableCell as TableCellMui, useTheme } from "@mui/material";
 import type { CellProps } from "../types";
 import { getCellStyles, CellStyleProps } from "../styles/cellStyles";
-
-const defaultTheme = createTheme();
 
 const Cell: React.FC<CellProps> = React.memo(
     ({
@@ -24,96 +27,59 @@ const Cell: React.FC<CellProps> = React.memo(
         onCellKeyDown,
         onCellChange,
     }) => {
-        const theme = useTheme() || defaultTheme;
-        const isDarkMode = theme?.palette?.mode === "dark" || false;
+        const theme = useTheme();
+        const isDarkMode = theme.palette.mode === "dark";
         const [isEditing, setIsEditing] = useState(false);
         const cellRef = useRef<HTMLDivElement>(null);
 
         const isSingleCellSelected = selectedCell?.row === rowIndex && selectedCell?.col === colIndex;
-        const isColumnSelected = selectedColumns?.includes(colIndex);
-        const isRowSelected = selectedRows?.includes(rowIndex);
-        const isMultiSelected = selectedCells[rowIndex]?.[colIndex];
+        const isColumnSelected = selectedColumns.includes(colIndex);
+        const isRowSelected = selectedRows.includes(rowIndex);
+        const isMultiSelected = !!selectedCells[rowIndex]?.[colIndex];
         const isSelected = isSingleCellSelected || isColumnSelected || isRowSelected || isMultiSelected;
         const multipleCellsSelected = useMemo(() => {
-            // Count total selected cells
-            const selectedCount = Object.values(selectedCells).reduce(
-                (total: number, row: Record<number, boolean>) =>
-                    total + Object.values(row).reduce((rowTotal: number, cell: boolean) => rowTotal + (cell ? 1 : 0), 0),
-                0
-            );
-            return selectedCount > 1;
+            return Object.values(selectedCells).reduce((count, row) => count + Object.values(row).filter(Boolean).length, 0) > 1;
         }, [selectedCells]);
 
         useEffect(() => {
-            if (cellRef.current) {
-                cellRef.current.textContent = cellData.value || "";
-            }
+            if (cellRef.current) cellRef.current.textContent = cellData.value ?? "";
         }, [cellData.value]);
 
         const enableEditMode = useCallback(() => {
-            if (cellRef.current) {
-                setIsEditing(true);
-                requestAnimationFrame(() => {
-                    if (cellRef.current) {
-                        cellRef.current.focus();
-                        const range = document.createRange();
-                        const sel = window.getSelection();
-                        range.selectNodeContents(cellRef.current);
-                        range.collapse(false);
-                        sel?.removeAllRanges();
-                        sel?.addRange(range);
-                    }
-                });
-            }
+            if (!cellRef.current) return;
+            setIsEditing(true);
+            requestAnimationFrame(() => {
+                if (!cellRef.current) return;
+                cellRef.current.focus();
+                const range = document.createRange();
+                range.selectNodeContents(cellRef.current);
+                range.collapse(false);
+                const sel = window.getSelection();
+                sel?.removeAllRanges();
+                sel?.addRange(range);
+            });
         }, []);
 
-        const handleBlur = useCallback(() => {
-            setIsEditing(false);
-            if (onCellBlur) {
-                onCellBlur();
-            }
-        }, [onCellBlur]);
+        const handleBlur = () => (setIsEditing(false), onCellBlur?.());
 
         const handleKeyDown = useCallback(
-            (event: React.KeyboardEvent) => {
-                if (event.key === "Enter" && !event.shiftKey) {
-                    event.preventDefault();
-                    if (onCellKeyDown) {
-                        onCellKeyDown(event);
-                    }
-                    handleBlur();
-                }
-            },
+            (e: React.KeyboardEvent) => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), onCellKeyDown?.(e), handleBlur()),
             [onCellKeyDown, handleBlur]
         );
 
-        const handleDoubleClick = useCallback(() => {
-            if (onDoubleClick) {
-                onDoubleClick(rowIndex, colIndex);
-            }
-            enableEditMode();
-        }, [onDoubleClick, rowIndex, colIndex, enableEditMode]);
+        const handleDoubleClick = useCallback(
+            () => (onDoubleClick?.(rowIndex, colIndex), enableEditMode()),
+            [onDoubleClick, rowIndex, colIndex, enableEditMode]
+        );
 
         const handleMouseDown = useCallback(
-            (event: React.MouseEvent) => {
-                if (onMouseDown) {
-                    onMouseDown(rowIndex, colIndex, event.shiftKey, event.metaKey || event.ctrlKey);
-                }
-            },
+            ({ shiftKey, ctrlKey }: React.MouseEvent) => onMouseDown?.(rowIndex, colIndex, shiftKey, ctrlKey),
             [onMouseDown, rowIndex, colIndex]
         );
 
-        const handleMouseEnter = useCallback(() => {
-            if (onMouseEnter) {
-                onMouseEnter(rowIndex, colIndex);
-            }
-        }, [onMouseEnter, rowIndex, colIndex]);
+        const handleMouseEnter = useCallback(() => onMouseEnter?.(rowIndex, colIndex), [onMouseEnter, rowIndex, colIndex]);
 
-        const handleContentChange = useCallback(() => {
-            if (cellRef.current && onCellChange) {
-                onCellChange(rowIndex, colIndex, cellRef.current.textContent || "");
-            }
-        }, [onCellChange, rowIndex, colIndex]);
+        const handleContentChange = () => cellRef.current && onCellChange?.(rowIndex, colIndex, cellRef.current.textContent || "");
 
         const cellStyleProps: CellStyleProps = useMemo(
             () => ({
@@ -139,6 +105,8 @@ const Cell: React.FC<CellProps> = React.memo(
                 onMouseUp={onMouseUp}
                 onDoubleClick={handleDoubleClick}
                 sx={getCellStyles(cellStyleProps)}
+                data-row={rowIndex}
+                data-col={colIndex}
             >
                 <div
                     ref={cellRef}
@@ -164,7 +132,5 @@ const Cell: React.FC<CellProps> = React.memo(
         );
     }
 );
-
-Cell.displayName = "Cell";
 
 export default Cell;

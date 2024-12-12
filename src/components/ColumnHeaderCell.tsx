@@ -5,16 +5,10 @@
 import React from "react";
 import TableCell from "@mui/material/TableCell";
 import { useAtom } from "jotai";
-import { ColumnHeaderCellProps } from "../types";
+import { ColumnHeaderCellProps, DragHandlers } from "../types";
 import { useHeaderCellStyles } from "../styles";
 import { getColumnLabel } from "../utils/columnUtils";
 import ColumnContextMenu from "./ColumnContextMenu";
-
-interface DragHandlers {
-    onDragStart: (colIndex: number) => void;
-    onDragEnter: (colIndex: number) => void;
-    onDragEnd: () => void;
-}
 
 export function ColumnHeaderCell({
     atom,
@@ -27,14 +21,10 @@ export function ColumnHeaderCell({
     onRemoveColumn,
 }: ColumnHeaderCellProps & DragHandlers) {
     const [state] = useAtom(atom);
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
     const [isHovered, setIsHovered] = React.useState(false);
 
-    const isSelected = React.useMemo(() => {
-        if (state.selectedColumns.includes(index)) return true;
-        if (state.selectedCell?.col === index) return true;
-        return state.selectedCells.some((row: boolean[]) => row[index]);
-    }, [state.selectedColumns, state.selectedCell, state.selectedCells, index]);
+    const isSelected = state.selectedColumns.includes(index) || state.selectedCell?.col === index || state.selectedCells.some((row: boolean[]) => row[index]);
 
     const styles = useHeaderCellStyles({
         isSelected: isSelected || state.selectAll,
@@ -42,49 +32,26 @@ export function ColumnHeaderCell({
         isHovered,
     });
 
-    const handleContextMenu = (event: React.MouseEvent<HTMLTableCellElement>) => {
-        event.preventDefault();
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleMouseDown = (e: React.MouseEvent<HTMLTableCellElement>) => {
-        e.preventDefault();
-        onDragStart(index);
-    };
-
-    const handleMouseEnter = (e: React.MouseEvent<HTMLTableCellElement>) => {
-        if (state.isDragging) {
-            e.preventDefault();
-            onDragEnter(index);
-        }
-    };
-
-    const handleCloseMenu = () => {
-        setAnchorEl(null);
-    };
-
-    const handleAddLeft = () => {
-        onAddColumnLeft(index);
-        handleCloseMenu();
-    };
-
-    const handleAddRight = () => {
-        onAddColumnRight(index);
-        handleCloseMenu();
-    };
-
-    const handleRemove = () => {
-        onRemoveColumn(index);
-        handleCloseMenu();
-    };
+    const closeMenu = () => setAnchorEl(null);
 
     return (
         <>
             <TableCell
                 sx={styles}
-                onContextMenu={handleContextMenu}
-                onMouseDown={handleMouseDown}
-                onMouseEnter={handleMouseEnter}
+                onContextMenu={(e) => {
+                    e.preventDefault();
+                    setAnchorEl(e.currentTarget);
+                }}
+                onMouseDown={(e) => {
+                    e.preventDefault();
+                    onDragStart(index);
+                }}
+                onMouseEnter={(e) => {
+                    if (state.isDragging) {
+                        e.preventDefault();
+                        onDragEnter(index);
+                    }
+                }}
                 onMouseUp={onDragEnd}
                 onMouseLeave={() => setIsHovered(false)}
                 draggable
@@ -94,10 +61,19 @@ export function ColumnHeaderCell({
             <ColumnContextMenu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
-                onClose={handleCloseMenu}
-                onAddLeft={handleAddLeft}
-                onAddRight={handleAddRight}
-                onRemove={handleRemove}
+                onClose={closeMenu}
+                onAddLeft={() => {
+                    onAddColumnLeft(index);
+                    closeMenu();
+                }}
+                onAddRight={() => {
+                    onAddColumnRight(index);
+                    closeMenu();
+                }}
+                onRemove={() => {
+                    onRemoveColumn(index);
+                    closeMenu();
+                }}
             />
         </>
     );

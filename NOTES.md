@@ -120,3 +120,11 @@ After:
 })
 
 ```
+
+#### Problem
+
+Click-and-drag cell range selection stopped working.
+
+#### Solution
+
+Use a more robust approach by tracking mouse movements at the document level. This ensures proper drag state is maintained, even when the mouse is moved quickly. Additionally, utilize data attributes to reliably identify cells during selection.

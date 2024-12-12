@@ -46,6 +46,47 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
         ref
     ) => {
         const [state, setState] = useAtom(atom);
+        const [isDragging, setIsDragging] = React.useState(false);
+        const [lastCell, setLastCell] = React.useState<{ row: number; col: number } | null>(null);
+
+        // Add document-level mouse event handlers
+        React.useEffect(() => {
+            const handleMouseMove = (e: MouseEvent) => {
+                if (!isDragging || !lastCell) return;
+
+                // Find the cell element under the cursor
+                const element = document.elementFromPoint(e.clientX, e.clientY);
+                if (!element) return;
+
+                // Find the closest cell element
+                const cellElement = element.closest('[data-row]');
+                if (cellElement) {
+                    const row = parseInt(cellElement.getAttribute('data-row') || '-1');
+                    const col = parseInt(cellElement.getAttribute('data-col') || '-1');
+                    if (row >= 0 && col >= 0 && (row !== lastCell.row || col !== lastCell.col)) {
+                        onDragEnter(row, col);
+                        setLastCell({ row, col });
+                    }
+                }
+            };
+
+            const handleMouseUp = () => {
+                if (isDragging) {
+                    setIsDragging(false);
+                    onDragEnd();
+                }
+            };
+
+            if (isDragging) {
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+            }
+
+            return () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+            };
+        }, [isDragging, lastCell, onDragEnter, onDragEnd]);
 
         const handlePasteEvent = React.useCallback(
             (event: React.ClipboardEvent<HTMLDivElement>) => {
@@ -124,6 +165,9 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
 
         const handleCellMouseDown = React.useCallback(
             (rowIndex: number, colIndex: number, shiftKey: boolean, ctrlKey: boolean) => {
+                setIsDragging(true);
+                setLastCell({ row: rowIndex, col: colIndex });
+                onDragStart(rowIndex, colIndex);
                 if (shiftKey && state.selectedCell) {
                     // Handle range selection
                     const startRow = Math.min(state.selectedCell.row, rowIndex);
@@ -182,7 +226,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                     }));
                 }
             },
-            [state, setState]
+            [state, setState, onDragStart]
         );
 
         const toolbar = useToolbar();

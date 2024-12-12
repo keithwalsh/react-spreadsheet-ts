@@ -5,7 +5,7 @@ import { SelectAllCellProps } from "../types";
 
 const SelectAllCell: React.FC<SelectAllCellProps> = ({ selectAll, toggleSelectAll, size = "small", sx = {} }) => {
     const theme = useTheme();
-    const isDarkMode = theme.palette.mode === 'dark';
+    const isDarkMode = theme.palette.mode === "dark";
 
     const tableCellStyles = {
         padding: "0px",

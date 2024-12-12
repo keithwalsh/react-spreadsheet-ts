@@ -1,9 +1,4 @@
-/**
- * @fileoverview Row number cell component for spreadsheet. Displays row numbers and
- * handles row selection through click and drag interactions.
- */
-
-import React from "react";
+import { useState, useMemo, MouseEvent } from "react";
 import { TableCell } from "@mui/material";
 import { useAtom } from "jotai";
 import { PrimitiveAtom } from "jotai";
@@ -24,15 +19,14 @@ interface RowNumberCellProps {
 
 export function RowNumberCell({ atom, rowIndex, onDragStart, onDragEnter, onDragEnd, onAddAbove, onAddBelow, onRemove }: RowNumberCellProps) {
     const [state] = useAtom(atom);
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
-    const isHighlighted = React.useMemo(() => {
-        return state.selectedCell?.row === rowIndex || (state.selectedCells && state.selectedCells[rowIndex]?.some((cell) => cell));
-    }, [state.selectedCell, state.selectedCells, rowIndex]);
+    const isHighlighted = useMemo(
+        () => state.selectedCell?.row === rowIndex || (state.selectedCells && state.selectedCells[rowIndex]?.some(Boolean)),
+        [state.selectedCell, state.selectedCells, rowIndex]
+    );
 
-    const isSelected = React.useMemo(() => {
-        return state.selectedRows.includes(rowIndex);
-    }, [state.selectedRows, rowIndex]);
+    const isSelected = useMemo(() => state.selectedRows.includes(rowIndex), [state.selectedRows, rowIndex]);
 
     const styles = useHeaderCellStyles({
         isSelected: isSelected || state.selectAll,
@@ -40,49 +34,28 @@ export function RowNumberCell({ atom, rowIndex, onDragStart, onDragEnter, onDrag
         isHovered: false,
     } as HeaderCellStylesParams);
 
-    const handleContextMenu = (event: React.MouseEvent<HTMLTableCellElement>) => {
+    const handleContextMenu = (event: MouseEvent<HTMLTableCellElement>) => {
         event.preventDefault();
         setAnchorEl(event.currentTarget);
     };
 
-    const handleCloseMenu = () => {
-        setAnchorEl(null);
-    };
-
-    const handleMouseDown = (e: React.MouseEvent) => {
-        e.preventDefault();
-        onDragStart(rowIndex);
-    };
-
-    const handleMouseEnter = (e: React.MouseEvent) => {
-        if (state.isDragging) {
-            e.preventDefault();
-            onDragEnter(rowIndex);
-        }
-    };
-
-    const handleAddAboveClick = () => {
-        onAddAbove(rowIndex);
-        handleCloseMenu();
-    };
-
-    const handleAddBelowClick = () => {
-        onAddBelow(rowIndex);
-        handleCloseMenu();
-    };
-
-    const handleRemoveClick = () => {
-        onRemove(rowIndex);
-        handleCloseMenu();
-    };
+    const handleCloseMenu = () => setAnchorEl(null);
 
     return (
         <>
             <TableCell
                 sx={styles}
                 onContextMenu={handleContextMenu}
-                onMouseDown={handleMouseDown}
-                onMouseEnter={handleMouseEnter}
+                onMouseDown={(e) => {
+                    e.preventDefault();
+                    onDragStart(rowIndex);
+                }}
+                onMouseEnter={(e) => {
+                    if (state.isDragging) {
+                        e.preventDefault();
+                        onDragEnter(rowIndex);
+                    }
+                }}
                 onMouseUp={onDragEnd}
                 draggable
             >
@@ -92,9 +65,18 @@ export function RowNumberCell({ atom, rowIndex, onDragStart, onDragEnter, onDrag
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={handleCloseMenu}
-                onAddAbove={handleAddAboveClick}
-                onAddBelow={handleAddBelowClick}
-                onRemove={handleRemoveClick}
+                onAddAbove={() => {
+                    onAddAbove(rowIndex);
+                    handleCloseMenu();
+                }}
+                onAddBelow={() => {
+                    onAddBelow(rowIndex);
+                    handleCloseMenu();
+                }}
+                onRemove={() => {
+                    onRemove(rowIndex);
+                    handleCloseMenu();
+                }}
             />
         </>
     );

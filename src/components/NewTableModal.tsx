@@ -1,16 +1,13 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { Modal, Box, Typography, Button, TextField, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { NewTableModalProps, TableDimensionInputProps } from "../types";
 
 function TableDimensionInput({ label, value, onChange, max }: TableDimensionInputProps) {
-    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = e.target.value;
-        const numValue = parseInt(newValue, 10);
-        if (newValue === "" || (numValue >= 1 && numValue <= max)) {
-            onChange(newValue);
-        }
-    }, [onChange, max]);
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const num = parseInt(e.target.value, 10);
+        if (!e.target.value || (num >= 1 && num <= max)) onChange(e.target.value);
+    };
 
     return (
         <TextField
@@ -31,37 +28,25 @@ export function NewTableModal({ open, onClose, onCreateNewTable }: NewTableModal
     const [columns, setColumns] = useState("");
     const [error, setError] = useState<string | null>(null);
 
-    const validateAndCreate = useCallback(() => {
+    const validateAndCreate = () => {
         const rowsNum = parseInt(rows, 10);
-        const columnsNum = parseInt(columns, 10);
+        const colsNum = parseInt(columns, 10);
 
-        if (isNaN(rowsNum) || isNaN(columnsNum)) {
-            setError("Please enter valid numbers for rows and columns");
-            return;
-        }
-
-        if (rowsNum < 1 || rowsNum > 500) {
-            setError("Rows must be between 1 and 500");
-            return;
-        }
-
-        if (columnsNum < 1 || columnsNum > 20) {
-            setError("Columns must be between 1 and 20");
-            return;
-        }
+        if (!rowsNum || rowsNum < 1 || rowsNum > 500) return setError("Rows must be between 1 and 500");
+        if (!colsNum || colsNum < 1 || colsNum > 20) return setError("Columns must be between 1 and 20");
 
         setError(null);
-        onCreateNewTable(rowsNum, columnsNum);
+        onCreateNewTable(rowsNum, colsNum);
         setRows("");
         setColumns("");
-    }, [rows, columns, onCreateNewTable]);
+    };
 
-    const handleClose = useCallback(() => {
+    const handleClose = () => {
         setError(null);
         setRows("");
         setColumns("");
         onClose();
-    }, [onClose]);
+    };
 
     return (
         <Modal open={open} onClose={handleClose}>
@@ -78,39 +63,20 @@ export function NewTableModal({ open, onClose, onCreateNewTable }: NewTableModal
                     borderRadius: 1,
                 }}
             >
-                <IconButton
-                    onClick={handleClose}
-                    sx={{
-                        position: "absolute",
-                        right: 8,
-                        top: 8,
-                    }}
-                >
+                <IconButton onClick={handleClose} sx={{ position: "absolute", right: 8, top: 8 }}>
                     <CloseIcon />
                 </IconButton>
-                <Typography variant="h6" component="h2">
-                    Create New Table
-                </Typography>
+                <Typography variant="h6">Create New Table</Typography>
                 <Typography variant="body2" sx={{ mt: 2, mb: 3 }}>
-                    Enter table size. Please, remember that the current table contents will be lost.
+                    Enter table size. The current table contents will be lost.
                 </Typography>
                 {error && (
                     <Typography color="error" sx={{ mb: 2 }}>
                         {error}
                     </Typography>
                 )}
-                <TableDimensionInput
-                    label="Rows"
-                    value={rows}
-                    onChange={setRows}
-                    max={500}
-                />
-                <TableDimensionInput
-                    label="Columns"
-                    value={columns}
-                    onChange={setColumns}
-                    max={20}
-                />
+                <TableDimensionInput label="Rows" value={rows} onChange={setRows} max={500} />
+                <TableDimensionInput label="Columns" value={columns} onChange={setColumns} max={20} />
                 <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
                     <Button onClick={handleClose} sx={{ mr: 1 }}>
                         Cancel

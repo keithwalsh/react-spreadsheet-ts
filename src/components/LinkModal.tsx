@@ -1,54 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    TextField,
-    Button,
-    Box,
-} from '@mui/material';
+import React, { useState, useEffect } from "react";
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Box } from "@mui/material";
+import { LinkModalProps } from "../types";
 
-interface LinkModalProps {
-    open: boolean;
-    onClose: () => void;
-    onSubmit: (url: string | undefined) => void;
-    initialUrl?: string;
-}
-
-const LinkModal: React.FC<LinkModalProps> = ({
-    open,
-    onClose,
-    onSubmit,
-    initialUrl = '',
-}) => {
+const LinkModal: React.FC<LinkModalProps> = ({ open, onClose, onSubmit, initialUrl = "" }) => {
     const [url, setUrl] = useState(initialUrl);
 
     useEffect(() => {
-        // Update url state when initialUrl changes or modal opens
         setUrl(initialUrl);
     }, [initialUrl, open]);
 
     const handleSubmit = () => {
-        const trimmedUrl = url.trim();
-        onSubmit(trimmedUrl || undefined);
+        onSubmit(url.trim() || undefined);
         onClose();
     };
 
-    const handleRemoveLink = () => {
+    const handleRemove = () => {
         onSubmit(undefined);
         onClose();
     };
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            handleSubmit();
-        }
+        if (e.key === "Enter") handleSubmit();
     };
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-            <DialogTitle>{initialUrl ? 'Edit Link' : 'Add Link'}</DialogTitle>
+            <DialogTitle>{initialUrl ? "Edit Link" : "Add Link"}</DialogTitle>
             <DialogContent>
                 <TextField
                     autoFocus
@@ -63,24 +40,16 @@ const LinkModal: React.FC<LinkModalProps> = ({
                 />
             </DialogContent>
             <DialogActions>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', px: 1 }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%", px: 1 }}>
                     {initialUrl && (
-                        <Button 
-                            onClick={handleRemoveLink} 
-                            color="error"
-                        >
+                        <Button onClick={handleRemove} color="error">
                             Remove Link
                         </Button>
                     )}
                     <Box>
                         <Button onClick={onClose}>Cancel</Button>
-                        <Button 
-                            onClick={handleSubmit} 
-                            variant="contained" 
-                            color="primary"
-                            disabled={!url.trim()}
-                        >
-                            {initialUrl ? 'Update' : 'Add'} Link
+                        <Button onClick={handleSubmit} variant="contained" color="primary" disabled={!url.trim()}>
+                            {initialUrl ? "Update" : "Add"} Link
                         </Button>
                     </Box>
                 </Box>
