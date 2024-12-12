@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Box } from "@mui/material";
 import { LinkModalProps } from "../types";
 
@@ -19,10 +19,6 @@ const LinkModal: React.FC<LinkModalProps> = ({ open, onClose, onSubmit, initialU
         onClose();
     };
 
-    const handleKeyPress = (e: React.KeyboardEvent) => {
-        if (e.key === "Enter") handleSubmit();
-    };
-
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
             <DialogTitle>{initialUrl ? "Edit Link" : "Add Link"}</DialogTitle>
@@ -35,23 +31,21 @@ const LinkModal: React.FC<LinkModalProps> = ({ open, onClose, onSubmit, initialU
                     fullWidth
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    onKeyPress={handleKeyPress}
+                    onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                     placeholder="https://example.com"
                 />
             </DialogContent>
-            <DialogActions>
-                <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%", px: 1 }}>
-                    {initialUrl && (
-                        <Button onClick={handleRemove} color="error">
-                            Remove Link
-                        </Button>
-                    )}
-                    <Box>
-                        <Button onClick={onClose}>Cancel</Button>
-                        <Button onClick={handleSubmit} variant="contained" color="primary" disabled={!url.trim()}>
-                            {initialUrl ? "Update" : "Add"} Link
-                        </Button>
-                    </Box>
+            <DialogActions sx={{ justifyContent: "space-between", px: 1 }}>
+                {initialUrl && (
+                    <Button onClick={handleRemove} color="error">
+                        Remove Link
+                    </Button>
+                )}
+                <Box>
+                    <Button onClick={onClose}>Cancel</Button>
+                    <Button onClick={handleSubmit} variant="contained" color="primary" disabled={!url.trim()}>
+                        {initialUrl ? "Update" : "Add"} Link
+                    </Button>
                 </Box>
             </DialogActions>
         </Dialog>
