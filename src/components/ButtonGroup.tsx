@@ -26,7 +26,6 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
     const handleClickMap: Record<string, () => void> = {
         onClickAddRow: () => handlers.onClickAddRow?.("below"),
         onClickAddColumn: () => handlers.onClickAddColumn?.("right"),
-        // Add other handlers as needed
     };
 
     const renderButton = useCallback(

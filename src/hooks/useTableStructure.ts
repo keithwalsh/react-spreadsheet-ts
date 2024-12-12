@@ -21,15 +21,8 @@ export const useTableStructure = (atom: PrimitiveAtom<State>) => {
         selectAll: state.selectAll,
     });
 
-    const handleAddRow = useCallback(
-        (position: "above" | "below") => {
-            const result = addRow({
-                data: state.data,
-                selectedCells: state.selectedCells,
-                index: state.selectedCell?.row ?? state.data.length,
-                position,
-            });
-
+    const updateStateWithNewData = useCallback(
+        (result: { newData: State["data"]; newSelectedCells: State["selectedCells"] }) => {
             setState({
                 ...state,
                 data: result.newData,
@@ -39,6 +32,32 @@ export const useTableStructure = (atom: PrimitiveAtom<State>) => {
             });
         },
         [state, setState]
+    );
+
+    const handleAddRow = useCallback(
+        (position: "above" | "below") => {
+            const result = addRow({
+                data: state.data,
+                selectedCells: state.selectedCells,
+                index: state.selectedCell?.row ?? state.data.length,
+                position,
+            });
+            updateStateWithNewData(result);
+        },
+        [state, updateStateWithNewData]
+    );
+
+    const handleAddRowAtIndex = useCallback(
+        (index: number, position: "above" | "below") => {
+            const result = addRow({
+                data: state.data,
+                selectedCells: state.selectedCells,
+                index,
+                position,
+            });
+            updateStateWithNewData(result);
+        },
+        [state, updateStateWithNewData]
     );
 
     const handleRemoveRow = useCallback(
@@ -72,16 +91,22 @@ export const useTableStructure = (atom: PrimitiveAtom<State>) => {
                 index: state.selectedCell?.col ?? state.data[0].length,
                 position,
             });
-
-            setState({
-                ...state,
-                data: result.newData,
-                past: [...state.past, createHistoryEntry()],
-                future: [],
-                selectedCells: result.newSelectedCells,
-            });
+            updateStateWithNewData(result);
         },
-        [state, setState]
+        [state, updateStateWithNewData]
+    );
+
+    const handleAddColumnAtIndex = useCallback(
+        (index: number, position: "left" | "right") => {
+            const result = addColumn({
+                data: state.data,
+                selectedCells: state.selectedCells,
+                index,
+                position,
+            });
+            updateStateWithNewData(result);
+        },
+        [state, updateStateWithNewData]
     );
 
     const handleRemoveColumn = useCallback(
@@ -107,85 +132,13 @@ export const useTableStructure = (atom: PrimitiveAtom<State>) => {
         [state, setState]
     );
 
-    const handleAddColumnLeft = useCallback(
-        (index: number) => {
-            const result = addColumn({
-                data: state.data,
-                selectedCells: state.selectedCells,
-                index,
-                position: "left",
-            });
+    const handleAddColumnLeft = useCallback((index: number) => handleAddColumnAtIndex(index, "left"), [handleAddColumnAtIndex]);
 
-            setState({
-                ...state,
-                data: result.newData,
-                past: [...state.past, createHistoryEntry()],
-                future: [],
-                selectedCells: result.newSelectedCells,
-            });
-        },
-        [state, setState]
-    );
+    const handleAddColumnRight = useCallback((index: number) => handleAddColumnAtIndex(index, "right"), [handleAddColumnAtIndex]);
 
-    const handleAddColumnRight = useCallback(
-        (index: number) => {
-            const result = addColumn({
-                data: state.data,
-                selectedCells: state.selectedCells,
-                index,
-                position: "right",
-            });
+    const handleAddRowAbove = useCallback((index: number) => handleAddRowAtIndex(index, "above"), [handleAddRowAtIndex]);
 
-            setState({
-                ...state,
-                data: result.newData,
-                past: [...state.past, createHistoryEntry()],
-                future: [],
-                selectedCells: result.newSelectedCells,
-            });
-        },
-        [state, setState]
-    );
-
-    const handleAddRowAbove = useCallback(
-        (index: number) => {
-            const result = addRow({
-                data: state.data,
-                selectedCells: state.selectedCells,
-                index,
-                position: "above",
-            });
-
-            setState({
-                ...state,
-                data: result.newData,
-                past: [...state.past, createHistoryEntry()],
-                future: [],
-                selectedCells: result.newSelectedCells,
-            });
-        },
-        [state, setState]
-    );
-
-    const handleAddRowBelow = useCallback(
-        (index: number) => {
-            const result = addRow({
-                data: state.data,
-                selectedCells: state.selectedCells,
-                index,
-                position: "below",
-            });
-
-            setState({
-                ...state,
-                data: result.newData,
-                past: [...state.past, createHistoryEntry()],
-                future: [],
-                selectedCells: result.newSelectedCells,
-            });
-        },
-        [state, setState]
-    );
+    const handleAddRowBelow = useCallback((index: number) => handleAddRowAtIndex(index, "below"), [handleAddRowAtIndex]);
 
     return {
         handleAddRow,
