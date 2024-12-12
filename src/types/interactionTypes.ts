@@ -7,61 +7,23 @@
 import { PrimitiveAtom } from "jotai";
 import { CellData, State } from "./dataTypes";
 
-export interface AddColumnOptions {
+export interface TableStructureModification {
     data: CellData[][];
     selectedCells: boolean[][];
     index: number;
+}
+
+export interface AddColumnOptions extends TableStructureModification {
     position: "left" | "right";
 }
 
-export interface AddRowOptions {
-    data: CellData[][];
-    selectedCells: boolean[][];
-    index: number;
+export interface AddRowOptions extends TableStructureModification {
     position: "above" | "below";
 }
-
-export type ButtonAction =
-    | "onFormatBold"
-    | "onFormatItalic"
-    | "onFormatCode"
-    | "onAlignLeft"
-    | "onAlignCenter"
-    | "onAlignRight"
-    | "onCut"
-    | "onCopy"
-    | "onPaste"
-    | "onDelete"
-    | "onUndo"
-    | "onRedo"
-    | "onAddRow"
-    | "onRemoveRow"
-    | "onAddColumn"
-    | "onRemoveColumn"
-    | "onDownloadCSV";
 
 export interface ButtonHandlerKey {
     [key: string]: () => void;
 }
-
-export type ButtonId =
-    | "bold"
-    | "italic"
-    | "code"
-    | "alignLeft"
-    | "alignCenter"
-    | "alignRight"
-    | "cut"
-    | "copy"
-    | "paste"
-    | "delete"
-    | "undo"
-    | "redo"
-    | "addRow"
-    | "removeRow"
-    | "addColumn"
-    | "removeColumn"
-    | "downloadCSV";
 
 export interface DragHandlers {
     onDragStart: (colIndex: number) => void;

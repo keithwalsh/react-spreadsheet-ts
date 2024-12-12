@@ -1,21 +1,9 @@
 import { useState, useMemo, MouseEvent } from "react";
 import { TableCell } from "@mui/material";
 import { useAtom } from "jotai";
-import { PrimitiveAtom } from "jotai";
-import { State, HeaderCellStylesParams } from "../types";
+import { HeaderCellStylesParams, RowNumberCellProps } from "../types";
 import { useHeaderCellStyles } from "../styles";
 import RowContextMenu from "./RowContextMenu";
-
-interface RowNumberCellProps {
-    atom: PrimitiveAtom<State>;
-    rowIndex: number;
-    onDragStart: (rowIndex: number) => void;
-    onDragEnter: (rowIndex: number) => void;
-    onDragEnd: () => void;
-    onAddAbove: (index: number) => void;
-    onAddBelow: (index: number) => void;
-    onRemove: (index: number) => void;
-}
 
 export function RowNumberCell({ atom, rowIndex, onDragStart, onDragEnter, onDragEnd, onAddAbove, onAddBelow, onRemove }: RowNumberCellProps) {
     const [state] = useAtom(atom);

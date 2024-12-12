@@ -5,28 +5,19 @@
 
 import { useCallback } from "react";
 import { PrimitiveAtom, useAtom } from "jotai";
-import { State, DataPayload } from "../types";
+import { State } from "../types";
 import { addRow, addColumn, removeRow, removeColumn } from "../utils";
+import { createHistoryEntry } from "../utils/historyUtils";
 
 export const useTableStructure = (atom: PrimitiveAtom<State>) => {
     const [state, setState] = useAtom(atom);
-
-    const createHistoryEntry = (): DataPayload => ({
-        data: state.data,
-        selectedCell: state.selectedCell,
-        selectedCells: state.selectedCells,
-        selectedRows: state.selectedRows,
-        selectedColumns: state.selectedColumns,
-        isDragging: state.isDragging,
-        selectAll: state.selectAll,
-    });
 
     const updateStateWithNewData = useCallback(
         (result: { newData: State["data"]; newSelectedCells: State["selectedCells"] }) => {
             setState({
                 ...state,
                 data: result.newData,
-                past: [...state.past, createHistoryEntry()],
+                past: [...state.past, createHistoryEntry(state)],
                 future: [],
                 selectedCells: result.newSelectedCells,
             });
@@ -73,7 +64,7 @@ export const useTableStructure = (atom: PrimitiveAtom<State>) => {
             setState({
                 ...state,
                 data: result.newData,
-                past: [...state.past, createHistoryEntry()],
+                past: [...state.past, createHistoryEntry(state)],
                 future: [],
                 selectedCell: null,
                 selectedCells: result.newSelectedCells,
@@ -122,7 +113,7 @@ export const useTableStructure = (atom: PrimitiveAtom<State>) => {
             setState({
                 ...state,
                 data: result.newData,
-                past: [...state.past, createHistoryEntry()],
+                past: [...state.past, createHistoryEntry(state)],
                 future: [],
                 selectedCell: null,
                 selectedCells: result.newSelectedCells,

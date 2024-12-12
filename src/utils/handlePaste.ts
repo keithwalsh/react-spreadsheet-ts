@@ -4,6 +4,19 @@ import { Alignment, CellData, PasteOperationResult } from "../types/index";
  * Handles pasting clipboard data into the table.
  * Adjusts the table size if necessary and updates data and alignments.
  */
+const createFormattingArray = <T>(sourceArray: T[][], rowIndex: number, requiredCols: number, defaultValue: T): T[] => {
+    if (rowIndex < sourceArray.length) {
+        // Existing row: copy and extend if needed
+        const existingRow = [...sourceArray[rowIndex]];
+        while (existingRow.length < requiredCols) {
+            existingRow.push(defaultValue);
+        }
+        return existingRow;
+    }
+    // New row: create with default values
+    return Array(requiredCols).fill(defaultValue);
+};
+
 export const handlePaste = (
     clipboardText: string,
     data: CellData[][],
@@ -23,13 +36,11 @@ export const handlePaste = (
             newBold: bold,
             newItalic: italic,
             newCode: code,
-            newSelectedCells: Array.from({ length: data.length }, () =>
-                Array(data[0].length).fill(false)
-            ),
+            newSelectedCells: Array.from({ length: data.length }, () => Array(data[0].length).fill(false)),
             dimensions: {
                 rows: data.length,
-                cols: data[0].length
-            }
+                cols: data[0].length,
+            },
         };
     }
 
@@ -38,10 +49,7 @@ export const handlePaste = (
 
     // Calculate required dimensions
     const requiredRows = Math.max(data.length, startRow + parsedData.length);
-    const requiredCols = Math.max(
-        data[0]?.length ?? 0,
-        startCol + Math.max(...parsedData.map(row => row.length))
-    );
+    const requiredCols = Math.max(data[0]?.length ?? 0, startCol + Math.max(...parsedData.map((row) => row.length)));
 
     // Create new array with required dimensions
     const newData = Array.from({ length: requiredRows }, (_, rowIndex) => {
@@ -54,19 +62,21 @@ export const handlePaste = (
                     align: "left" as const,
                     bold: false,
                     italic: false,
-                    code: false
+                    code: false,
                 });
             }
             return existingRow;
         }
         // New row: create with empty cells
-        return Array(requiredCols).fill(null).map(() => ({
-            value: "",
-            align: "left" as const,
-            bold: false,
-            italic: false,
-            code: false
-        }));
+        return Array(requiredCols)
+            .fill(null)
+            .map(() => ({
+                value: "",
+                align: "left" as const,
+                bold: false,
+                italic: false,
+                code: false,
+            }));
     });
 
     // Create new formatting arrays with required dimensions
@@ -83,49 +93,14 @@ export const handlePaste = (
         return Array(requiredCols).fill("left" as Alignment);
     });
 
-    const newBold = Array.from({ length: requiredRows }, (_, rowIndex) => {
-        if (rowIndex < bold.length) {
-            // Existing row: copy and extend if needed
-            const existingRow = [...bold[rowIndex]];
-            while (existingRow.length < requiredCols) {
-                existingRow.push(false);
-            }
-            return existingRow;
-        }
-        // New row: create with default false values
-        return Array(requiredCols).fill(false);
-    });
+    const newBold = Array.from({ length: requiredRows }, (_, rowIndex) => createFormattingArray(bold, rowIndex, requiredCols, false));
 
-    const newItalic = Array.from({ length: requiredRows }, (_, rowIndex) => {
-        if (rowIndex < italic.length) {
-            // Existing row: copy and extend if needed
-            const existingRow = [...italic[rowIndex]];
-            while (existingRow.length < requiredCols) {
-                existingRow.push(false);
-            }
-            return existingRow;
-        }
-        // New row: create with default false values
-        return Array(requiredCols).fill(false);
-    });
+    const newItalic = Array.from({ length: requiredRows }, (_, rowIndex) => createFormattingArray(italic, rowIndex, requiredCols, false));
 
-    const newCode = Array.from({ length: requiredRows }, (_, rowIndex) => {
-        if (rowIndex < code.length) {
-            // Existing row: copy and extend if needed
-            const existingRow = [...code[rowIndex]];
-            while (existingRow.length < requiredCols) {
-                existingRow.push(false);
-            }
-            return existingRow;
-        }
-        // New row: create with default false values
-        return Array(requiredCols).fill(false);
-    });
+    const newCode = Array.from({ length: requiredRows }, (_, rowIndex) => createFormattingArray(code, rowIndex, requiredCols, false));
 
     // Create a new array for selected cells
-    const newSelectedCells = Array.from({ length: requiredRows }, () =>
-        Array(requiredCols).fill(false)
-    );
+    const newSelectedCells = Array.from({ length: requiredRows }, () => Array(requiredCols).fill(false));
 
     // Mark the target cells as selected
     if (startRow !== null && startCol !== null) {
@@ -146,7 +121,7 @@ export const handlePaste = (
             if (targetRow < newData.length && targetCol < newData[0].length) {
                 newData[targetRow][targetCol] = {
                     ...newData[targetRow][targetCol],
-                    value: cellData
+                    value: cellData,
                 };
             }
         });
@@ -161,7 +136,7 @@ export const handlePaste = (
         newSelectedCells,
         dimensions: {
             rows: requiredRows,
-            cols: requiredCols
-        }
+            cols: requiredCols,
+        },
     };
 };
