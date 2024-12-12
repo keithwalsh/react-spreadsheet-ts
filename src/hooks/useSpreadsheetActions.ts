@@ -106,9 +106,63 @@ export const useSpreadsheetActions = (atom: PrimitiveAtom<State>) => {
         [state, setState]
     );
 
+    const handleSetAlignment = useCallback(
+        (alignment: "left" | "center" | "right") => {
+            if (
+                !state.selectedCell &&
+                !state.selectedCells.some((row) => row.some((cell) => cell)) &&
+                state.selectedColumns.length === 0 &&
+                state.selectedRows.length === 0 &&
+                !state.selectAll
+            ) {
+                return;
+            }
+
+            const newData = state.data.map((row, rowIndex) =>
+                row.map((cell, colIndex) => {
+                    if (state.selectAll) {
+                        return { ...cell, align: alignment };
+                    }
+
+                    const isInColumnSelection = state.selectedColumns.includes(colIndex);
+                    const isInRowSelection = state.selectedRows.includes(rowIndex);
+                    if (
+                        (state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) ||
+                        (state.selectedCells[rowIndex] && state.selectedCells[rowIndex][colIndex]) ||
+                        isInColumnSelection ||
+                        isInRowSelection
+                    ) {
+                        return { ...cell, align: alignment };
+                    }
+                    return cell;
+                })
+            );
+
+            setState({
+                ...state,
+                data: newData,
+                past: [
+                    ...state.past,
+                    {
+                        data: state.data,
+                        selectedCell: state.selectedCell,
+                        selectedCells: state.selectedCells,
+                        selectedRows: state.selectedRows,
+                        selectedColumns: state.selectedColumns,
+                        isDragging: state.isDragging,
+                        selectAll: state.selectAll,
+                    },
+                ],
+                future: [],
+            });
+        },
+        [state, setState]
+    );
+
     return {
         applyTextFormatting,
         handleTextFormatting,
+        handleSetAlignment,
     };
 };
 

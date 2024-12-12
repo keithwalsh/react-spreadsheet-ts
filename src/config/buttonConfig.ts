@@ -36,9 +36,9 @@ export const defaultVisibleButtons: (string | "divider")[] = [
     "Set Link",
     "divider",
     "Add Row",
-    "Remove Row",
+    "Remove Last Row",
     "Add Column",
-    "Remove Column",
+    "Remove Last Column",
 ];
 
 export const buttonDefinitions: ButtonDefinition[] = [
@@ -52,7 +52,7 @@ export const buttonDefinitions: ButtonDefinition[] = [
     { title: "Set Code", icon: RiCodeSSlashFill, handlerKey: "onClickSetCode" },
     { title: "Set Link", icon: RiLinkM, handlerKey: "onClickSetLink" },
     { title: "Add Row", icon: RiInsertRowBottom, handlerKey: "onClickAddRow" },
-    { title: "Remove Row", icon: RiDeleteRow, handlerKey: "onClickRemoveRow" },
+    { title: "Remove Last Row", icon: RiDeleteRow, handlerKey: "onClickRemoveRow" },
     { title: "Add Column", icon: RiInsertColumnRight, handlerKey: "onClickAddColumn" },
-    { title: "Remove Column", icon: RiDeleteColumn, handlerKey: "onClickRemoveColumn" },
+    { title: "Remove Last Column", icon: RiDeleteColumn, handlerKey: "onClickRemoveColumn" },
 ];

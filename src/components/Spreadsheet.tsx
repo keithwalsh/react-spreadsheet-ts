@@ -25,7 +25,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
     const [state, setState] = useAtom(atom);
     const { handleDragStart, handleDragEnter, handleDragEnd } = useDragSelection(atom);
     const [isNewTableModalOpen, setIsNewTableModalOpen] = useState(false);
-    const { handleTextFormatting } = useSpreadsheetActions(atom);
+    const { handleTextFormatting, handleSetAlignment } = useSpreadsheetActions(atom);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const tableRef = useRef<HTMLTableElement>(null);
@@ -155,39 +155,41 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
         [state, setState]
     );
 
-    const handleRemoveRow = useCallback(() => {
-        // Return if no cell or row is selected
-        if (state.selectedCell === null && state.selectedRows.length === 0 && !state.selectedCells.some((row) => row.some((cell) => cell))) return;
+    const handleRemoveRow = useCallback(
+        (index?: number) => {
+            // If index is provided (from context menu), use it
+            // Otherwise, remove the last row (toolbar button)
+            const rowIndex = typeof index === "number" ? index : state.data.length - 1;
 
-        // Get the index from either the selected cell or the first selected row
-        const index = state.selectedCell?.row ?? state.selectedRows[0];
-        const result = removeRow({
-            data: state.data,
-            selectedCells: state.selectedCells,
-            index,
-        });
+            const result = removeRow({
+                data: state.data,
+                selectedCells: state.selectedCells,
+                index: rowIndex,
+            });
 
-        setState({
-            ...state,
-            data: result.newData,
-            past: [
-                ...state.past,
-                {
-                    data: state.data,
-                    selectedCell: state.selectedCell,
-                    selectedCells: state.selectedCells,
-                    selectedRows: state.selectedRows,
-                    selectedColumns: state.selectedColumns,
-                    isDragging: state.isDragging,
-                    selectAll: state.selectAll,
-                },
-            ],
-            future: [],
-            selectedCell: null,
-            selectedCells: result.newSelectedCells,
-            selectedRows: [], // Clear selected rows after removal
-        });
-    }, [state, setState]);
+            setState({
+                ...state,
+                data: result.newData,
+                past: [
+                    ...state.past,
+                    {
+                        data: state.data,
+                        selectedCell: state.selectedCell,
+                        selectedCells: state.selectedCells,
+                        selectedRows: state.selectedRows,
+                        selectedColumns: state.selectedColumns,
+                        isDragging: state.isDragging,
+                        selectAll: state.selectAll,
+                    },
+                ],
+                future: [],
+                selectedCell: null,
+                selectedCells: result.newSelectedCells,
+                selectedRows: [], // Clear selected rows after removal
+            });
+        },
+        [state, setState]
+    );
 
     const handleAddColumn = useCallback(
         (position: "left" | "right") => {
@@ -220,43 +222,41 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
         [state, setState]
     );
 
-    const handleRemoveColumn = useCallback(() => {
-        // Get the index - if nothing is selected, use the last column index
-        const index =
-            state.selectedCell?.col ??
-            (state.selectedColumns.length > 0
-                ? state.selectedColumns[0]
-                : state.selectedCells.some((row) => row.some((cell) => cell))
-                ? state.selectedCells[0].findIndex((cell) => cell)
-                : state.data[0].length - 1);
+    const handleRemoveColumn = useCallback(
+        (index?: number) => {
+            // If index is provided (from context menu), use it
+            // Otherwise, remove the last column (toolbar button)
+            const colIndex = typeof index === "number" ? index : state.data[0].length - 1;
 
-        const result = removeColumn({
-            data: state.data,
-            selectedCells: state.selectedCells,
-            index,
-        });
+            const result = removeColumn({
+                data: state.data,
+                selectedCells: state.selectedCells,
+                index: colIndex,
+            });
 
-        setState({
-            ...state,
-            data: result.newData,
-            past: [
-                ...state.past,
-                {
-                    data: state.data,
-                    selectedCell: state.selectedCell,
-                    selectedCells: state.selectedCells,
-                    selectedRows: state.selectedRows,
-                    selectedColumns: state.selectedColumns,
-                    isDragging: state.isDragging,
-                    selectAll: state.selectAll,
-                },
-            ],
-            future: [],
-            selectedCell: null,
-            selectedCells: result.newSelectedCells,
-            selectedColumns: [], // Clear selected columns after removal
-        });
-    }, [state, setState]);
+            setState({
+                ...state,
+                data: result.newData,
+                past: [
+                    ...state.past,
+                    {
+                        data: state.data,
+                        selectedCell: state.selectedCell,
+                        selectedCells: state.selectedCells,
+                        selectedRows: state.selectedRows,
+                        selectedColumns: state.selectedColumns,
+                        isDragging: state.isDragging,
+                        selectAll: state.selectAll,
+                    },
+                ],
+                future: [],
+                selectedCell: null,
+                selectedCells: result.newSelectedCells,
+                selectedColumns: [], // Clear selected columns after removal
+            });
+        },
+        [state, setState]
+    );
 
     const handleDeleteSelected = useCallback(() => {
         if (!state.selectedCell && !state.selectedCells.some((row) => row.some((cell) => cell))) {
@@ -275,59 +275,6 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
 
         saveToHistory(newData);
     }, [state, saveToHistory]);
-
-    const handleSetAlignment = useCallback(
-        (alignment: "left" | "center" | "right") => {
-            if (
-                !state.selectedCell &&
-                !state.selectedCells.some((row) => row.some((cell) => cell)) &&
-                state.selectedColumns.length === 0 &&
-                state.selectedRows.length === 0 &&
-                !state.selectAll
-            ) {
-                return;
-            }
-
-            const newData = state.data.map((row, rowIndex) =>
-                row.map((cell, colIndex) => {
-                    if (state.selectAll) {
-                        return { ...cell, align: alignment };
-                    }
-
-                    const isInColumnSelection = state.selectedColumns.includes(colIndex);
-                    const isInRowSelection = state.selectedRows.includes(rowIndex);
-                    if (
-                        (state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) ||
-                        (state.selectedCells[rowIndex] && state.selectedCells[rowIndex][colIndex]) ||
-                        isInColumnSelection ||
-                        isInRowSelection
-                    ) {
-                        return { ...cell, align: alignment };
-                    }
-                    return cell;
-                })
-            );
-
-            setState({
-                ...state,
-                data: newData,
-                past: [
-                    ...state.past,
-                    {
-                        data: state.data,
-                        selectedCell: state.selectedCell,
-                        selectedCells: state.selectedCells,
-                        selectedRows: state.selectedRows,
-                        selectedColumns: state.selectedColumns,
-                        isDragging: state.isDragging,
-                        selectAll: state.selectAll,
-                    },
-                ],
-                future: [],
-            });
-        },
-        [state, setState]
-    );
 
     const handleCreateNewTable = useCallback(
         (rows: number, cols: number) => {
@@ -637,9 +584,9 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
                             "Align Right",
                             "divider",
                             "Add Row",
-                            "Remove Row",
+                            "Remove Last Row",
                             "Add Column",
-                            "Remove Column",
+                            "Remove Last Column",
                         ]}
                     />
                 </Box>
