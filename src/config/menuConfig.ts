@@ -14,14 +14,14 @@ const MENU_TEMPLATE = [
         items: [
             {
                 kind: "action",
-                id: "newTable",
+                id: "handleNewTable",
                 label: "New table",
                 icon: React.createElement(FolderOpen),
                 shortcut: "Ctrl+N",
             },
             {
                 kind: "action",
-                id: "downloadCsv",
+                id: "onDownloadCSV",
                 label: "Download as CSV",
                 icon: React.createElement(Save),
                 shortcut: "Ctrl+S",
@@ -33,14 +33,14 @@ const MENU_TEMPLATE = [
         items: [
             {
                 kind: "action",
-                id: "undo",
+                id: "onClickUndo",
                 label: "Undo",
                 icon: React.createElement(Undo),
                 shortcut: "Ctrl+Z",
             },
             {
                 kind: "action",
-                id: "redo",
+                id: "onClickRedo",
                 label: "Redo",
                 icon: React.createElement(Redo),
                 shortcut: "Ctrl+Y",
@@ -60,7 +60,7 @@ const MENU_TEMPLATE = [
         items: [
             {
                 kind: "submenu",
-                id: "setSize",
+                id: "setTableSize",
                 label: "Set size",
                 icon: React.createElement(BorderAll),
                 items: [{ kind: "custom" }],
@@ -82,45 +82,45 @@ const MENU_TEMPLATE = [
     },
 ] as const;
 
-export function createMenuConfig(params: MenuConfigParams): MenuConfig[] {
-    const { handleNewTable, onDownloadCSV, TableSizeChooser, toolbarContext } = params;
-    const { deleteSelected, transposeTable, currentRows, currentCols, setTableSize, onClickUndo, onClickRedo, clearTable } = toolbarContext;
-
-    const actionMap = {
-        newTable: handleNewTable,
-        downloadCsv: onDownloadCSV,
-        undo: onClickUndo,
-        redo: onClickRedo,
-        deleteSelected: deleteSelected,
-        clearTable: clearTable,
-        transposeTable: transposeTable,
-    };
+export function createMenuConfig({
+    handleNewTable,
+    onDownloadCSV,
+    TableSizeChooser,
+    toolbarContext: { deleteSelected, transposeTable, currentRows, currentCols, setTableSize, onClickUndo, onClickRedo, clearTable },
+}: MenuConfigParams): MenuConfig[] {
+    const handlers = {
+        handleNewTable,
+        onDownloadCSV,
+        onClickUndo,
+        onClickRedo,
+        deleteSelected,
+        clearTable,
+        transposeTable,
+    } as const;
 
     return MENU_TEMPLATE.map((menu) => ({
         ...menu,
-        items: menu.items.map((item) => {
-            if (item.kind === "divider") return item;
-
-            if (item.id === "setSize") {
-                return {
-                    ...item,
-                    items: [
-                        {
-                            kind: "custom",
-                            component: React.createElement(TableSizeChooser, {
-                                onSizeSelect: setTableSize,
-                                currentRows,
-                                currentCols,
-                            }),
-                        },
-                    ],
-                };
-            }
-
-            return {
-                ...item,
-                action: actionMap[item.id as keyof typeof actionMap],
-            };
-        }),
+        items: menu.items.map((item) =>
+            item.kind === "divider"
+                ? item
+                : item.id === "setTableSize"
+                ? {
+                      ...item,
+                      items: [
+                          {
+                              kind: "custom",
+                              component: React.createElement(TableSizeChooser, {
+                                  onSizeSelect: setTableSize,
+                                  currentRows,
+                                  currentCols,
+                              }),
+                          },
+                      ],
+                  }
+                : {
+                      ...item,
+                      action: handlers[item.id as keyof typeof handlers],
+                  }
+        ),
     }));
 }

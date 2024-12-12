@@ -5,7 +5,7 @@
 
 import { useCallback } from "react";
 import { useAtom, PrimitiveAtom } from "jotai";
-import { Alignment, State, TextFormattingOperation } from "../types";
+import { Alignment, State } from "../types";
 
 export const useTextFormatting = (atom: PrimitiveAtom<State>) => {
     const [state, setState] = useAtom(atom);
@@ -42,34 +42,25 @@ export const useAlignment = (atom: PrimitiveAtom<State>) => {
 
     return useCallback(
         (alignment: Alignment) => {
-            if (
-                !state.selectedCell &&
-                !state.selectedCells.some((row) => row.some((cell) => cell)) &&
-                state.selectedColumns.length === 0 &&
-                state.selectedRows.length === 0 &&
-                !state.selectAll
-            ) {
-                return;
-            }
+            const hasSelection =
+                state.selectedCell ||
+                state.selectedCells.some((row) => row.some(Boolean)) ||
+                state.selectedColumns.length > 0 ||
+                state.selectedRows.length > 0 ||
+                state.selectAll;
+
+            if (!hasSelection) return;
 
             const newData = state.data.map((row, rowIndex) =>
-                row.map((cell, colIndex) => {
-                    if (state.selectAll) {
-                        return { ...cell, align: alignment };
-                    }
-
-                    const isInColumnSelection = state.selectedColumns.includes(colIndex);
-                    const isInRowSelection = state.selectedRows.includes(rowIndex);
-                    if (
-                        (state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) ||
-                        (state.selectedCells[rowIndex] && state.selectedCells[rowIndex][colIndex]) ||
-                        isInColumnSelection ||
-                        isInRowSelection
-                    ) {
-                        return { ...cell, align: alignment };
-                    }
-                    return cell;
-                })
+                row.map((cell, colIndex) =>
+                    state.selectAll ||
+                    (state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) ||
+                    state.selectedCells[rowIndex]?.[colIndex] ||
+                    state.selectedColumns.includes(colIndex) ||
+                    state.selectedRows.includes(rowIndex)
+                        ? { ...cell, align: alignment }
+                        : cell
+                )
             );
 
             setState({
@@ -86,24 +77,12 @@ export const useAlignment = (atom: PrimitiveAtom<State>) => {
 export const useLink = (atom: PrimitiveAtom<State>) => {
     const [state, setState] = useAtom(atom);
 
-    const applyTextFormatting = useCallback(
-        (operation: TextFormattingOperation, targetCell: NonNullable<State["selectedCell"]>) => {
+    return useCallback(
+        (url: string | undefined, { row, col }: NonNullable<State["selectedCell"]>) => {
             const newData = [...state.data];
-            const cell = newData[targetCell.row][targetCell.col];
+            const cell = newData[row][col];
 
-            switch (operation.operation) {
-                case "LINK":
-                    newData[targetCell.row][targetCell.col] = {
-                        ...cell,
-                        link: operation.payload,
-                    };
-                    break;
-                case "REMOVE_LINK": {
-                    const { link, ...rest } = cell;
-                    newData[targetCell.row][targetCell.col] = rest;
-                    break;
-                }
-            }
+            newData[row][col] = url ? { ...cell, link: url } : (({ link, ...rest }) => rest)(cell);
 
             setState({
                 ...state,
@@ -113,19 +92,6 @@ export const useLink = (atom: PrimitiveAtom<State>) => {
             });
         },
         [state, setState]
-    );
-
-    return useCallback(
-        (url: string | undefined, targetCell: NonNullable<State["selectedCell"]>) => {
-            applyTextFormatting(
-                {
-                    operation: url === undefined ? "REMOVE_LINK" : "LINK",
-                    payload: url,
-                },
-                targetCell
-            );
-        },
-        [applyTextFormatting]
     );
 };
 
