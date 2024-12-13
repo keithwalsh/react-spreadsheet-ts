@@ -42,17 +42,19 @@ const DIMENSION_LIMITS = {
     columns: { min: 1, max: 20 },
 } as const;
 
+const validateDimension = (value: number, dimension: keyof typeof DIMENSION_LIMITS): string | null => {
+    const { min, max } = DIMENSION_LIMITS[dimension];
+    if (!value || value < min || value > max) {
+        return `${dimension.charAt(0).toUpperCase() + dimension.slice(1)} must be between ${min} and ${max}`;
+    }
+    return null;
+};
+
 const validateDimensions = ({ rows, columns }: Dimensions): string | null => {
     const rowsNum = parseInt(rows, 10);
     const colsNum = parseInt(columns, 10);
 
-    if (!rowsNum || rowsNum < DIMENSION_LIMITS.rows.min || rowsNum > DIMENSION_LIMITS.rows.max) {
-        return `Rows must be between ${DIMENSION_LIMITS.rows.min} and ${DIMENSION_LIMITS.rows.max}`;
-    }
-    if (!colsNum || colsNum < DIMENSION_LIMITS.columns.min || colsNum > DIMENSION_LIMITS.columns.max) {
-        return `Columns must be between ${DIMENSION_LIMITS.columns.min} and ${DIMENSION_LIMITS.columns.max}`;
-    }
-    return null;
+    return validateDimension(rowsNum, "rows") || validateDimension(colsNum, "columns") || null;
 };
 
 const ModalContent = ({ onClose, error, children }: { onClose: () => void; error: string | null; children: React.ReactNode }) => (
