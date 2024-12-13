@@ -5,9 +5,8 @@
 import { useMemo } from "react";
 import { useAtom } from "jotai";
 import { RowNumberCellProps } from "../types";
-import { HeaderCell } from "./HeaderCell";
-import RowContextMenu from "./RowContextMenu";
-import { createMenuProps } from "../utils/menuUtils";
+import { HeaderCell, RowContextMenu } from "./";
+import { createMenuProps } from "../utils";
 
 export const RowNumberCell = ({ atom, rowIndex, ...props }: RowNumberCellProps) => {
     const [state] = useAtom(atom);

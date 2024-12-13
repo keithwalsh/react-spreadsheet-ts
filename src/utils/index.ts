@@ -6,6 +6,7 @@ import { convertToCSV, downloadCSV } from "./csvConversion";
 import { isCellSelected, createSelectionMatrix } from "./selectionUtils";
 import { createHistoryEntry } from "./historyUtils";
 import { createMenuProps } from "./menuUtils";
+import { getColumnLabel } from "./columnUtils";
 
 export {
     addRow,
@@ -22,4 +23,5 @@ export {
     isCellSelected,
     createHistoryEntry,
     createMenuProps,
+    getColumnLabel,
 };

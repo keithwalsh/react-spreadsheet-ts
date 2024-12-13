@@ -4,10 +4,8 @@
 
 import { useAtom } from "jotai";
 import { ColumnHeaderCellProps, DragHandlers } from "../types";
-import { HeaderCell } from "./HeaderCell";
-import ColumnContextMenu from "./ColumnContextMenu";
-import { getColumnLabel } from "../utils/columnUtils";
-import { createMenuProps } from "../utils/menuUtils";
+import { createMenuProps, getColumnLabel } from "../utils";
+import { ColumnContextMenu, HeaderCell } from "./";
 
 export const ColumnHeaderCell = ({ atom, index, ...props }: ColumnHeaderCellProps & DragHandlers) => {
     const [state] = useAtom(atom);

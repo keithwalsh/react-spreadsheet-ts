@@ -1,12 +1,12 @@
 import ButtonGroup from "./ButtonGroup";
 import Cell from "./Cell";
 import ColumnHeaderCell from "./ColumnHeaderCell";
-import ColumnContextMenu from "./ColumnContextMenu";
+import { ColumnContextMenu, RowContextMenu } from "./DirectionalContextMenu";
+import HeaderCell from "./HeaderCell";
 import LinkModal from "./LinkModal";
 import Menu from "./Menu";
 import NewTableModal from "./NewTableModal";
 import Row from "./Row";
-import RowContextMenu from "./RowContextMenu";
 import RowNumberCell from "./RowNumberCell";
 import SelectAllCell from "./SelectAllCell";
 import Table from "./Table";
@@ -18,6 +18,7 @@ export {
     Cell,
     ColumnHeaderCell,
     ColumnContextMenu,
+    HeaderCell,
     LinkModal,
     Menu,
     NewTableModal,

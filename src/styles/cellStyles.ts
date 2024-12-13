@@ -4,6 +4,7 @@
  */
 
 import { CSSProperties } from "react";
+import { Property } from "csstype";
 import { CellContentStyleProps, CellStyleProps } from "../types";
 
 export const getThemeBorderColor = (isDarkMode: boolean) => (isDarkMode ? "#686868" : "#e0e0e0");
@@ -91,7 +92,7 @@ export const getCellContentStyles = ({ isEditing, cellData, style }: CellContent
     fontWeight: cellData.bold ? "bold" : "normal",
     fontStyle: cellData.italic ? "italic" : "normal",
     fontFamily: cellData.code ? "'Courier New', Consolas, monospace" : "inherit",
-    textAlign: cellData.align || "left",
+    textAlign: (cellData.align || "left") as Property.TextAlign,
     ...style,
 });
 

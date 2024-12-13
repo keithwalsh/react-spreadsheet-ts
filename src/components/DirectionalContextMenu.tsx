@@ -1,28 +1,21 @@
 /**
- * @fileoverview Generic context menu component supporting both row and column
- * operations with configurable icons and actions.
+ * @fileoverview Generic context menu component for row and column operations with
+ * pre-configured exports for common use cases.
  */
 
 import React from "react";
-import { ListItemText, ListItemIcon, Menu, MenuItem, Divider, PopoverOrigin } from "@mui/material";
+import { ListItemText, ListItemIcon, Menu, MenuItem, Divider } from "@mui/material";
 import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward, DeleteOutline } from "@mui/icons-material";
-import { BaseContextMenuProps, MenuDirection } from "../types";
+import { ActionMenuItemProps, DirectionalContextMenuProps, MenuPositionConfig, BaseContextMenuProps, DirectionalMenuActions, MenuDirection } from "../types";
 
-interface DirectionalContextMenuProps extends BaseContextMenuProps {
-    direction: MenuDirection;
-    onAddBefore: () => void;
-    onAddAfter: () => void;
-    onRemove: () => void;
-}
-
-interface MenuPositionConfig {
-    anchorOrigin: PopoverOrigin;
-    transformOrigin: PopoverOrigin;
-    beforeIcon: typeof ArrowUpward | typeof ArrowBack;
-    afterIcon: typeof ArrowDownward | typeof ArrowForward;
-    beforeText: string;
-    afterText: string;
-}
+const ActionMenuItem: React.FC<ActionMenuItemProps> = ({ icon: Icon, text, onClick, ...props }) => (
+    <MenuItem dense onClick={onClick} {...props}>
+        <ListItemIcon>
+            <Icon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>{text}</ListItemText>
+    </MenuItem>
+);
 
 const DirectionalContextMenu: React.FC<DirectionalContextMenuProps> = ({ direction, anchorEl, open, onClose, onAddBefore, onAddAfter, onRemove }) => {
     const isRow = direction === "row";
@@ -48,27 +41,30 @@ const DirectionalContextMenu: React.FC<DirectionalContextMenuProps> = ({ directi
 
     return (
         <Menu anchorEl={anchorEl} open={open} onClose={onClose} anchorOrigin={menuConfig.anchorOrigin} transformOrigin={menuConfig.transformOrigin}>
-            <MenuItem dense onClick={() => handleAction(onAddBefore)}>
-                <ListItemIcon>
-                    <menuConfig.beforeIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>{menuConfig.beforeText}</ListItemText>
-            </MenuItem>
-            <MenuItem dense onClick={() => handleAction(onAddAfter)}>
-                <ListItemIcon>
-                    <menuConfig.afterIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>{menuConfig.afterText}</ListItemText>
-            </MenuItem>
+            <ActionMenuItem icon={menuConfig.beforeIcon} text={menuConfig.beforeText} onClick={() => handleAction(onAddBefore)} />
+            <ActionMenuItem icon={menuConfig.afterIcon} text={menuConfig.afterText} onClick={() => handleAction(onAddAfter)} />
             <Divider />
-            <MenuItem dense onClick={() => handleAction(onRemove)}>
-                <ListItemIcon>
-                    <DeleteOutline fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>Remove {direction}</ListItemText>
-            </MenuItem>
+            <ActionMenuItem icon={DeleteOutline} text={`Remove ${direction}`} onClick={() => handleAction(onRemove)} />
         </Menu>
     );
 };
 
+type WithDirectionalMenuProps<T extends MenuDirection> = BaseContextMenuProps & DirectionalMenuActions<T>;
+
+const createDirectionalMenu = <T extends MenuDirection>(direction: T) => {
+    return (props: WithDirectionalMenuProps<T>) => {
+        const { anchorEl, open, onClose } = props;
+
+        const menuProps = {
+            onAddBefore: direction === "row" ? (props as WithDirectionalMenuProps<"row">).onAddAbove : (props as WithDirectionalMenuProps<"column">).onAddLeft,
+            onAddAfter: direction === "row" ? (props as WithDirectionalMenuProps<"row">).onAddBelow : (props as WithDirectionalMenuProps<"column">).onAddRight,
+            onRemove: props.onRemove,
+        };
+
+        return <DirectionalContextMenu direction={direction} anchorEl={anchorEl} open={open} onClose={onClose} {...menuProps} />;
+    };
+};
+
+export const RowContextMenu = createDirectionalMenu("row");
+export const ColumnContextMenu = createDirectionalMenu("column");
 export default DirectionalContextMenu;

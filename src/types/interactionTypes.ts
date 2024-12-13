@@ -6,7 +6,12 @@
 
 import { PrimitiveAtom } from "jotai";
 import { CellData, State } from "./dataTypes";
-import { TableSizeChooserProps } from "./propTypes";
+import { BaseContextMenuProps, MenuDirection, TableSizeChooserProps } from "./propTypes";
+import { MenuItemProps, PopoverOrigin } from "@mui/material";
+import { ArrowForward } from "@mui/icons-material";
+import { ArrowBack } from "@mui/icons-material";
+import { ArrowDownward } from "@mui/icons-material";
+import { ArrowUpward } from "@mui/icons-material";
 
 export interface TableStructureModification {
     data: CellData[][];
@@ -22,8 +27,21 @@ export interface AddRowOptions extends TableStructureModification {
     position: "above" | "below";
 }
 
+export interface ActionMenuItemProps extends Omit<MenuItemProps, "onClick"> {
+    icon: React.ElementType;
+    text: string;
+    onClick: () => void;
+}
+
 export interface ButtonHandlerKey {
     [key: string]: () => void;
+}
+
+export interface DirectionalContextMenuProps extends BaseContextMenuProps {
+    direction: MenuDirection;
+    onAddBefore: () => void;
+    onAddAfter: () => void;
+    onRemove: () => void;
 }
 
 export interface DragHandlers {
@@ -46,6 +64,15 @@ export interface MenuConfigParams extends ToolbarContextType {
     onDownloadCSV: () => void;
     TableSizeChooser: React.ComponentType<TableSizeChooserProps>;
     toolbarContext: ToolbarContextType;
+}
+
+export interface MenuPositionConfig {
+    anchorOrigin: PopoverOrigin;
+    transformOrigin: PopoverOrigin;
+    beforeIcon: typeof ArrowUpward | typeof ArrowBack;
+    afterIcon: typeof ArrowDownward | typeof ArrowForward;
+    beforeText: string;
+    afterText: string;
 }
 
 export interface SelectedCell {
@@ -89,3 +116,15 @@ export type SelectionRange = {
     endRow: number;
     endCol: number;
 };
+
+export type DirectionalMenuActions<T extends MenuDirection> = T extends "row"
+    ? {
+          onAddAbove: () => void;
+          onAddBelow: () => void;
+          onRemove: () => void;
+      }
+    : {
+          onAddLeft: () => void;
+          onAddRight: () => void;
+          onRemove: () => void;
+      };

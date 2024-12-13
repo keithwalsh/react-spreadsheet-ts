@@ -9,8 +9,8 @@ import { IconBaseProps } from "react-icons";
 import { PrimitiveAtom } from "jotai";
 import { CellData, Dimensions, State } from "./dataTypes";
 import { CSSProperties } from "react";
-import RowContextMenu from "src/components/RowContextMenu";
-import { ColumnContextMenu } from "src/components";
+import { RowContextMenu, ColumnContextMenu } from "../components";
+import { DirectionalMenuActions } from "./interactionTypes";
 
 export interface BaseContextMenuProps {
     anchorEl: HTMLElement | null;
@@ -110,12 +110,6 @@ export type CreateMenuProps<T extends "row" | "column"> = {
     props: T extends "row" ? RowNumberCellProps : ColumnHeaderCellProps;
     index: number;
     type: T;
-};
-
-export type DirectionalMenuActions<T extends MenuDirection> = {
-    [K in T extends "row" ? "onAddAbove" | "onAddBelow" : "onAddLeft" | "onAddRight"]: () => void;
-} & {
-    onRemove: () => void;
 };
 
 export interface HeaderCellProps<T extends "row" | "column"> {
