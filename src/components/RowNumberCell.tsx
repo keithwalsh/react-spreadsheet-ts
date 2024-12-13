@@ -1,13 +1,11 @@
-import { useState, useMemo, MouseEvent } from "react";
-import { TableCell } from "@mui/material";
+import { useMemo } from "react";
 import { useAtom } from "jotai";
-import { HeaderCellStylesParams, RowNumberCellProps } from "../types";
-import { useHeaderCellStyles } from "../styles";
+import { RowNumberCellProps } from "../types";
+import { HeaderCell } from "./HeaderCell";
 import RowContextMenu from "./RowContextMenu";
 
-export function RowNumberCell({ atom, rowIndex, onDragStart, onDragEnter, onDragEnd, onAddAbove, onAddBelow, onRemove }: RowNumberCellProps) {
+export function RowNumberCell({ atom, rowIndex, ...props }: RowNumberCellProps) {
     const [state] = useAtom(atom);
-    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
     const isHighlighted = useMemo(
         () => state.selectedCell?.row === rowIndex || (state.selectedCells && state.selectedCells[rowIndex]?.some(Boolean)),
@@ -16,57 +14,24 @@ export function RowNumberCell({ atom, rowIndex, onDragStart, onDragEnter, onDrag
 
     const isSelected = useMemo(() => state.selectedRows.includes(rowIndex), [state.selectedRows, rowIndex]);
 
-    const styles = useHeaderCellStyles({
-        isSelected: isSelected || state.selectAll,
-        isHighlighted,
-        isHovered: false,
-    } as HeaderCellStylesParams);
-
-    const handleContextMenu = (event: MouseEvent<HTMLTableCellElement>) => {
-        event.preventDefault();
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleCloseMenu = () => setAnchorEl(null);
-
     return (
-        <>
-            <TableCell
-                sx={styles}
-                onContextMenu={handleContextMenu}
-                onMouseDown={(e) => {
-                    e.preventDefault();
-                    onDragStart(rowIndex);
-                }}
-                onMouseEnter={(e) => {
-                    if (state.isDragging) {
-                        e.preventDefault();
-                        onDragEnter(rowIndex);
-                    }
-                }}
-                onMouseUp={onDragEnd}
-                draggable
-            >
-                {rowIndex + 1}
-            </TableCell>
-            <RowContextMenu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleCloseMenu}
-                onAddAbove={() => {
-                    onAddAbove(rowIndex);
-                    handleCloseMenu();
-                }}
-                onAddBelow={() => {
-                    onAddBelow(rowIndex);
-                    handleCloseMenu();
-                }}
-                onRemove={() => {
-                    onRemove(rowIndex);
-                    handleCloseMenu();
-                }}
-            />
-        </>
+        <HeaderCell<"row">
+            type="row"
+            atom={atom}
+            index={rowIndex}
+            isHighlighted={isHighlighted}
+            isSelected={isSelected}
+            ContextMenu={RowContextMenu}
+            menuProps={{
+                onAddAbove: () => props.onAddAbove(rowIndex),
+                onAddBelow: () => props.onAddBelow(rowIndex),
+                onRemove: () => props.onRemove(rowIndex),
+            }}
+            renderContent={(index) => index + 1}
+            onDragStart={props.onDragStart}
+            onDragEnter={props.onDragEnter}
+            onDragEnd={props.onDragEnd}
+        />
     );
 }
 

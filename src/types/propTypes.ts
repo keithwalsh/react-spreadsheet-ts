@@ -7,7 +7,7 @@
 import { TableCellProps } from "@mui/material";
 import { IconBaseProps } from "react-icons";
 import { PrimitiveAtom } from "jotai";
-import { CellData, State } from "./dataTypes";
+import { CellData, Dimensions, State } from "./dataTypes";
 import { CSSProperties } from "react";
 
 export type ButtonDefinition = {
@@ -94,6 +94,29 @@ export type ColumnHeaderCellProps = {
     onDragEnd: () => void;
 };
 
+export interface BaseContextMenuProps {
+    anchorEl: HTMLElement | null;
+    open: boolean;
+    onClose: () => void;
+}
+
+export type RowMenuProps = Omit<RowContextMenuProps, keyof BaseContextMenuProps>;
+export type ColumnMenuProps = Omit<ColumnContextMenuProps, keyof BaseContextMenuProps>;
+
+export interface HeaderCellProps<T extends "row" | "column"> {
+    atom: PrimitiveAtom<State>;
+    index: number;
+    type: T;
+    isHighlighted: boolean;
+    isSelected: boolean;
+    onDragStart: (index: number) => void;
+    onDragEnter: (index: number) => void;
+    onDragEnd: () => void;
+    ContextMenu: T extends "row" ? React.ComponentType<RowContextMenuProps> : React.ComponentType<ColumnContextMenuProps>;
+    menuProps: T extends "row" ? RowMenuProps : ColumnMenuProps;
+    renderContent: (index: number) => React.ReactNode;
+}
+
 export interface HeaderCellStylesParams {
     isSelected: boolean;
     isHighlighted: boolean;
@@ -158,8 +181,9 @@ export interface SpreadsheetWrapperProps {
     cols?: number;
     darkMode?: boolean;
 }
+
 export type TableDimensionInputProps = {
-    label: "Rows" | "Columns";
+    label: keyof Dimensions;
     value: string;
     onChange: (value: string) => void;
     max: number;

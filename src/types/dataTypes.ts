@@ -62,6 +62,11 @@ export type DataPayload = {
     selectAll?: boolean;
 };
 
+export type Dimensions = {
+    rows: string;
+    columns: string;
+};
+
 export type PasteOperationResult = {
     newData: CellData[][];
     newSelectedCells: boolean[][];

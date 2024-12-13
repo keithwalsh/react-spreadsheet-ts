@@ -6,7 +6,7 @@
 import { useState } from "react";
 import { Modal, Box, Typography, Button, TextField, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { NewTableModalProps, TableDimensionInputProps } from "../types";
+import { NewTableModalProps, TableDimensionInputProps, Dimensions } from "../types";
 
 function TableDimensionInput({ label, value, onChange, max }: TableDimensionInputProps) {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -16,7 +16,7 @@ function TableDimensionInput({ label, value, onChange, max }: TableDimensionInpu
 
     return (
         <TextField
-            label={label}
+            label={label.charAt(0).toUpperCase() + label.slice(1)}
             type="number"
             value={value}
             onChange={handleChange}
@@ -31,11 +31,6 @@ function TableDimensionInput({ label, value, onChange, max }: TableDimensionInpu
         />
     );
 }
-
-type Dimensions = {
-    rows: string;
-    columns: string;
-};
 
 const DIMENSION_LIMITS = {
     rows: { min: 1, max: 500 },
@@ -87,6 +82,8 @@ const ModalContent = ({ onClose, error, children }: { onClose: () => void; error
     </Box>
 );
 
+const DIMENSIONS: Array<keyof Dimensions> = ["rows", "columns"];
+
 export function NewTableModal({ open, onClose, onCreateNewTable }: NewTableModalProps) {
     const [dimensions, setDimensions] = useState<Dimensions>({ rows: "", columns: "" });
     const [error, setError] = useState<string | null>(null);
@@ -115,8 +112,15 @@ export function NewTableModal({ open, onClose, onCreateNewTable }: NewTableModal
     return (
         <Modal open={open} onClose={handleClose}>
             <ModalContent onClose={handleClose} error={error}>
-                <TableDimensionInput label="Rows" value={dimensions.rows} onChange={updateDimension("rows")} max={DIMENSION_LIMITS.rows.max} />
-                <TableDimensionInput label="Columns" value={dimensions.columns} onChange={updateDimension("columns")} max={DIMENSION_LIMITS.columns.max} />
+                {DIMENSIONS.map((dimension) => (
+                    <TableDimensionInput
+                        key={dimension}
+                        label={dimension}
+                        value={dimensions[dimension]}
+                        onChange={updateDimension(dimension)}
+                        max={DIMENSION_LIMITS[dimension].max}
+                    />
+                ))}
                 <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
                     <Button onClick={handleClose} sx={{ mr: 1 }}>
                         Cancel
