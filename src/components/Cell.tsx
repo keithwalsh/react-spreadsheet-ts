@@ -66,14 +66,29 @@ const Cell: React.FC<CellProps> = React.memo(
 
         const handleKeyDown = useCallback(
             (e: React.KeyboardEvent) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleBlur();
+                if (isEditing) {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        handleBlur();
+                    }
+                } else if (isSingleCellSelected && !isMultiSelected && !isColumnSelected && !isRowSelected) {
+                    // Handle arrow key navigation when not editing and only this cell is selected
+                    switch (e.key) {
+                        case "ArrowUp":
+                        case "ArrowDown":
+                        case "ArrowLeft":
+                        case "ArrowRight":
+                            e.preventDefault();
+                            onCellKeyDown?.(e);
+                            break;
+                        default:
+                            onCellKeyDown?.(e);
+                    }
                 } else {
                     onCellKeyDown?.(e);
                 }
             },
-            [handleBlur, onCellKeyDown]
+            [handleBlur, onCellKeyDown, isEditing, isSingleCellSelected, isMultiSelected, isColumnSelected, isRowSelected]
         );
 
         const handleDoubleClick = useCallback(() => {
@@ -109,6 +124,8 @@ const Cell: React.FC<CellProps> = React.memo(
                 onMouseEnter={handleMouseEnter}
                 onMouseUp={onMouseUp}
                 onDoubleClick={handleDoubleClick}
+                onKeyDown={handleKeyDown}
+                tabIndex={isSingleCellSelected ? 0 : -1}
                 sx={getCellStyles(cellStyleProps)}
                 data-row={rowIndex}
                 data-col={colIndex}

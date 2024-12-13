@@ -3,7 +3,7 @@ import { useAtom } from "jotai";
 import LinkModal from "./LinkModal";
 import { Snackbar } from "@mui/material";
 import { ToolbarContextType, ToolbarProviderProps } from "../types";
-import { useSpreadsheetActions } from "../hooks/useSpreadsheetActions";
+import { useSpreadsheetActions } from "../hooks/useTableActions";
 import type { State } from "../types";
 
 export const ToolbarContext = createContext<ToolbarContextType | null>(null);

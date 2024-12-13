@@ -18,7 +18,6 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
             onAddRowAbove,
             onAddRowBelow,
             onRemoveRow,
-            children,
         },
         ref
     ) => {
@@ -199,11 +198,71 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
 
         const toolbar = useToolbar();
 
-        const handleKeyDown = useCallback(({ key }: React.KeyboardEvent) => key === "Delete" && toolbar?.deleteSelected?.(), [toolbar]);
+        const handleCellKeyDown = useCallback(
+            (e: React.KeyboardEvent) => {
+                if (e.key === "Delete") {
+                    toolbar?.deleteSelected?.();
+                    return;
+                }
+
+                if (!state.selectedCell) {
+                    return;
+                }
+
+                const { row, col } = state.selectedCell;
+                let newRow = row;
+                let newCol = col;
+
+                switch (e.key) {
+                    case "ArrowUp":
+                        newRow = Math.max(0, row - 1);
+                        break;
+                    case "ArrowDown":
+                        newRow = Math.min(state.data.length - 1, row + 1);
+                        break;
+                    case "ArrowLeft":
+                        newCol = Math.max(0, col - 1);
+                        break;
+                    case "ArrowRight":
+                        newCol = Math.min(state.data[0].length - 1, col + 1);
+                        break;
+                    default:
+                        return;
+                }
+
+                // Only update if the position actually changed
+                if (newRow !== row || newCol !== col) {
+                    const newSelectedCells = state.data.map(row => row.map(() => false));
+                    newSelectedCells[newRow][newCol] = true;
+
+                    setState(prev => ({
+                        ...prev,
+                        selectedCell: { row: newRow, col: newCol },
+                        selectedCells: newSelectedCells,
+                        selectAll: false,
+                        selectedRows: [],
+                        selectedColumns: [],
+                    }));
+
+                    // Focus the newly selected cell
+                    requestAnimationFrame(() => {
+                        const cell = document.querySelector(`[data-row="${newRow}"][data-col="${newCol}"]`);
+                        if (cell instanceof HTMLElement) {
+                            cell.focus();
+                        }
+                    });
+                }
+            },
+            [state, setState, toolbar]
+        );
 
         return (
-            <div onKeyDown={handleKeyDown} tabIndex={0} style={{ outline: "none" }}>
-                <TableContainerMui component={!isDarkMode ? PaperMui : "div"} sx={tableStyles} onPaste={handlePasteEvent}>
+            <div style={{ outline: "none" }}>
+                <TableContainerMui 
+                    component={!isDarkMode ? PaperMui : "div"} 
+                    sx={tableStyles} 
+                    onPaste={handlePasteEvent}
+                >
                     <TableMui
                         ref={ref}
                         sx={{
@@ -259,13 +318,13 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                                             onMouseEnter={() => onDragEnter(rowIndex, colIndex)}
                                             onMouseUp={onDragEnd}
                                             onCellChange={onCellChange}
+                                            onCellKeyDown={handleCellKeyDown}
                                         />
                                     ))}
                                 </Row>
                             ))}
                         </TableBody>
                     </TableMui>
-                    {children}
                 </TableContainerMui>
             </div>
         );

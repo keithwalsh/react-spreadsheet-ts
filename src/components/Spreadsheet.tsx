@@ -7,10 +7,10 @@ import React, { useCallback, useRef, useEffect, useMemo, useState } from "react"
 import { PrimitiveAtom, useAtom } from "jotai";
 import { Box } from "@mui/material";
 import { defaultVisibleButtons } from "../config";
-import { useDragSelection, handlePaste, useOutsideClick, useSpreadsheetActions, useTableStructure, useUndoRedo } from "../hooks";
+import { useDragSelection, useOutsideClick, useTableActions, useTableStructure, useUndoRedo } from "../hooks";
 import { initialState } from "../store";
 import { Alignment, CellData, State } from "../types";
-import { createHistoryEntry, downloadCSV } from "../utils";
+import { createHistoryEntry, downloadCSV, handlePaste } from "../utils";
 import { ButtonGroup, Menu, NewTableModal, Table, ToolbarProvider, TableSizeChooser } from "./";
 
 interface SpreadsheetProps {
@@ -31,11 +31,17 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
     } = useTableStructure(atom);
     const { handleDragStart, handleDragEnter, handleDragEnd } = useDragSelection(atom);
     const [isNewTableModalOpen, setIsNewTableModalOpen] = useState(false);
-    const { handleTextFormatting, handleSetAlignment } = useSpreadsheetActions(atom);
+    const { handleTextFormatting, handleSetAlignment } = useTableActions(atom);
     const { handleUndo, handleRedo } = useUndoRedo(atom);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const tableRef = useRef<HTMLTableElement>(null);
+
+    useEffect(() => {
+        if (containerRef.current) {
+            containerRef.current.focus();
+        }
+    }, []);
 
     useOutsideClick([containerRef, tableRef], atom);
 
@@ -198,9 +204,61 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
         ]
     );
 
+    const handleKeyDown = useCallback(
+        (e: React.KeyboardEvent) => {
+            if (!state.selectedCell || state.selectedCells.some(row => row.some(cell => cell))) {
+                return;
+            }
+
+            const { row, col } = state.selectedCell;
+            let newRow = row;
+            let newCol = col;
+
+            switch (e.key) {
+                case "ArrowUp":
+                    newRow = Math.max(0, row - 1);
+                    break;
+                case "ArrowDown":
+                    newRow = Math.min(state.data.length - 1, row + 1);
+                    break;
+                case "ArrowLeft":
+                    newCol = Math.max(0, col - 1);
+                    break;
+                case "ArrowRight":
+                    newCol = Math.min(state.data[0].length - 1, col + 1);
+                    break;
+                default:
+                    return;
+            }
+
+            // Only update if the position actually changed
+            if (newRow !== row || newCol !== col) {
+                e.preventDefault();
+                const newSelectedCells = state.data.map(row => row.map(() => false));
+                newSelectedCells[newRow][newCol] = true;
+
+                setState(prev => ({
+                    ...prev,
+                    selectedCell: { row: newRow, col: newCol },
+                    selectedCells: newSelectedCells,
+                    selectAll: false,
+                    selectedRows: [],
+                    selectedColumns: [],
+                }));
+            }
+        },
+        [state, setState]
+    );
+
     return (
         <ToolbarProvider spreadsheetAtom={atom} {...toolbarHandlers}>
-            <div className="spreadsheet" ref={containerRef} tabIndex={0}>
+            <div 
+                className="spreadsheet" 
+                ref={containerRef} 
+                tabIndex={-1}
+                onKeyDown={handleKeyDown}
+                style={{ outline: 'none' }}
+            >
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                     <Menu handleNewTable={handleOpenNewTableModal} onDownloadCSV={handleDownloadCSV} TableSizeChooser={TableSizeChooser} />
                 </Box>

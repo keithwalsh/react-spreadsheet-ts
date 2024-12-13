@@ -3,10 +3,9 @@
  */
 
 import useOutsideClick from "./useOutsideClick";
-import useSpreadsheetActions from "./useSpreadsheetActions";
+import useTableActions from "./useTableActions";
 import { useDragSelection } from "./useDragSelection";
-import { handlePaste } from "../utils";
 import { useTableStructure } from "./useTableStructure";
 import { useUndoRedo } from "./useUndoRedo";
 
-export { useOutsideClick, useSpreadsheetActions, useDragSelection, useTableStructure, handlePaste, useUndoRedo };
+export { useOutsideClick, useTableActions, useDragSelection, useTableStructure, useUndoRedo };
