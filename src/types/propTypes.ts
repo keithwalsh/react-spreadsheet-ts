@@ -102,11 +102,7 @@ export type ColumnHeaderCellProps = {
     onDragEnd: () => void;
 };
 
-export type ColumnMenuActions = {
-    onAddLeft: () => void;
-    onAddRight: () => void;
-    onRemove: () => void;
-};
+export type ColumnMenuActions = DirectionalMenuActions<"column">;
 
 export type ColumnMenuProps = Omit<ColumnContextMenuProps, keyof BaseContextMenuProps>;
 
@@ -114,6 +110,12 @@ export type CreateMenuProps<T extends "row" | "column"> = {
     props: T extends "row" ? RowNumberCellProps : ColumnHeaderCellProps;
     index: number;
     type: T;
+};
+
+export type DirectionalMenuActions<T extends MenuDirection> = {
+    [K in T extends "row" ? "onAddAbove" | "onAddBelow" : "onAddLeft" | "onAddRight"]: () => void;
+} & {
+    onRemove: () => void;
 };
 
 export interface HeaderCellProps<T extends "row" | "column"> {
@@ -171,6 +173,19 @@ export type MenuActionMap = {
     };
 };
 
+export type MenuDirection = "row" | "column";
+
+export type MenuPropsMap = {
+    row: {
+        props: RowNumberCellProps;
+        actions: MenuActionMap["row"];
+    };
+    column: {
+        props: ColumnHeaderCellProps;
+        actions: MenuActionMap["column"];
+    };
+};
+
 export type NewTableModalProps = {
     open: boolean;
     onClose: () => void;
@@ -186,11 +201,7 @@ export interface RowContextMenuProps {
     onRemove: () => void;
 }
 
-export type RowMenuActions = {
-    onAddAbove: () => void;
-    onAddBelow: () => void;
-    onRemove: () => void;
-};
+export type RowMenuActions = DirectionalMenuActions<"row">;
 
 export type RowMenuProps = Omit<RowContextMenuProps, keyof BaseContextMenuProps>;
 
