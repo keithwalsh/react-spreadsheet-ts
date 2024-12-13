@@ -1,10 +1,15 @@
+/**
+ * @fileoverview Row number cell implementation using the generic HeaderCell component.
+ */
+
 import { useMemo } from "react";
 import { useAtom } from "jotai";
 import { RowNumberCellProps } from "../types";
 import { HeaderCell } from "./HeaderCell";
 import RowContextMenu from "./RowContextMenu";
+import { createMenuProps } from "../utils/menuUtils";
 
-export function RowNumberCell({ atom, rowIndex, ...props }: RowNumberCellProps) {
+export const RowNumberCell = ({ atom, rowIndex, ...props }: RowNumberCellProps) => {
     const [state] = useAtom(atom);
 
     const isHighlighted = useMemo(
@@ -14,6 +19,12 @@ export function RowNumberCell({ atom, rowIndex, ...props }: RowNumberCellProps) 
 
     const isSelected = useMemo(() => state.selectedRows.includes(rowIndex), [state.selectedRows, rowIndex]);
 
+    const menuProps = createMenuProps({
+        props: { ...props, atom, rowIndex },
+        index: rowIndex,
+        type: "row",
+    });
+
     return (
         <HeaderCell<"row">
             type="row"
@@ -22,17 +33,14 @@ export function RowNumberCell({ atom, rowIndex, ...props }: RowNumberCellProps) 
             isHighlighted={isHighlighted}
             isSelected={isSelected}
             ContextMenu={RowContextMenu}
-            menuProps={{
-                onAddAbove: () => props.onAddAbove(rowIndex),
-                onAddBelow: () => props.onAddBelow(rowIndex),
-                onRemove: () => props.onRemove(rowIndex),
-            }}
+            menuProps={menuProps}
             renderContent={(index) => index + 1}
             onDragStart={props.onDragStart}
             onDragEnter={props.onDragEnter}
             onDragEnd={props.onDragEnd}
         />
     );
-}
+};
 
+// Add both named and default exports
 export default RowNumberCell;

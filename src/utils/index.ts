@@ -5,6 +5,7 @@ import { adjustTableSize } from "./adjustTableSize";
 import { convertToCSV, downloadCSV } from "./csvConversion";
 import { isCellSelected, createSelectionMatrix } from "./selectionUtils";
 import { createHistoryEntry } from "./historyUtils";
+import { createMenuProps } from "./menuUtils";
 
 export {
     addRow,
@@ -20,4 +21,5 @@ export {
     downloadCSV,
     isCellSelected,
     createHistoryEntry,
+    createMenuProps,
 };

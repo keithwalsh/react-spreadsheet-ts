@@ -9,6 +9,14 @@ import { IconBaseProps } from "react-icons";
 import { PrimitiveAtom } from "jotai";
 import { CellData, Dimensions, State } from "./dataTypes";
 import { CSSProperties } from "react";
+import RowContextMenu from "src/components/RowContextMenu";
+import { ColumnContextMenu } from "src/components";
+
+export interface BaseContextMenuProps {
+    anchorEl: HTMLElement | null;
+    open: boolean;
+    onClose: () => void;
+}
 
 export type ButtonDefinition = {
     title: string;
@@ -94,14 +102,19 @@ export type ColumnHeaderCellProps = {
     onDragEnd: () => void;
 };
 
-export interface BaseContextMenuProps {
-    anchorEl: HTMLElement | null;
-    open: boolean;
-    onClose: () => void;
-}
+export type ColumnMenuActions = {
+    onAddLeft: () => void;
+    onAddRight: () => void;
+    onRemove: () => void;
+};
 
-export type RowMenuProps = Omit<RowContextMenuProps, keyof BaseContextMenuProps>;
 export type ColumnMenuProps = Omit<ColumnContextMenuProps, keyof BaseContextMenuProps>;
+
+export type CreateMenuProps<T extends "row" | "column"> = {
+    props: T extends "row" ? RowNumberCellProps : ColumnHeaderCellProps;
+    index: number;
+    type: T;
+};
 
 export interface HeaderCellProps<T extends "row" | "column"> {
     atom: PrimitiveAtom<State>;
@@ -112,8 +125,8 @@ export interface HeaderCellProps<T extends "row" | "column"> {
     onDragStart: (index: number) => void;
     onDragEnter: (index: number) => void;
     onDragEnd: () => void;
-    ContextMenu: T extends "row" ? React.ComponentType<RowContextMenuProps> : React.ComponentType<ColumnContextMenuProps>;
-    menuProps: T extends "row" ? RowMenuProps : ColumnMenuProps;
+    ContextMenu: T extends "row" ? typeof RowContextMenu : typeof ColumnContextMenu;
+    menuProps: T extends "row" ? MenuActionConfig["row"]["props"] : MenuActionConfig["column"]["props"];
     renderContent: (index: number) => React.ReactNode;
 }
 
@@ -130,6 +143,34 @@ export interface LinkModalProps {
     initialUrl?: string;
 }
 
+export type MenuActionConfig = {
+    row: {
+        before: "onAddAbove";
+        after: "onAddBelow";
+        remove: "onRemove";
+        props: RowMenuActions;
+    };
+    column: {
+        before: "onAddLeft";
+        after: "onAddRight";
+        remove: "onRemoveColumn";
+        props: ColumnMenuActions;
+    };
+};
+
+export type MenuActionMap = {
+    row: {
+        before: "onAddAbove";
+        after: "onAddBelow";
+        remove: "onRemove";
+    };
+    column: {
+        before: "onAddLeft";
+        after: "onAddRight";
+        remove: "onRemoveColumn";
+    };
+};
+
 export type NewTableModalProps = {
     open: boolean;
     onClose: () => void;
@@ -144,6 +185,14 @@ export interface RowContextMenuProps {
     onAddBelow: () => void;
     onRemove: () => void;
 }
+
+export type RowMenuActions = {
+    onAddAbove: () => void;
+    onAddBelow: () => void;
+    onRemove: () => void;
+};
+
+export type RowMenuProps = Omit<RowContextMenuProps, keyof BaseContextMenuProps>;
 
 export type RowNumberCellProps = {
     atom: PrimitiveAtom<State>;

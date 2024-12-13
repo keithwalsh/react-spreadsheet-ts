@@ -9,7 +9,7 @@ import { useAtom } from "jotai";
 import { HeaderCellProps, HeaderCellStylesParams, RowContextMenuProps, ColumnContextMenuProps } from "../types";
 import { useHeaderCellStyles } from "../styles";
 
-export function HeaderCell<T extends "row" | "column">({
+export const HeaderCell = <T extends "row" | "column">({
     atom,
     index,
     isHighlighted,
@@ -20,7 +20,7 @@ export function HeaderCell<T extends "row" | "column">({
     ContextMenu,
     menuProps,
     renderContent,
-}: HeaderCellProps<T>) {
+}: HeaderCellProps<T>) => {
     const [state] = useAtom(atom);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [isHovered, setIsHovered] = useState(false);
@@ -65,6 +65,6 @@ export function HeaderCell<T extends "row" | "column">({
             <MenuComponent anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseMenu} {...menuProps} />
         </>
     );
-}
+};
 
 export default HeaderCell;

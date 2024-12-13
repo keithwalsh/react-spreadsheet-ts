@@ -7,11 +7,18 @@ import { ColumnHeaderCellProps, DragHandlers } from "../types";
 import { HeaderCell } from "./HeaderCell";
 import ColumnContextMenu from "./ColumnContextMenu";
 import { getColumnLabel } from "../utils/columnUtils";
+import { createMenuProps } from "../utils/menuUtils";
 
-export function ColumnHeaderCell({ atom, index, ...props }: ColumnHeaderCellProps & DragHandlers) {
+export const ColumnHeaderCell = ({ atom, index, ...props }: ColumnHeaderCellProps & DragHandlers) => {
     const [state] = useAtom(atom);
 
     const isSelected = state.selectedColumns.includes(index) || state.selectedCell?.col === index || state.selectedCells.some((row: boolean[]) => row[index]);
+
+    const menuProps = createMenuProps({
+        props: { ...props, atom, index },
+        index,
+        type: "column",
+    });
 
     return (
         <HeaderCell<"column">
@@ -21,15 +28,13 @@ export function ColumnHeaderCell({ atom, index, ...props }: ColumnHeaderCellProp
             isHighlighted={false}
             isSelected={isSelected}
             ContextMenu={ColumnContextMenu}
-            menuProps={{
-                onAddLeft: () => props.onAddColumnLeft(index),
-                onAddRight: () => props.onAddColumnRight(index),
-                onRemove: () => props.onRemoveColumn(index),
-            }}
+            menuProps={menuProps}
             renderContent={getColumnLabel}
             onDragStart={props.onDragStart}
             onDragEnter={props.onDragEnter}
             onDragEnd={props.onDragEnd}
         />
     );
-}
+};
+
+export default ColumnHeaderCell;
