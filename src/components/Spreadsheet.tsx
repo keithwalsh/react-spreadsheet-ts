@@ -10,7 +10,7 @@ import { defaultVisibleButtons } from "../config";
 import { useDragSelection, useOutsideClick, useTableActions, useTableStructure, useUndoRedo, useKeyboardNavigation } from "../hooks";
 import { initialState } from "../store";
 import { Alignment, CellData, State } from "../types";
-import { createHistoryEntry, downloadCSV, handlePaste } from "../utils";
+import { createHistoryEntry, downloadCSV, handlePaste, createNewSelectionState } from "../utils";
 import { ButtonGroup, Menu, NewTableModal, Table, ToolbarProvider, TableSizeChooser } from "./";
 
 interface SpreadsheetProps {
@@ -215,13 +215,10 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
             const result = handleKeyNavigation(e, row, col, state.data.length - 1, state.data[0].length - 1);
             
             if (result) {
-                const newSelectedCells = state.data.map((row) => row.map(() => false));
-                newSelectedCells[result.row][result.col] = true;
-
                 setState((prev) => ({
                     ...prev,
+                    selectedCells: createNewSelectionState(state.data, result),
                     selectedCell: { row: result.row, col: result.col },
-                    selectedCells: newSelectedCells,
                     selectAll: false,
                     selectedRows: [],
                     selectedColumns: [],

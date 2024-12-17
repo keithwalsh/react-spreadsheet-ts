@@ -4,6 +4,7 @@ import { useAtom } from "jotai";
 import { TableProps } from "../types";
 import { Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, useToolbar } from "./";
 import { useKeyboardNavigation } from "../hooks";
+import { createNewSelectionState } from "../utils";
 
 const Table = React.forwardRef<HTMLTableElement, TableProps>(
     (
@@ -215,8 +216,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                 const result = handleKeyNavigation(e, row, col, state.data.length - 1, state.data[0].length - 1);
                 
                 if (result) {
-                    const newSelectedCells = state.data.map((row) => row.map(() => false));
-                    newSelectedCells[result.row][result.col] = true;
+                    const newSelectedCells = createNewSelectionState(state.data, result);
 
                     setState((prev) => ({
                         ...prev,

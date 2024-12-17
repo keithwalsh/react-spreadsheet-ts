@@ -7,6 +7,7 @@ import { isCellSelected, createSelectionMatrix } from "./selectionUtils";
 import { createHistoryEntry } from "./historyUtils";
 import { createMenuProps } from "./menuUtils";
 import { getColumnLabel } from "./columnUtils";
+import { createNewSelectionState } from "./selectionUtils";
 
 export {
     addRow,
@@ -24,4 +25,5 @@ export {
     createHistoryEntry,
     createMenuProps,
     getColumnLabel,
+    createNewSelectionState
 };

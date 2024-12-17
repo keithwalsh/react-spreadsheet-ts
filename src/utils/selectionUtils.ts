@@ -39,4 +39,10 @@ export function isCellSelected({
             colIndex === startCol) ||
         state.selectedCells[rowIndex][colIndex]
     )
-} 
+}
+
+export function createNewSelectionState(data: CellData[][], result: { row: number; col: number }): boolean[][] {
+    const newSelectedCells = data.map((row) => row.map(() => false));
+    newSelectedCells[result.row][result.col] = true;
+    return newSelectedCells;
+}
