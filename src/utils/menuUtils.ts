@@ -3,32 +3,57 @@
  * different header cell types.
  */
 
-import { CreateMenuProps, MenuActionConfig, MenuPropsMap } from "../types";
+import { CreateMenuProps, MenuActionConfig } from "../types";
 
-export const createMenuProps = <T extends keyof MenuPropsMap>({ props, index, type }: CreateMenuProps<T>): MenuActionConfig[T]["props"] => {
-    const typedProps = props as MenuPropsMap[T]["props"];
+type ActionConfig = {
+    key: string;
+    method: string;
+};
 
-    const menuActions = {
-        row: {
-            add: [
-                { key: "onAddAbove", method: "onAddAbove" },
-                { key: "onAddBelow", method: "onAddBelow" },
-            ],
-            remove: { key: "onRemove", method: "onRemove" },
-        },
-        column: {
-            add: [
-                { key: "onAddLeft", method: "onAddColumnLeft" },
-                { key: "onAddRight", method: "onAddColumnRight" },
-            ],
-            remove: { key: "onRemove", method: "onRemoveColumn" },
-        },
-    };
+type MenuTypeConfig = {
+    add: ActionConfig[];
+    remove: ActionConfig;
+};
 
-    const actions = type === "row" ? menuActions.row : menuActions.column;
+type Direction = "Above" | "Below" | "Left" | "Right";
+type BaseAction = "Add" | "Remove";
+
+const createActionConfig = (base: BaseAction, direction?: Direction): ActionConfig => ({
+    key: `on${base}${direction ?? ""}`,
+    method: `on${base}${direction ? (base === "Add" ? `Column${direction}` : "Column") : ""}`,
+});
+
+const menuActions: Record<"row" | "column", MenuTypeConfig> = {
+    row: {
+        add: [createActionConfig("Add", "Above"), createActionConfig("Add", "Below")],
+        remove: createActionConfig("Remove"),
+    },
+    column: {
+        add: [createActionConfig("Add", "Left"), createActionConfig("Add", "Right")],
+        remove: createActionConfig("Remove"),
+    },
+} as const;
+
+export const createMenuProps = <T extends keyof MenuActionConfig>({ props, index, type }: CreateMenuProps<T>) => {
+    const actions = menuActions[type];
 
     return {
-        ...Object.fromEntries(actions.add.map(({ key, method }) => [key, () => (typedProps as any)[method](index)])),
-        onRemove: () => (typedProps as any)[actions.remove.method](index),
+        ...Object.fromEntries(
+            actions.add.map(({ key, method }) => [
+                key,
+                () => {
+                    const methodFn = props[method as keyof typeof props];
+                    if (typeof methodFn === "function") {
+                        methodFn(index);
+                    }
+                },
+            ])
+        ),
+        onRemove: () => {
+            const removeFn = props[actions.remove.method as keyof typeof props];
+            if (typeof removeFn === "function") {
+                removeFn(index);
+            }
+        },
     } as MenuActionConfig[T]["props"];
 };

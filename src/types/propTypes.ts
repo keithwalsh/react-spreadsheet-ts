@@ -148,17 +148,6 @@ export interface LinkModalProps {
     initialUrl?: string;
 }
 
-export type MenuPropsMap = {
-    row: {
-        props: RowNumberCellProps;
-        actions: MenuActionMap["row"];
-    };
-    column: {
-        props: ColumnHeaderCellProps;
-        actions: MenuActionMap["column"];
-    };
-};
-
 export type NewTableModalProps = {
     open: boolean;
     onClose: () => void;
@@ -271,4 +260,21 @@ export interface ToolbarProviderProps {
     clearTable: () => void;
     deleteSelected: () => void;
     transposeTable: () => void;
+}
+
+export interface ButtonGroupProps {
+    /** Array of button names to display. Defaults to defaultVisibleButtons */
+    visibleButtons?: string[];
+    /** Orientation of the button group. Defaults to 'horizontal' */
+    orientation?: "horizontal" | "vertical";
+    /** Size of the button icons in pixels. Defaults to 20 */
+    iconSize?: number;
+    /** Margin around icons in rem units. Defaults to 0.25 */
+    iconMargin?: number;
+    /** Margin around dividers in rem units. Defaults to 0.5 */
+    dividerMargin?: number;
+    /** Whether to show arrow on tooltips. Defaults to true */
+    tooltipArrow?: boolean;
+    /** Placement of tooltips. Defaults to 'top' */
+    tooltipPlacement?: "top" | "bottom" | "left" | "right";
 }
