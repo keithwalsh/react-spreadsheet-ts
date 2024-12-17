@@ -6,6 +6,7 @@
 import { useCallback } from "react";
 import { useAtom, PrimitiveAtom } from "jotai";
 import { Alignment, State } from "../types";
+import { isCellInSelection } from "../utils/selectionUtils";
 
 export const useTextFormatting = (atom: PrimitiveAtom<State>) => {
     const [state, setState] = useAtom(atom);
@@ -19,15 +20,7 @@ export const useTextFormatting = (atom: PrimitiveAtom<State>) => {
             setState({
                 ...state,
                 data: data.map((row, ri) =>
-                    row.map((cell, ci) =>
-                        selectAll ||
-                        (selectedCell?.row === ri && selectedCell?.col === ci) ||
-                        selectedCells[ri]?.[ci] ||
-                        selectedColumns.includes(ci) ||
-                        selectedRows.includes(ri)
-                            ? { ...cell, [format]: !cell[format] }
-                            : cell
-                    )
+                    row.map((cell, ci) => (isCellInSelection({ state, rowIndex: ri, colIndex: ci }) ? { ...cell, [format]: !cell[format] } : cell))
                 ),
                 past: [...past, { ...state }],
                 future: [],
@@ -50,15 +43,7 @@ export const useAlignment = (atom: PrimitiveAtom<State>) => {
             if (!hasSelection) return;
 
             const newData = data.map((row, r) =>
-                row.map((cell, c) =>
-                    selectAll ||
-                    (selectedCell?.row === r && selectedCell?.col === c) ||
-                    selectedCells[r]?.[c] ||
-                    selectedColumns.includes(c) ||
-                    selectedRows.includes(r)
-                        ? { ...cell, align: alignment }
-                        : cell
-                )
+                row.map((cell, c) => (isCellInSelection({ state, rowIndex: r, colIndex: c }) ? { ...cell, align: alignment } : cell))
             );
 
             setState({ ...state, data: newData, past: [...past, state], future: [] });

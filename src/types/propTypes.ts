@@ -9,7 +9,15 @@ import { PrimitiveAtom } from "jotai";
 import { CellData, Dimensions, State } from "./dataTypes";
 import { CSSProperties } from "react";
 import { RowContextMenu, ColumnContextMenu } from "../components";
-import { BaseContextMenuProps, DirectionalMenuActions, MenuActionConfig, MenuActionMap } from "./interactionTypes";
+import { DirectionalMenuActions } from "./interactionTypes";
+
+export interface BaseContextMenuProps {
+    anchorEl: HTMLElement | null;
+    onClose: () => void;
+    open: boolean;
+}
+
+export type MenuDirection = "row" | "column";
 
 export interface CellContentStyleProps {
     isEditing: boolean;
@@ -87,6 +95,30 @@ export type CreateMenuProps<T extends "row" | "column"> = {
     props: T extends "row" ? RowNumberCellProps : ColumnHeaderCellProps;
     index: number;
     type: T;
+};
+
+export type MenuActionMap = {
+    row: {
+        addAbove: () => void;
+        addBelow: () => void;
+        remove: () => void;
+    };
+    column: {
+        addLeft: () => void;
+        addRight: () => void;
+        remove: () => void;
+    };
+};
+
+export type MenuActionConfig = {
+    row: {
+        props: RowMenuProps;
+        actions: MenuActionMap["row"];
+    };
+    column: {
+        props: ColumnMenuProps;
+        actions: MenuActionMap["column"];
+    };
 };
 
 export interface HeaderCellProps<T extends "row" | "column"> {

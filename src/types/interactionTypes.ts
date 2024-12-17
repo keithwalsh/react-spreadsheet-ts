@@ -6,7 +6,7 @@
 
 import { PrimitiveAtom } from "jotai";
 import { CellData, State } from "./dataTypes";
-import { BaseContextMenuProps, MenuDirection, TableSizeChooserProps } from "./propTypes";
+import type { BaseContextMenuProps, MenuDirection, TableSizeChooserProps } from "./propTypes";
 import { MenuItemProps, PopoverOrigin } from "@mui/material";
 import { ArrowForward } from "@mui/icons-material";
 import { ArrowBack } from "@mui/icons-material";
