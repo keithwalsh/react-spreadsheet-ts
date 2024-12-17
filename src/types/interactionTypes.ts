@@ -13,12 +13,6 @@ import { ArrowBack } from "@mui/icons-material";
 import { ArrowDownward } from "@mui/icons-material";
 import { ArrowUpward } from "@mui/icons-material";
 
-export interface TableStructureModification {
-    data: CellData[][];
-    selectedCells: boolean[][];
-    index: number;
-}
-
 export interface AddColumnOptions extends TableStructureModification {
     position: "left" | "right";
 }
@@ -80,6 +74,12 @@ export interface SelectedCell {
     col: number;
 }
 
+export interface TableStructureModification {
+    data: CellData[][];
+    selectedCells: boolean[][];
+    index: number;
+}
+
 export interface ToolbarContextType {
     spreadsheetAtom: PrimitiveAtom<State>;
     onClickUndo: () => void;
@@ -106,6 +106,8 @@ export interface ToolbarContextType {
     isLinkModalOpen: boolean;
     isSnackbarOpen: boolean;
     snackbarMessage: string;
+    handleUndo: () => void;
+    handleRedo: () => void;
 }
 
 export type SelectedCells = Record<number, Record<number, boolean>>;

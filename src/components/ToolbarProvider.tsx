@@ -3,7 +3,7 @@ import { useAtom } from "jotai";
 import LinkModal from "./LinkModal";
 import { Snackbar } from "@mui/material";
 import { ToolbarContextType, ToolbarProviderProps } from "../types";
-import { useSpreadsheetActions } from "../hooks/useTableActions";
+import { useTableActions, useUndoRedo } from "../hooks";
 import type { State } from "../types";
 
 export const ToolbarContext = createContext<ToolbarContextType | null>(null);
@@ -13,8 +13,9 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
     const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
     const [state] = useAtom(spreadsheetAtom);
-    const { handleLink } = useSpreadsheetActions(spreadsheetAtom);
+    const { handleLink } = useTableActions(spreadsheetAtom);
     const [activeCell, setActiveCell] = useState<State["selectedCell"]>(null);
+    const { handleUndo, handleRedo } = useUndoRedo(spreadsheetAtom);
 
     const handleLinkModalClose = () => {
         setIsLinkModalOpen(false);
@@ -64,6 +65,8 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
         isSnackbarOpen,
         snackbarMessage,
         onClickSetLink: handleSetLink,
+        handleUndo,
+        handleRedo,
     };
 
     return (

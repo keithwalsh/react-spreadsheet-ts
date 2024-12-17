@@ -5,6 +5,7 @@
 
 import React from "react";
 import { MenuBar } from "mui-menubar";
+import { useHotkeys } from "react-hotkeys-hook";
 import { createMenuConfig } from "../config/menuConfig";
 import { useToolbar } from "./ToolbarProvider";
 import { TableSizeChooserProps } from "../types";
@@ -15,6 +16,26 @@ const Menu: React.FC<{
     TableSizeChooser: React.FC<TableSizeChooserProps>;
 }> = ({ handleNewTable, onDownloadCSV, TableSizeChooser }) => {
     const toolbarContext = useToolbar();
+    const { handleUndo, handleRedo } = toolbarContext;
+
+    // Register hotkeys
+    useHotkeys(
+        "ctrl+z",
+        (event) => {
+            event.preventDefault();
+            handleUndo();
+        },
+        [handleUndo]
+    );
+
+    useHotkeys(
+        "ctrl+y",
+        (event) => {
+            event.preventDefault();
+            handleRedo();
+        },
+        [handleRedo]
+    );
 
     const wrappedHandleNewTable = () => {
         // Default to 5x5 table when called without parameters
