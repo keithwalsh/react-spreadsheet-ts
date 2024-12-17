@@ -3,6 +3,7 @@ import { TableContainer as TableContainerMui, Table as TableMui, Paper as PaperM
 import { useAtom } from "jotai";
 import { TableProps } from "../types";
 import { Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, useToolbar } from "./";
+import { useKeyboardNavigation } from "../hooks";
 
 const Table = React.forwardRef<HTMLTableElement, TableProps>(
     (
@@ -197,6 +198,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
         );
 
         const toolbar = useToolbar();
+        const handleKeyNavigation = useKeyboardNavigation();
 
         const handleCellKeyDown = useCallback(
             (e: React.KeyboardEvent) => {
@@ -210,50 +212,23 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                 }
 
                 const { row, col } = state.selectedCell;
-                let newRow = row;
-                let newCol = col;
+                const result = handleKeyNavigation(e, row, col, state.data.length - 1, state.data[0].length - 1);
+                
+                if (result) {
+                    const newSelectedCells = state.data.map((row) => row.map(() => false));
+                    newSelectedCells[result.row][result.col] = true;
 
-                switch (e.key) {
-                    case "ArrowUp":
-                        newRow = Math.max(0, row - 1);
-                        break;
-                    case "ArrowDown":
-                        newRow = Math.min(state.data.length - 1, row + 1);
-                        break;
-                    case "ArrowLeft":
-                        newCol = Math.max(0, col - 1);
-                        break;
-                    case "ArrowRight":
-                        newCol = Math.min(state.data[0].length - 1, col + 1);
-                        break;
-                    default:
-                        return;
-                }
-
-                // Only update if the position actually changed
-                if (newRow !== row || newCol !== col) {
-                    const newSelectedCells = state.data.map(row => row.map(() => false));
-                    newSelectedCells[newRow][newCol] = true;
-
-                    setState(prev => ({
+                    setState((prev) => ({
                         ...prev,
-                        selectedCell: { row: newRow, col: newCol },
+                        selectedCell: { row: result.row, col: result.col },
                         selectedCells: newSelectedCells,
                         selectAll: false,
                         selectedRows: [],
                         selectedColumns: [],
                     }));
-
-                    // Focus the newly selected cell
-                    requestAnimationFrame(() => {
-                        const cell = document.querySelector(`[data-row="${newRow}"][data-col="${newCol}"]`);
-                        if (cell instanceof HTMLElement) {
-                            cell.focus();
-                        }
-                    });
                 }
             },
-            [state, setState, toolbar]
+            [state, setState, handleKeyNavigation, toolbar]
         );
 
         return (

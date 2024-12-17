@@ -7,7 +7,7 @@ import React, { useCallback, useRef, useEffect, useMemo, useState } from "react"
 import { PrimitiveAtom, useAtom } from "jotai";
 import { Box } from "@mui/material";
 import { defaultVisibleButtons } from "../config";
-import { useDragSelection, useOutsideClick, useTableActions, useTableStructure, useUndoRedo } from "../hooks";
+import { useDragSelection, useOutsideClick, useTableActions, useTableStructure, useUndoRedo, useKeyboardNavigation } from "../hooks";
 import { initialState } from "../store";
 import { Alignment, CellData, State } from "../types";
 import { createHistoryEntry, downloadCSV, handlePaste } from "../utils";
@@ -33,6 +33,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
     const [isNewTableModalOpen, setIsNewTableModalOpen] = useState(false);
     const { handleTextFormatting, handleSetAlignment } = useTableActions(atom);
     const { handleUndo, handleRedo } = useUndoRedo(atom);
+    const handleKeyNavigation = useKeyboardNavigation();
 
     const containerRef = useRef<HTMLDivElement>(null);
     const tableRef = useRef<HTMLTableElement>(null);
@@ -211,35 +212,15 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
             }
 
             const { row, col } = state.selectedCell;
-            let newRow = row;
-            let newCol = col;
+            const result = handleKeyNavigation(e, row, col, state.data.length - 1, state.data[0].length - 1);
+            
+            if (result) {
+                const newSelectedCells = state.data.map((row) => row.map(() => false));
+                newSelectedCells[result.row][result.col] = true;
 
-            switch (e.key) {
-                case "ArrowUp":
-                    newRow = Math.max(0, row - 1);
-                    break;
-                case "ArrowDown":
-                    newRow = Math.min(state.data.length - 1, row + 1);
-                    break;
-                case "ArrowLeft":
-                    newCol = Math.max(0, col - 1);
-                    break;
-                case "ArrowRight":
-                    newCol = Math.min(state.data[0].length - 1, col + 1);
-                    break;
-                default:
-                    return;
-            }
-
-            // Only update if the position actually changed
-            if (newRow !== row || newCol !== col) {
-                e.preventDefault();
-                const newSelectedCells = state.data.map(row => row.map(() => false));
-                newSelectedCells[newRow][newCol] = true;
-
-                setState(prev => ({
+                setState((prev) => ({
                     ...prev,
-                    selectedCell: { row: newRow, col: newCol },
+                    selectedCell: { row: result.row, col: result.col },
                     selectedCells: newSelectedCells,
                     selectAll: false,
                     selectedRows: [],
@@ -247,7 +228,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
                 }));
             }
         },
-        [state, setState]
+        [state, setState, handleKeyNavigation]
     );
 
     return (
