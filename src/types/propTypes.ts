@@ -5,34 +5,11 @@
  */
 
 import { TableCellProps } from "@mui/material";
-import { IconBaseProps } from "react-icons";
 import { PrimitiveAtom } from "jotai";
 import { CellData, Dimensions, State } from "./dataTypes";
 import { CSSProperties } from "react";
 import { RowContextMenu, ColumnContextMenu } from "../components";
-import { DirectionalMenuActions } from "./interactionTypes";
-
-export interface BaseContextMenuProps {
-    anchorEl: HTMLElement | null;
-    open: boolean;
-    onClose: () => void;
-}
-
-export type ButtonDefinition = {
-    title: string;
-    icon: React.ComponentType<IconBaseProps>;
-    handlerKey: string;
-};
-
-export interface ButtonGroupProps {
-    visibleButtons?: string[];
-    orientation?: "horizontal" | "vertical";
-    iconSize?: number;
-    iconMargin?: number;
-    dividerMargin?: number;
-    tooltipArrow?: boolean;
-    tooltipPlacement?: "top" | "bottom" | "left" | "right";
-}
+import { BaseContextMenuProps, DirectionalMenuActions, MenuActionConfig, MenuActionMap } from "./interactionTypes";
 
 export interface CellContentStyleProps {
     isEditing: boolean;
@@ -138,36 +115,6 @@ export interface LinkModalProps {
     onSubmit: (url: string | undefined) => void;
     initialUrl?: string;
 }
-
-export type MenuActionConfig = {
-    row: {
-        before: "onAddAbove";
-        after: "onAddBelow";
-        remove: "onRemove";
-        props: RowMenuActions;
-    };
-    column: {
-        before: "onAddLeft";
-        after: "onAddRight";
-        remove: "onRemoveColumn";
-        props: ColumnMenuActions;
-    };
-};
-
-export type MenuActionMap = {
-    row: {
-        before: "onAddAbove";
-        after: "onAddBelow";
-        remove: "onRemove";
-    };
-    column: {
-        before: "onAddLeft";
-        after: "onAddRight";
-        remove: "onRemoveColumn";
-    };
-};
-
-export type MenuDirection = "row" | "column";
 
 export type MenuPropsMap = {
     row: {

@@ -58,80 +58,54 @@ const useOperationHandler = <T extends RowPosition | ColumnPosition>(
 
 export const useRowOperations = (atom: PrimitiveAtom<State>) => {
     const [state, setState] = useAtom(atom);
-    const updateStateWithNewData = useStateUpdater(state, setState);
-    const handleAddRowAtIndex = useOperationHandler<RowPosition>(state, addRow, updateStateWithNewData);
+    const update = useStateUpdater(state, setState);
+    const op = useOperationHandler<RowPosition>(state, addRow, update);
 
-    const handleAddRow = useCallback(
-        (position: "above" | "below") => {
-            handleAddRowAtIndex(state.selectedCell?.row ?? state.data.length, position);
-        },
-        [state, handleAddRowAtIndex]
-    );
+    const handleAddRow = useCallback((position: "above" | "below") => op(state.selectedCell?.row ?? state.data.length, position), [state, op]);
 
     const handleRemoveRow = useCallback(
-        (index?: number) => {
-            const rowIndex = typeof index === "number" ? index : state.data.length - 1;
-            const result = removeRow({
-                data: state.data,
-                selectedCells: state.selectedCells,
-                index: rowIndex,
-            });
-            updateStateWithNewData(result, {
-                selectedCell: null,
-                selectedRows: [],
-            });
-        },
-        [state, updateStateWithNewData]
+        (index?: number) =>
+            update(
+                removeRow({
+                    data: state.data,
+                    selectedCells: state.selectedCells,
+                    index: index ?? state.data.length - 1,
+                }),
+                { selectedCell: null, selectedRows: [] }
+            ),
+        [state, update]
     );
 
-    const handleAddRowAbove = useCallback((index: number) => handleAddRowAtIndex(index, "above"), [handleAddRowAtIndex]);
-    const handleAddRowBelow = useCallback((index: number) => handleAddRowAtIndex(index, "below"), [handleAddRowAtIndex]);
+    const handleAddRowAbove = useCallback((i: number) => op(i, "above"), [op]);
+    const handleAddRowBelow = useCallback((i: number) => op(i, "below"), [op]);
 
-    return {
-        handleAddRow,
-        handleRemoveRow,
-        handleAddRowAbove,
-        handleAddRowBelow,
-    };
+    return { handleAddRow, handleRemoveRow, handleAddRowAbove, handleAddRowBelow };
 };
 
 export const useColumnOperations = (atom: PrimitiveAtom<State>) => {
     const [state, setState] = useAtom(atom);
-    const updateStateWithNewData = useStateUpdater(state, setState);
-    const handleAddColumnAtIndex = useOperationHandler<ColumnPosition>(state, addColumn, updateStateWithNewData);
+    const update = useStateUpdater(state, setState);
+    const op = useOperationHandler<ColumnPosition>(state, addColumn, update);
 
-    const handleAddColumn = useCallback(
-        (position: "left" | "right") => {
-            handleAddColumnAtIndex(state.selectedCell?.col ?? state.data[0].length, position);
-        },
-        [state, handleAddColumnAtIndex]
-    );
+    const handleAddColumn = useCallback((position: "left" | "right") => op(state.selectedCell?.col ?? state.data[0].length, position), [state, op]);
 
     const handleRemoveColumn = useCallback(
-        (index?: number) => {
-            const colIndex = typeof index === "number" ? index : state.data[0].length - 1;
-            const result = removeColumn({
-                data: state.data,
-                selectedCells: state.selectedCells,
-                index: colIndex,
-            });
-            updateStateWithNewData(result, {
-                selectedCell: null,
-                selectedColumns: [],
-            });
-        },
-        [state, updateStateWithNewData]
+        (index?: number) =>
+            update(
+                removeColumn({
+                    data: state.data,
+                    selectedCells: state.selectedCells,
+                    index: index ?? state.data[0].length - 1,
+                }),
+                { selectedCell: null, selectedColumns: [] }
+            ),
+        [state, update]
     );
 
-    const handleAddColumnLeft = useCallback((index: number) => handleAddColumnAtIndex(index, "left"), [handleAddColumnAtIndex]);
-    const handleAddColumnRight = useCallback((index: number) => handleAddColumnAtIndex(index, "right"), [handleAddColumnAtIndex]);
+    const handleAddColumnLeft = useCallback((i: number) => op(i, "left"), [op]);
+    const handleAddColumnRight = useCallback((i: number) => op(i, "right"), [op]);
 
-    return {
-        handleAddColumn,
-        handleRemoveColumn,
-        handleAddColumnLeft,
-        handleAddColumnRight,
-    };
+    return { handleAddColumn, handleRemoveColumn, handleAddColumnLeft, handleAddColumnRight };
 };
 
 // Optional: Combine hooks if needed

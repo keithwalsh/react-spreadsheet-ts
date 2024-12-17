@@ -42,33 +42,26 @@ export const useAlignment = (atom: PrimitiveAtom<State>) => {
 
     return useCallback(
         (alignment: Alignment) => {
+            const { data, past, selectedCell, selectedCells, selectedColumns, selectedRows, selectAll } = state;
+
             const hasSelection =
-                state.selectedCell ||
-                state.selectedCells.some((row) => row.some(Boolean)) ||
-                state.selectedColumns.length > 0 ||
-                state.selectedRows.length > 0 ||
-                state.selectAll;
+                selectAll || !!selectedCell || selectedCells.some((row) => row.some(Boolean)) || selectedColumns.length > 0 || selectedRows.length > 0;
 
             if (!hasSelection) return;
 
-            const newData = state.data.map((row, rowIndex) =>
-                row.map((cell, colIndex) =>
-                    state.selectAll ||
-                    (state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) ||
-                    state.selectedCells[rowIndex]?.[colIndex] ||
-                    state.selectedColumns.includes(colIndex) ||
-                    state.selectedRows.includes(rowIndex)
+            const newData = data.map((row, r) =>
+                row.map((cell, c) =>
+                    selectAll ||
+                    (selectedCell?.row === r && selectedCell?.col === c) ||
+                    selectedCells[r]?.[c] ||
+                    selectedColumns.includes(c) ||
+                    selectedRows.includes(r)
                         ? { ...cell, align: alignment }
                         : cell
                 )
             );
 
-            setState({
-                ...state,
-                data: newData,
-                past: [...state.past, { ...state }],
-                future: [],
-            });
+            setState({ ...state, data: newData, past: [...past, state], future: [] });
         },
         [state, setState]
     );

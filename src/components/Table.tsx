@@ -5,6 +5,7 @@ import { TableProps } from "../types";
 import { Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, useToolbar } from "./";
 import { useKeyboardNavigation } from "../hooks";
 import { createNewSelectionState } from "../utils";
+import { getTableContainerStyles, tableStyles } from "../styles";
 
 const Table = React.forwardRef<HTMLTableElement, TableProps>(
     (
@@ -31,20 +32,15 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
         React.useEffect(() => {
             const handleMouseMove = (e: MouseEvent) => {
                 if (!isDragging || !lastCell) return;
+                const cell = document.elementFromPoint(e.clientX, e.clientY)?.closest("[data-row]");
+                if (!cell) return;
 
-                // Find the cell element under the cursor
-                const element = document.elementFromPoint(e.clientX, e.clientY);
-                if (!element) return;
+                const row = parseInt(cell.getAttribute("data-row") || "-1", 10);
+                const col = parseInt(cell.getAttribute("data-col") || "-1", 10);
 
-                // Find the closest cell element
-                const cellElement = element.closest("[data-row]");
-                if (cellElement) {
-                    const row = parseInt(cellElement.getAttribute("data-row") || "-1");
-                    const col = parseInt(cellElement.getAttribute("data-col") || "-1");
-                    if (row >= 0 && col >= 0 && (row !== lastCell.row || col !== lastCell.col)) {
-                        onDragEnter(row, col);
-                        setLastCell({ row, col });
-                    }
+                if (row >= 0 && col >= 0 && (row !== lastCell.row || col !== lastCell.col)) {
+                    onDragEnter(row, col);
+                    setLastCell({ row, col });
                 }
             };
 
@@ -75,26 +71,6 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
 
         const theme = useTheme();
         const isDarkMode = theme?.palette?.mode === "dark" || false;
-
-        const lightThemeStyles = {
-            border: "1px solid #e0e0e0",
-        };
-
-        const darkThemeStyles = {
-            border: "1px solid #686868",
-        };
-
-        const commonStyles = {
-            mt: 0,
-            width: "auto",
-            display: "inline-block",
-            backgroundColor: "transparent",
-        };
-
-        const tableStyles = {
-            ...commonStyles,
-            ...(isDarkMode ? darkThemeStyles : lightThemeStyles),
-        };
 
         const handleRowDragStart = React.useCallback(
             (rowIndex: number) => {
@@ -214,7 +190,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
 
                 const { row, col } = state.selectedCell;
                 const result = handleKeyNavigation(e, row, col, state.data.length - 1, state.data[0].length - 1);
-                
+
                 if (result) {
                     const newSelectedCells = createNewSelectionState(state.data, result);
 
@@ -233,19 +209,8 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
 
         return (
             <div style={{ outline: "none" }}>
-                <TableContainerMui 
-                    component={!isDarkMode ? PaperMui : "div"} 
-                    sx={tableStyles} 
-                    onPaste={handlePasteEvent}
-                >
-                    <TableMui
-                        ref={ref}
-                        sx={{
-                            "& .MuiTableCell-head": {
-                                lineHeight: 0.05,
-                            },
-                        }}
-                    >
+                <TableContainerMui component={!isDarkMode ? PaperMui : "div"} sx={getTableContainerStyles(isDarkMode)} onPaste={handlePasteEvent}>
+                    <TableMui ref={ref} sx={tableStyles}>
                         <TableHead>
                             <Row>
                                 <SelectAllCell selectAll={state.selectAll} toggleSelectAll={handleToggleSelectAll} />
