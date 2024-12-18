@@ -5,14 +5,34 @@
 
 import { SxProps, Theme } from "@mui/material";
 
-export const getTableCellStyles = (isDarkMode: boolean, selectAll: boolean, sx: SxProps<Theme> = {}) => ({
-    padding: "0px",
-    color: isDarkMode ? "#BEBFC0" : "rgba(0, 0, 0, 0.54)",
-    backgroundColor: selectAll ? (isDarkMode ? "#686868" : "#e0e0e0") : isDarkMode ? "#414547" : "#f0f0f0",
-    borderRight: isDarkMode ? "1px solid #686868" : "1px solid #e0e0e0",
-    borderBottom: isDarkMode ? "1px solid #686868" : "1px solid #e0e0e0",
-    ...sx,
-});
+const COLORS = {
+    dark: {
+        text: "#BEBFC0",
+        border: "#686868",
+        background: "#414547",
+        selected: "#686868",
+    },
+    light: {
+        text: "rgba(0, 0, 0, 0.54)",
+        border: "#e0e0e0",
+        background: "#f0f0f0",
+        selected: "#e0e0e0",
+    },
+} as const;
+
+export const getTableCellStyles = (isDarkMode: boolean, selectAll: boolean, sx: SxProps<Theme> = {}) => {
+    const theme = isDarkMode ? COLORS.dark : COLORS.light;
+    const backgroundColor = selectAll ? theme.selected : theme.background;
+
+    return {
+        padding: "0px",
+        color: theme.text,
+        backgroundColor,
+        borderRight: `1px solid ${theme.border}`,
+        borderBottom: `1px solid ${theme.border}`,
+        ...sx,
+    };
+};
 
 export const getIconButtonStyles = (isDarkMode: boolean): SxProps<Theme> => ({
     color: isDarkMode ? "#BEBFC0" : "rgba(0, 0, 0, 0.54)",
