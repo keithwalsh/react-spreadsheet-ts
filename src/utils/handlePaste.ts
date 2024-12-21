@@ -59,7 +59,7 @@ export const handlePaste = (
             while (existingRow.length < requiredCols) {
                 existingRow.push({
                     value: "",
-                    align: "left" as const,
+                    align: Alignment.LEFT,
                     bold: false,
                     italic: false,
                     code: false,
@@ -72,7 +72,7 @@ export const handlePaste = (
             .fill(null)
             .map(() => ({
                 value: "",
-                align: "left" as const,
+                align: Alignment.LEFT,
                 bold: false,
                 italic: false,
                 code: false,
@@ -85,12 +85,12 @@ export const handlePaste = (
             // Existing row: copy and extend if needed
             const existingRow = [...alignments[rowIndex]];
             while (existingRow.length < requiredCols) {
-                existingRow.push("left" as Alignment);
+                existingRow.push(Alignment.LEFT);
             }
             return existingRow;
         }
         // New row: create with default left alignment
-        return Array(requiredCols).fill("left" as Alignment);
+        return Array(requiredCols).fill(Alignment.LEFT);
     });
 
     const newBold = Array.from({ length: requiredRows }, (_, rowIndex) => createFormattingArray(bold, rowIndex, requiredCols, false));

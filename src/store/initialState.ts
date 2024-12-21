@@ -1,4 +1,4 @@
-import { State } from "../types";
+import { State, Alignment } from "../types";
 
 export const initialState = (rows: number, columns: number): State => ({
     data: Array.from({ length: rows }, () =>
@@ -6,7 +6,7 @@ export const initialState = (rows: number, columns: number): State => ({
             .fill(undefined)
             .map(() => ({
                 value: "",
-                align: "left" as const,
+                align: Alignment.LEFT,
                 bold: false,
                 italic: false,
                 code: false,

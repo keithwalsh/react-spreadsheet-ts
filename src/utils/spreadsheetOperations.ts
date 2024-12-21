@@ -1,4 +1,4 @@
-import { CellData } from "../types/index";
+import { CellData, Alignment } from "../types/index";
 import { TableStructureModification, AddColumnOptions, AddRowOptions } from "../types/interactionTypes";
 
 const spliceColumn = <T>(array: T[][], index: number, count: number): T[][] => {
@@ -10,7 +10,7 @@ const spliceColumn = <T>(array: T[][], index: number, count: number): T[][] => {
 };
 
 export function addRow({ data, selectedCells, index = data.length, position = "below" }: AddRowOptions) {
-    const newRow = Array(data[0].length).fill({ value: "", bold: false, italic: false, code: false, align: "left" });
+    const newRow = Array(data[0].length).fill({ value: "", bold: false, italic: false, code: false, align: Alignment.LEFT });
     const newSelectedRow = Array(data[0].length).fill(false);
     const insertIndex = position === "above" ? index : index + 1;
 
@@ -36,7 +36,7 @@ export function addColumn({ data, selectedCells, index = 0, position = "right" }
     const newData = data.map((row) => {
         const newRow = [...row];
         const insertIndex = position === "left" ? index : index + 1;
-        newRow.splice(insertIndex, 0, { value: "", bold: false, italic: false, code: false, align: "left" });
+        newRow.splice(insertIndex, 0, { value: "", bold: false, italic: false, code: false, align: Alignment.LEFT });
         return newRow;
     });
 

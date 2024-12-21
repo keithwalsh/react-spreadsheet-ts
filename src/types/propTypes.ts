@@ -6,7 +6,7 @@
 
 import { TableCellProps } from "@mui/material";
 import { PrimitiveAtom } from "jotai";
-import { CellData, Dimensions, State } from "./dataTypes";
+import { CellData, State } from "./dataTypes";
 import { CSSProperties } from "react";
 import { RowContextMenu, ColumnContextMenu } from "../components";
 import { DirectionalMenuActions } from "./interactionTypes";
@@ -95,6 +95,11 @@ export type CreateMenuProps<T extends "row" | "column"> = {
     props: T extends "row" ? RowNumberCellProps : ColumnHeaderCellProps;
     index: number;
     type: T;
+};
+
+export type Dimensions = {
+    rows: string;
+    columns: string;
 };
 
 export type MenuActionMap = {
@@ -237,6 +242,12 @@ export type TableSizeChooserProps = {
     currentRows: number;
     currentCols: number;
     onSizeSelect: (rows: number, cols: number) => void;
+};
+
+export type TableSizePayload = {
+    row: number;
+    col: number;
+    isInitialSetup?: boolean;
 };
 
 export interface ToolbarProviderProps {

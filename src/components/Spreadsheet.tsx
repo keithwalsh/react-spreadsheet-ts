@@ -140,9 +140,9 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
         () => ({
             onClickUndo: handleUndo,
             onClickRedo: handleRedo,
-            onClickAlignLeft: () => handleSetAlignment("left"),
-            onClickAlignCenter: () => handleSetAlignment("center"),
-            onClickAlignRight: () => handleSetAlignment("right"),
+            onClickAlignLeft: () => handleSetAlignment(Alignment.LEFT),
+            onClickAlignCenter: () => handleSetAlignment(Alignment.CENTER),
+            onClickAlignRight: () => handleSetAlignment(Alignment.RIGHT),
             onClickAddRow: (position: "above" | "below") => handleAddRow(position),
             onClickRemoveRow: handleRemoveRow,
             onClickAddColumn: (position: "left" | "right") => handleAddColumn(position),

@@ -1,6 +1,6 @@
 // src/utils/adjustTableSize.ts
 
-import { CellData } from "../types";
+import { CellData, Alignment } from "../types";
 
 export const adjustTableSize = (
     existingData: CellData[][],
@@ -21,7 +21,7 @@ export const adjustTableSize = (
             } else {
                 const newCell: CellData = {
                     value: "",
-                    align: "left" as const,
+                    align: Alignment.LEFT,
                     bold: false,
                     italic: false,
                     code: false
