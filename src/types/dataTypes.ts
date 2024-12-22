@@ -11,6 +11,12 @@ export enum Alignment {
     RIGHT = "right"
 }
 
+/** Represents a selected cell with row and column indices */
+export interface CellCoordinate {
+    row: number;
+    col: number;
+}
+
 /** Interface for cell data structure */
 export interface CellData {
     value: string;
@@ -24,7 +30,7 @@ export interface CellData {
 /** Payload structure for data-related actions */
 export type DataPayload = {
     data: CellData[][];
-    activeCell?: { row: number; col: number } | null;
+    activeCell?: CellCoordinate | null;
     selectedCells?: boolean[][];
     selectedRows?: number[];
     selectedColumns?: number[];
@@ -46,21 +52,11 @@ export type PasteOperationResult = {
     };
 };
 
-/** Represents a selected cell with row and column indices */
-export interface SelectedCell {
-    row: number;
-    col: number;
-}
-
-/** Represents a matrix of selected cells */
-export type SelectedCells = Record<number, Record<number, boolean>>;
 
 /** Represents a range of selected cells */
 export type SelectionRange = {
-    startRow: number;
-    startCol: number;
-    endRow: number;
-    endCol: number;
+    startCoordinate: CellCoordinate;
+    endCoordinate: CellCoordinate;
 };
 
 /** Represents the state of the spreadsheet */
@@ -70,13 +66,13 @@ export type State = {
     future: DataPayload[];
     selectedColumn: number | null;
     selectedRow: number | null;
-    selectedCell: { row: number; col: number } | null;
+    selectedCell: CellCoordinate | null;
     selectedCells: boolean[][];
     selectedRows: number[];
     selectedColumns: number[];
     selectAll: boolean;
     isDragging: boolean;
-    dragStart: { row: number; col: number } | null;
+    dragStart: CellCoordinate | null;
     dragStartRow: number | null;
     dragStartColumn: number | null;
 };

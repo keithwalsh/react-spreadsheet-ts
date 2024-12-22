@@ -6,11 +6,11 @@
 
 import { SelectionRange } from "../types/index";
 
-function isWithinRange({ startRow, startCol, endRow, endCol }: SelectionRange, row: number, col: number): boolean {
-    return row >= Math.min(startRow, endRow) && 
-           row <= Math.max(startRow, endRow) && 
-           col >= Math.min(startCol, endCol) && 
-           col <= Math.max(startCol, endCol)
+function isWithinRange({ startCoordinate, endCoordinate }: SelectionRange, row: number, col: number): boolean {
+    return row >= Math.min(startCoordinate.row, endCoordinate.row) && 
+           row <= Math.max(startCoordinate.row, endCoordinate.row) && 
+           col >= Math.min(startCoordinate.col, endCoordinate.col) && 
+           col <= Math.max(startCoordinate.col, endCoordinate.col)
 }
 
 export function markSelectedCells(
