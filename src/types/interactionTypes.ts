@@ -6,13 +6,14 @@
 
 import { PrimitiveAtom } from "jotai";
 import { Alignment, CellData, PasteOperationResult, State } from "./dataTypes";
-import type { BaseContextMenuProps, MenuDirection, TableSizeChooserProps } from "./propTypes";
-import { MenuItemProps, PopoverOrigin } from "@mui/material";
+import type { MenuDirection } from "./propTypes";
+import { PopoverOrigin } from "@mui/material";
 import { ArrowForward } from "@mui/icons-material";
 import { ArrowBack } from "@mui/icons-material";
 import { ArrowDownward } from "@mui/icons-material";
 import { ArrowUpward } from "@mui/icons-material";
 
+/** Represents actions for spreadsheet state management. */
 export type Action =
     | { type: "SET_DATA"; payload: CellData[][] }
     | { type: "UNDO" }
@@ -58,23 +59,11 @@ export interface AddRowOptions extends TableStructureModification {
     position: "above" | "below";
 }
 
-export interface ActionMenuItemProps extends Omit<MenuItemProps, "onClick"> {
-    icon: React.ElementType;
-    text: string;
-    onClick: () => void;
-}
-
 export interface ButtonHandlerKey {
     [key: string]: () => void;
 }
 
-export interface DirectionalContextMenuProps extends BaseContextMenuProps {
-    direction: MenuDirection;
-    onAddBefore: () => void;
-    onAddAfter: () => void;
-    onRemove: () => void;
-}
-
+/** Handlers for drag events in the spreadsheet. */
 export interface DragHandlers {
     onDragStart: (colIndex: number) => void;
     onDragEnter: (colIndex: number) => void;
@@ -90,13 +79,6 @@ export type HandlerMap = {
 
 export type Handler = HandlerMap[HandlerKey] | string | number | boolean | PrimitiveAtom<State>;
 
-export interface MenuConfigParams extends ToolbarContextType {
-    handleNewTable: () => void;
-    onDownloadCSV: () => void;
-    TableSizeChooser: React.ComponentType<TableSizeChooserProps>;
-    toolbarContext: ToolbarContextType;
-}
-
 export interface MenuPositionConfig {
     anchorOrigin: PopoverOrigin;
     transformOrigin: PopoverOrigin;
@@ -104,11 +86,6 @@ export interface MenuPositionConfig {
     afterIcon: typeof ArrowDownward | typeof ArrowForward;
     beforeText: string;
     afterText: string;
-}
-
-export interface SelectedCell {
-    row: number;
-    col: number;
 }
 
 export interface TableStructureModification {
@@ -147,15 +124,6 @@ export interface ToolbarContextType {
     handleRedo: () => void;
 }
 
-export type SelectedCells = Record<number, Record<number, boolean>>;
-
-export type SelectionRange = {
-    startRow: number;
-    startCol: number;
-    endRow: number;
-    endCol: number;
-};
-
 export type TextFormattingOperation =
     | { operation: "BOLD" | "ITALIC" | "CODE" | "LINK" | "REMOVE_LINK"; payload?: string }
     | { operation: "ALIGN_LEFT" | "ALIGN_CENTER" | "ALIGN_RIGHT" };
@@ -171,12 +139,3 @@ export type DirectionalMenuActions<T extends MenuDirection> = T extends "row"
           onAddRight: () => void;
           onRemove: () => void;
       };
-
-export interface ButtonDefinition {
-    /** The title/tooltip text for the button */
-    title: string;
-    /** The icon component to render */
-    icon: React.ElementType;
-    /** The key of the handler function to be called when clicked */
-    handlerKey: string;
-}

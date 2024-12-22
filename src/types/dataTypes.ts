@@ -4,12 +4,14 @@
  * including cell data, state shape, and action definitions.
  */
 
+/** Enum for cell alignment options */
 export enum Alignment {
     LEFT = "left",
     CENTER = "center",
     RIGHT = "right"
 }
 
+/** Interface for cell data structure */
 export interface CellData {
     value: string;
     bold: boolean;
@@ -19,16 +21,18 @@ export interface CellData {
     link?: string;
 }
 
+/** Payload structure for data-related actions */
 export type DataPayload = {
     data: CellData[][];
-    selectedCell?: { row: number; col: number } | null;
+    activeCell?: { row: number; col: number } | null;
     selectedCells?: boolean[][];
     selectedRows?: number[];
     selectedColumns?: number[];
     isDragging?: boolean;
-    selectAll?: boolean;
+    isAllSelected?: boolean;
 };
 
+/** Result of a paste operation */
 export type PasteOperationResult = {
     newData: CellData[][];
     newSelectedCells: boolean[][];
@@ -42,6 +46,24 @@ export type PasteOperationResult = {
     };
 };
 
+/** Represents a selected cell with row and column indices */
+export interface SelectedCell {
+    row: number;
+    col: number;
+}
+
+/** Represents a matrix of selected cells */
+export type SelectedCells = Record<number, Record<number, boolean>>;
+
+/** Represents a range of selected cells */
+export type SelectionRange = {
+    startRow: number;
+    startCol: number;
+    endRow: number;
+    endCol: number;
+};
+
+/** Represents the state of the spreadsheet */
 export type State = {
     data: CellData[][];
     past: DataPayload[];

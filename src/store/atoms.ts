@@ -38,12 +38,12 @@ export const updateData = (state: State, payload: DataPayload): State => {
     return {
         ...state,
         data: payload.data,
-        selectedCell: payload.selectedCell ?? state.selectedCell,
+        selectedCell: payload.activeCell ?? state.selectedCell,
         selectedCells: payload.selectedCells ?? state.selectedCells,
         selectedRows: payload.selectedRows ?? state.selectedRows,
         selectedColumns: payload.selectedColumns ?? state.selectedColumns,
         isDragging: payload.isDragging ?? state.isDragging,
-        selectAll: payload.selectAll ?? state.selectAll,
+        selectAll: payload.isAllSelected ?? state.selectAll,
         past: hasDataChanged ? [...state.past, { ...state }] : state.past,
         future: hasDataChanged ? [] : state.future,
     };

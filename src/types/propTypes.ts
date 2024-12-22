@@ -1,24 +1,37 @@
-// src/types/propTypes.ts
 /**
- * @fileoverview Component prop type definitions for all React components in the
- * spreadsheet, ensuring type safety across the component hierarchy.
+ * @file src/types/propTypes.ts
+ * @fileoverview Defines prop types for React components in the spreadsheet to ensure type safety.
  */
 
-import { TableCellProps } from "@mui/material";
+import { MenuItemProps, TableCellProps } from "@mui/material";
 import { PrimitiveAtom } from "jotai";
 import { CellData, State } from "./dataTypes";
 import { CSSProperties } from "react";
 import { RowContextMenu, ColumnContextMenu } from "../components";
-import { DirectionalMenuActions } from "./interactionTypes";
+import { DirectionalMenuActions, ToolbarContextType } from "./interactionTypes";
 
+/** Props for action menu items, omitting onClick from MenuItemProps */
+export interface ActionMenuItemProps extends Omit<MenuItemProps, "onClick"> {
+    icon: React.ElementType;
+    text: string;
+    onClick: () => void;
+}
+
+/** Props for base context menu component */
 export interface BaseContextMenuProps {
     anchorEl: HTMLElement | null;
     onClose: () => void;
     open: boolean;
 }
 
-export type MenuDirection = "row" | "column";
+/** Defines a button with a title, icon, and handler key. */
+export interface ButtonDefinition {
+    title: string;
+    icon: React.ElementType;
+    handlerKey: string;
+}
 
+/** Props for cell content styling */
 export interface CellContentStyleProps {
     isEditing: boolean;
     cellData: {
@@ -32,6 +45,7 @@ export interface CellContentStyleProps {
     style?: CSSProperties;
 }
 
+/** Props for individual spreadsheet cells. */
 export interface CellProps {
     rowIndex: number;
     colIndex: number;
@@ -52,6 +66,7 @@ export interface CellProps {
     onCellChange?: (rowIndex: number, colIndex: number, value: string) => void;
 }
 
+/** Props for cell styling */
 export interface CellStyleProps {
     isDarkMode: boolean;
     isEditing: boolean;
@@ -67,6 +82,7 @@ export interface CellStyleProps {
     hasLink?: boolean;
 }
 
+/** Props for the column context menu. */
 export type ColumnContextMenuProps = {
     anchorEl: HTMLElement | null;
     open: boolean;
@@ -76,6 +92,7 @@ export type ColumnContextMenuProps = {
     onRemove: () => void;
 };
 
+/** Props for the column header cell component. */
 export type ColumnHeaderCellProps = {
     atom: PrimitiveAtom<State>;
     index: number;
@@ -87,20 +104,32 @@ export type ColumnHeaderCellProps = {
     onDragEnd: () => void;
 };
 
+/** Actions for column menu */
 export type ColumnMenuActions = DirectionalMenuActions<"column">;
 
+/** Props for column menu excluding base context menu props */
 export type ColumnMenuProps = Omit<ColumnContextMenuProps, keyof BaseContextMenuProps>;
 
+/** Props for creating a menu based on type (row or column) */
 export type CreateMenuProps<T extends "row" | "column"> = {
     props: T extends "row" ? RowNumberCellProps : ColumnHeaderCellProps;
     index: number;
     type: T;
 };
 
+/** Represents the dimensions of the table. */
 export type Dimensions = {
     rows: string;
     columns: string;
 };
+
+/** Props for directional context menu */
+export interface DirectionalContextMenuProps extends BaseContextMenuProps {
+    direction: MenuDirection;
+    onAddBefore: () => void;
+    onAddAfter: () => void;
+    onRemove: () => void;
+}
 
 export type MenuActionMap = {
     row: {
@@ -125,6 +154,16 @@ export type MenuActionConfig = {
         actions: MenuActionMap["column"];
     };
 };
+
+/** Parameters for configuring the menu */
+export interface MenuConfigParams extends ToolbarContextType {
+    handleNewTable: () => void;
+    onDownloadCSV: () => void;
+    TableSizeChooser: React.ComponentType<TableSizeChooserProps>;
+    toolbarContext: ToolbarContextType;
+}
+
+export type MenuDirection = "row" | "column";
 
 export interface HeaderCellProps<T extends "row" | "column"> {
     atom: PrimitiveAtom<State>;
@@ -274,18 +313,11 @@ export interface ToolbarProviderProps {
 }
 
 export interface ButtonGroupProps {
-    /** Array of button names to display. Defaults to defaultVisibleButtons */
     visibleButtons?: string[];
-    /** Orientation of the button group. Defaults to 'horizontal' */
     orientation?: "horizontal" | "vertical";
-    /** Size of the button icons in pixels. Defaults to 20 */
     iconSize?: number;
-    /** Margin around icons in rem units. Defaults to 0.25 */
     iconMargin?: number;
-    /** Margin around dividers in rem units. Defaults to 0.5 */
     dividerMargin?: number;
-    /** Whether to show arrow on tooltips. Defaults to true */
     tooltipArrow?: boolean;
-    /** Placement of tooltips. Defaults to 'top' */
     tooltipPlacement?: "top" | "bottom" | "left" | "right";
 }
