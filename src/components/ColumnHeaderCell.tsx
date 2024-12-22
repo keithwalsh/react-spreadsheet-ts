@@ -12,7 +12,7 @@ export const ColumnHeaderCell = ({ atom, index, ...props }: ColumnHeaderCellProp
     const [state] = useAtom(atom);
 
     const isSelected = state.selection.columns.includes(index) || 
-                      state.selection.activeCell?.col === index || 
+                      state.selection.activeCell?.colIndex === index || 
                       state.selection.cells.some((row: boolean[]) => row[index]);
 
     const menuProps = createMenuProps({

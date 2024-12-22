@@ -70,7 +70,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                 const clipboardText = event.clipboardData?.getData("text") || "";
 
                 if (state.selection.activeCell) {
-                    onCellChange(state.selection.activeCell.row, state.selection.activeCell.col, clipboardText);
+                    onCellChange(state.selection.activeCell.rowIndex, state.selection.activeCell.colIndex, clipboardText);
                 }
             },
             [state.selection.activeCell, onCellChange]
@@ -127,10 +127,10 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                 setLastCell({ row: rowIndex, col: colIndex });
                 onDragStart(rowIndex, colIndex);
                 if (shiftKey && state.selection.activeCell) {
-                    const startRow = Math.min(state.selection.activeCell.row, rowIndex);
-                    const endRow = Math.max(state.selection.activeCell.row, rowIndex);
-                    const startCol = Math.min(state.selection.activeCell.col, colIndex);
-                    const endCol = Math.max(state.selection.activeCell.col, colIndex);
+                    const startRow = Math.min(state.selection.activeCell.rowIndex, rowIndex);
+                    const endRow = Math.max(state.selection.activeCell.rowIndex, rowIndex);
+                    const startCol = Math.min(state.selection.activeCell.colIndex, colIndex);
+                    const endCol = Math.max(state.selection.activeCell.colIndex, colIndex);
 
                     const newSelectedCells = state.data.map((row: CellData[], r: number) =>
                         row.map((_: CellData, c: number) => {
@@ -144,7 +144,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                         selection: {
                             ...prev.selection,
                             cells: newSelectedCells,
-                            activeCell: { row: rowIndex, col: colIndex },
+                            activeCell: { rowIndex: rowIndex, colIndex: colIndex },
                             isAllSelected: false,
                             rows: [],
                             columns: []
@@ -165,7 +165,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                             selection: {
                                 ...prev.selection,
                                 cells: newSelectedCells,
-                                activeCell: { row: rowIndex, col: colIndex },
+                                activeCell: { rowIndex: rowIndex, colIndex: colIndex },
                                 isAllSelected: false,
                                 rows: [],
                                 columns: []
@@ -181,7 +181,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                         selection: {
                             ...prev.selection,
                             cells: newSelectedCells,
-                            activeCell: { row: rowIndex, col: colIndex },
+                            activeCell: { rowIndex: rowIndex, colIndex: colIndex },
                             isAllSelected: false,
                             rows: [],
                             columns: []
@@ -204,8 +204,8 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
 
                 if (!state.selection.activeCell) return;
 
-                const { row, col } = state.selection.activeCell;
-                const result = handleKeyNavigation(e, row, col, state.data.length - 1, state.data[0].length - 1);
+                const { rowIndex, colIndex } = state.selection.activeCell;
+                const result = handleKeyNavigation(e, rowIndex, colIndex, state.data.length - 1, state.data[0].length - 1);
 
                 if (result) {
                     const newSelectedCells = createNewSelectionState(state.data, result);
@@ -214,7 +214,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                         ...prev,
                         selection: {
                             ...prev.selection,
-                            activeCell: { row: result.row, col: result.col },
+                            activeCell: { rowIndex: result.rowIndex, colIndex: result.colIndex },
                             cells: newSelectedCells,
                             isAllSelected: false,
                             rows: [],

@@ -4,8 +4,7 @@
  * including adding and removing rows and columns, and transposing data.
  */
 
-import { CellData, Alignment } from "../types/index";
-import { TableStructureModification, AddColumnOptions, AddRowOptions } from "../types/interactionTypes";
+import { CellData, Alignment, AddColumnOptions, AddRowOptions, TableStructureModification } from "../types";
 
 const spliceColumn = <T>(array: T[][], index: number, count: number): T[][] => {
     return array.map((row) => {
@@ -15,10 +14,10 @@ const spliceColumn = <T>(array: T[][], index: number, count: number): T[][] => {
     });
 };
 
-export function addRow({ data, selectedCells, index = data.length, position = "below" }: AddRowOptions) {
+export function addRow({ data, selectedCells, targetIndex = data.length, position = "below" }: AddRowOptions) {
     const newRow = Array(data[0].length).fill({ value: "", bold: false, italic: false, code: false, align: Alignment.LEFT });
     const newSelectedRow = Array(data[0].length).fill(false);
-    const insertIndex = position === "above" ? index : index + 1;
+    const insertIndex = position === "above" ? targetIndex : targetIndex + 1;
 
     const newData = [...data];
     newData.splice(insertIndex, 0, newRow);
@@ -29,26 +28,26 @@ export function addRow({ data, selectedCells, index = data.length, position = "b
     return { newData, newSelectedCells };
 }
 
-export const removeRow = ({ data, selectedCells, index = data.length - 1 }: TableStructureModification) => {
+export const removeRow = ({ data, selectedCells, targetIndex = data.length - 1 }: TableStructureModification) => {
     if (data.length <= 1) return { newData: data, newSelectedCells: selectedCells };
 
     return {
-        newData: [...data.slice(0, index), ...data.slice(index + 1)],
-        newSelectedCells: [...selectedCells.slice(0, index), ...selectedCells.slice(index + 1)],
+        newData: [...data.slice(0, targetIndex), ...data.slice(targetIndex + 1)],
+        newSelectedCells: [...selectedCells.slice(0, targetIndex), ...selectedCells.slice(targetIndex + 1)],
     };
 };
 
-export function addColumn({ data, selectedCells, index = 0, position = "right" }: AddColumnOptions) {
+export function addColumn({ data, selectedCells, targetIndex = 0, position = "right" }: AddColumnOptions) {
     const newData = data.map((row) => {
         const newRow = [...row];
-        const insertIndex = position === "left" ? index : index + 1;
+        const insertIndex = position === "left" ? targetIndex : targetIndex + 1;
         newRow.splice(insertIndex, 0, { value: "", bold: false, italic: false, code: false, align: Alignment.LEFT });
         return newRow;
     });
 
     const newSelectedCells = selectedCells.map((row) => {
         const newRow = [...row];
-        const insertIndex = position === "left" ? index : index + 1;
+        const insertIndex = position === "left" ? targetIndex : targetIndex + 1;
         newRow.splice(insertIndex, 0, false);
         return newRow;
     });
@@ -56,12 +55,12 @@ export function addColumn({ data, selectedCells, index = 0, position = "right" }
     return { newData, newSelectedCells };
 }
 
-export const removeColumn = ({ data, selectedCells, index = 0 }: TableStructureModification) => {
+export const removeColumn = ({ data, selectedCells, targetIndex = 0 }: TableStructureModification) => {
     if (data[0].length <= 1) return { newData: data, newSelectedCells: selectedCells };
 
     return {
-        newData: spliceColumn(data, index, 1),
-        newSelectedCells: spliceColumn(selectedCells, index, 1),
+        newData: spliceColumn(data, targetIndex, 1),
+        newSelectedCells: spliceColumn(selectedCells, targetIndex, 1),
     };
 };
 

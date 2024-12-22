@@ -3,12 +3,15 @@
  * @fileoverview Defines prop types for React components in the spreadsheet to ensure type safety.
  */
 
-import { MenuItemProps, TableCellProps } from "@mui/material";
+import { MenuItemProps, PopoverOrigin, TableCellProps, TextFieldProps } from "@mui/material";
 import { PrimitiveAtom } from "jotai";
 import { CellCoordinate, CellData, SpreadsheetState } from "./dataTypes";
 import { CSSProperties } from "react";
 import { RowContextMenu, ColumnContextMenu } from "../components";
-import { DirectionalMenuActions, ToolbarContextType } from "./interactionTypes";
+import { ArrowBack } from "@mui/icons-material";
+import { ArrowForward } from "@mui/icons-material";
+import { ArrowDownward } from "@mui/icons-material";
+import { ArrowUpward } from "@mui/icons-material";
 
 /** Props for action menu items, omitting onClick from MenuItemProps */
 export interface ActionMenuItemProps extends Omit<MenuItemProps, "onClick"> {
@@ -56,11 +59,14 @@ export interface CellProps {
     selectedRows: number[];
     isDarkMode: boolean;
     selectAll: boolean;
+    style?: CSSProperties;
     onMouseDown: (rowIndex: number, colIndex: number, shiftKey: boolean, ctrlKey: boolean) => void;
     onMouseEnter: (rowIndex: number, colIndex: number) => void;
     onMouseUp: () => void;
+    onDoubleClick?: (rowIndex: number, colIndex: number) => void;
     onCellChange: (rowIndex: number, colIndex: number, value: string) => void;
     onCellKeyDown: (e: React.KeyboardEvent) => void;
+    onCellBlur?: () => void;
 }
 
 /** Props for cell styling */
@@ -128,6 +134,18 @@ export interface DirectionalContextMenuProps extends BaseContextMenuProps {
     onRemove: () => void;
 }
 
+export type DirectionalMenuActions<T extends MenuDirection> = T extends "row"
+    ? {
+          onAddAbove: () => void;
+          onAddBelow: () => void;
+          onRemove: () => void;
+      }
+    : {
+          onAddLeft: () => void;
+          onAddRight: () => void;
+          onRemove: () => void;
+      };
+
 export type MenuActionMap = {
     row: {
         addAbove: () => void;
@@ -161,6 +179,15 @@ export interface MenuConfigParams extends ToolbarContextType {
 }
 
 export type MenuDirection = "row" | "column";
+
+export interface MenuPositionConfig {
+    anchorOrigin: PopoverOrigin;
+    transformOrigin: PopoverOrigin;
+    beforeIcon: typeof ArrowUpward | typeof ArrowBack;
+    afterIcon: typeof ArrowDownward | typeof ArrowForward;
+    beforeText: string;
+    afterText: string;
+}
 
 export interface HeaderCellProps<T extends "row" | "column"> {
     atom: PrimitiveAtom<SpreadsheetState>;
@@ -233,6 +260,14 @@ export type SelectAllCellProps = TableCellProps & {
     iconSize?: number;
 };
 
+export interface SizeInputProps extends Omit<TextFieldProps, 'onChange'> {
+    label: 'Rows' | 'Columns';
+    type: 'rows' | 'cols';
+    value: string;
+    onChange: (type: 'rows' | 'cols', value: string) => void;
+    max: number;
+}
+
 export type SpreadsheetProps = {
     tableHeight?: string;
     value?: CellData[][];
@@ -285,6 +320,36 @@ export type TableSizePayload = {
     col: number;
     isInitialSetup?: boolean;
 };
+
+export interface ToolbarContextType {
+    spreadsheetAtom: PrimitiveAtom<SpreadsheetState>;
+    onClickUndo: () => void;
+    onClickRedo: () => void;
+    onClickAlignLeft: () => void;
+    onClickAlignCenter: () => void;
+    onClickAlignRight: () => void;
+    onClickAddRow: (position: "above" | "below") => void;
+    onClickRemoveRow: () => void;
+    onClickAddColumn: (position: "left" | "right") => void;
+    onClickRemoveColumn: () => void;
+    onClickSetBold: () => void;
+    onClickSetItalic: () => void;
+    onClickSetCode: () => void;
+    onClickSetLink: () => void;
+    setTableSize: (rows: number, cols: number) => void;
+    currentRows: number;
+    currentCols: number;
+    clearTable: () => void;
+    deleteSelected: () => void;
+    transposeTable: () => void;
+    handleLinkModalClose: () => void;
+    handleSnackbarClose: () => void;
+    isLinkModalOpen: boolean;
+    isSnackbarOpen: boolean;
+    snackbarMessage: string;
+    handleUndo: () => void;
+    handleRedo: () => void;
+}
 
 export interface ToolbarProviderProps {
     children: React.ReactNode;

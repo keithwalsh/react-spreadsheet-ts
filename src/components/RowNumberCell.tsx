@@ -13,7 +13,7 @@ export const RowNumberCell = ({ atom, rowIndex, ...props }: RowNumberCellProps) 
     const [state] = useAtom(atom);
 
     const isHighlighted = useMemo(
-        () => state.selection.activeCell?.row === rowIndex || 
+        () => state.selection.activeCell?.rowIndex === rowIndex || 
              (state.selection.cells && state.selection.cells[rowIndex]?.some(Boolean)),
         [state.selection.activeCell, state.selection.cells, rowIndex]
     );

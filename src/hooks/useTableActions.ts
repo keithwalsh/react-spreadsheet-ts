@@ -64,11 +64,11 @@ export const useLink = (atom: PrimitiveAtom<SpreadsheetState>) => {
     const [state, setState] = useAtom(atom);
 
     return useCallback(
-        (url: string | undefined, { row, col }: CellCoordinate) => {
+        (url: string | undefined, { rowIndex, colIndex }: CellCoordinate) => {
             const newData = [...state.data];
-            const cell = newData[row][col];
+            const cell = newData[rowIndex][colIndex];
 
-            newData[row][col] = url ? { ...cell, link: url } : (({ link, ...rest }) => rest)(cell);
+            newData[rowIndex][colIndex] = url ? { ...cell, link: url } : (({ link, ...rest }) => rest)(cell);
 
             setState({
                 ...state,

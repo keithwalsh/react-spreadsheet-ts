@@ -66,7 +66,7 @@ export const useRowOperations = (atom: PrimitiveAtom<SpreadsheetState>) => {
 
     const handleAddRow = useCallback(
         (position: "above" | "below") => 
-            op(state.selection.activeCell?.row ?? state.data.length, position),
+            op(state.selection.activeCell?.rowIndex ?? state.data.length, position),
         [state, op]
     );
 
@@ -76,7 +76,7 @@ export const useRowOperations = (atom: PrimitiveAtom<SpreadsheetState>) => {
                 removeRow({
                     data: state.data,
                     selectedCells: state.selection.cells,
-                    index: index ?? state.data.length - 1,
+                    targetIndex: index ?? state.data.length - 1,
                 }),
                 { activeCell: null, rows: [] }
             ),
@@ -96,7 +96,7 @@ export const useColumnOperations = (atom: PrimitiveAtom<SpreadsheetState>) => {
 
     const handleAddColumn = useCallback(
         (position: "left" | "right") => 
-            op(state.selection.activeCell?.col ?? state.data[0].length, position),
+            op(state.selection.activeCell?.colIndex ?? state.data[0].length, position),
         [state, op]
     );
 
@@ -106,7 +106,7 @@ export const useColumnOperations = (atom: PrimitiveAtom<SpreadsheetState>) => {
                 removeColumn({
                     data: state.data,
                     selectedCells: state.selection.cells,
-                    index: index ?? state.data[0].length - 1,
+                    targetIndex: index ?? state.data[0].length - 1,
                 }),
                 { activeCell: null, columns: [] }
             ),

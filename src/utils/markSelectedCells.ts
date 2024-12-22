@@ -7,10 +7,10 @@
 import { AdjacentRange } from "../types/index";
 
 function isWithinRange({ startCoordinate, endCoordinate }: AdjacentRange, row: number, col: number): boolean {
-    return row >= Math.min(startCoordinate.row, endCoordinate.row) && 
-           row <= Math.max(startCoordinate.row, endCoordinate.row) && 
-           col >= Math.min(startCoordinate.col, endCoordinate.col) && 
-           col <= Math.max(startCoordinate.col, endCoordinate.col)
+    return row >= Math.min(startCoordinate.rowIndex, endCoordinate.rowIndex) && 
+           row <= Math.max(startCoordinate.rowIndex, endCoordinate.rowIndex) && 
+           col >= Math.min(startCoordinate.colIndex, endCoordinate.colIndex) && 
+           col <= Math.max(startCoordinate.colIndex, endCoordinate.colIndex)
 }
 
 export function markSelectedCells(

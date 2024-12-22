@@ -10,7 +10,7 @@ import { Box } from "@mui/material";
 import { defaultVisibleButtons } from "../config";
 import { useDragSelection, useOutsideClick, useTableActions, useTableStructure, useUndoRedo, useKeyboardNavigation } from "../hooks";
 import { initialState } from "../store";
-import { Alignment, CellData, SpreadsheetState } from "../types";
+import { Alignment, CellData, SpreadsheetState, CellCoordinate } from "../types";
 import { createHistoryEntry, downloadCSV, handlePaste, createNewSelectionState } from "../utils";
 import { ButtonGroup, Menu, NewTableModal, Table, ToolbarProvider, TableSizeChooser } from "./";
 
@@ -75,7 +75,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
         const newData = state.data.map((dataRow, rowIndex) => {
             return dataRow.map((cell, colIndex) => {
                 const shouldClear =
-                    (state.selection.activeCell?.row === rowIndex && state.selection.activeCell?.col === colIndex) ||
+                    (state.selection.activeCell?.rowIndex === rowIndex && state.selection.activeCell?.colIndex === colIndex) ||
                     (state.selection.cells[rowIndex] && state.selection.cells[rowIndex][colIndex]);
 
                 return shouldClear ? { ...cell, value: "" } : cell;
@@ -118,7 +118,10 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
             const result = handlePaste(
                 pasteData,
                 state.data,
-                state.selection.activeCell,
+                {
+                    row: state.selection.activeCell.rowIndex,
+                    col: state.selection.activeCell.colIndex
+                },
                 state.data.map((row) => row.map((cell) => cell.align as Alignment)),
                 state.data.map((row) => row.map((cell) => cell.bold as boolean)),
                 state.data.map((row) => row.map((cell) => cell.italic as boolean)),
@@ -221,15 +224,18 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
                 return;
             }
 
-            const { row, col } = state.selection.activeCell;
-            const result = handleKeyNavigation(e, row, col, state.data.length - 1, state.data[0].length - 1);
+            const { rowIndex, colIndex } = state.selection.activeCell;
+            const result: CellCoordinate | null = handleKeyNavigation(e, rowIndex, colIndex, state.data.length - 1, state.data[0].length - 1);
             
             if (result) {
                 setState((prev) => ({
                     ...prev,
                     selection: {
-                        cells: createNewSelectionState(state.data, result),
-                        activeCell: { row: result.row, col: result.col },
+                        cells: createNewSelectionState(state.data, {
+                            rowIndex: result.rowIndex,
+                            colIndex: result.colIndex
+                        }),
+                        activeCell: result,
                         isAllSelected: false,
                         rows: [],
                         columns: []

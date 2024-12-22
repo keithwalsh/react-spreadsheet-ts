@@ -1,48 +1,48 @@
 import { useCallback } from 'react';
 
-interface KeyboardNavigationResult {
-    row: number;
-    col: number;
+interface CellCoordinate {
+    rowIndex: number;
+    colIndex: number;
 }
 
 export const useKeyboardNavigation = () => {
     const handleKeyNavigation = useCallback((
         e: React.KeyboardEvent,
-        currentRow: number,
-        currentCol: number,
+        currentRowIndex: number,
+        currentColIndex: number,
         maxRow: number,
         maxCol: number
-    ): KeyboardNavigationResult | null => {
-        let newRow = currentRow;
-        let newCol = currentCol;
+    ): CellCoordinate | null => {
+        let newRow = currentRowIndex;
+        let newCol = currentColIndex;
 
         switch (e.key) {
             case "ArrowUp":
-                newRow = Math.max(0, currentRow - 1);
+                newRow = Math.max(0, currentRowIndex - 1);
                 break;
             case "ArrowDown":
-                newRow = Math.min(maxRow, currentRow + 1);
+                newRow = Math.min(maxRow, currentRowIndex + 1);
                 break;
             case "ArrowLeft":
-                newCol = Math.max(0, currentCol - 1);
+                newCol = Math.max(0, currentColIndex - 1);
                 break;
             case "ArrowRight":
-                newCol = Math.min(maxCol, currentCol + 1);
+                newCol = Math.min(maxCol, currentColIndex + 1);
                 break;
             case "Tab":
                 e.preventDefault();
                 if (e.shiftKey) {
-                    if (currentCol > 0) {
-                        newCol = currentCol - 1;
-                    } else if (currentRow > 0) {
-                        newRow = currentRow - 1;
+                    if (currentColIndex > 0) {
+                        newCol = currentColIndex - 1;
+                    } else if (currentRowIndex > 0) {
+                        newRow = currentRowIndex - 1;
                         newCol = maxCol;
                     }
                 } else {
-                    if (currentCol < maxCol) {
-                        newCol = currentCol + 1;
-                    } else if (currentRow < maxRow) {
-                        newRow = currentRow + 1;
+                    if (currentColIndex < maxCol) {
+                        newCol = currentColIndex + 1;
+                    } else if (currentRowIndex < maxRow) {
+                        newRow = currentRowIndex + 1;
                         newCol = 0;
                     }
                 }
@@ -51,11 +51,14 @@ export const useKeyboardNavigation = () => {
                 return null;
         }
 
-        if (newRow === currentRow && newCol === currentCol) {
+        if (newRow === currentRowIndex && newCol === currentColIndex) {
             return null;
         }
 
-        return { row: newRow, col: newCol };
+        return {
+            rowIndex: newRow,
+            colIndex: newCol
+        };
     }, []);
 
     return handleKeyNavigation;

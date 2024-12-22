@@ -20,8 +20,8 @@ export enum Alignment {
 
 /** Represents a cell's coordinates */
 export interface CellCoordinate {
-    row: number;
-    col: number;
+    rowIndex: number;
+    colIndex: number;
 }
 
 /** Interface for cell data structure */
@@ -81,4 +81,11 @@ export type SpreadsheetState = {
     past: DataPayload[];
     future: DataPayload[];
     selection: SpreadsheetSelection;
+}
+
+/** Represents a structural modification to the table's data */
+export interface TableStructureModification {
+    data: CellData[][]; /** The current table data */
+    selectedCells: boolean[][]; /** The current selection state of cells */
+    targetIndex: number; /** The target row/column index for the modification */
 }

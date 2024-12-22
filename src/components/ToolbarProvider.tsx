@@ -36,7 +36,7 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
         const selectedCell = state.selection.cells.findIndex((row: boolean[], rowIndex: number) => 
             row.findIndex((isSelected: boolean, colIndex: number) => {
                 if (isSelected) {
-                    setActiveCell({ row: rowIndex, col: colIndex });
+                    setActiveCell({ rowIndex: rowIndex, colIndex: colIndex });
                     return true;
                 }
                 return false;
@@ -101,7 +101,7 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
                 open={isLinkModalOpen}
                 onClose={handleLinkModalClose}
                 onSubmit={handleSubmitLink}
-                initialUrl={activeCell ? state.data[activeCell.row][activeCell.col].link : undefined}
+                initialUrl={activeCell ? state.data[activeCell.rowIndex][activeCell.colIndex].link : undefined}
             />
             <Snackbar open={isSnackbarOpen} autoHideDuration={3000} onClose={handleSnackbarClose} message={snackbarMessage} />
         </ToolbarContext.Provider>

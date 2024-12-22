@@ -14,10 +14,10 @@ export const useDragSelection = (atom: PrimitiveAtom<SpreadsheetState>) => {
     const handleDragStart = useCallback(
         (row: number, col: number) => {
             const newState = { ...state };
-            // Update drag state
+            // Update drag state with correct property names
             newState.selection.dragState = {
                 isDragging: true,
-                start: { row, col }
+                start: { rowIndex: row, colIndex: col }
             };
 
             // Clear previous selections
@@ -47,7 +47,7 @@ export const useDragSelection = (atom: PrimitiveAtom<SpreadsheetState>) => {
         (row: number, col: number) => {
             if (!state.selection.dragState?.isDragging || !state.selection.dragState.start) return;
 
-            const { row: startRow, col: startCol } = state.selection.dragState.start;
+            const { rowIndex: startRow, colIndex: startCol } = state.selection.dragState.start;
 
             // Helper function to generate range array
             const getRange = (start: number, end: number) => 
