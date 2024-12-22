@@ -1,6 +1,7 @@
 /**
- * @fileoverview Generic header cell component for both row numbers and column headers,
- * providing context menu and drag-drop functionality.
+ * @file src/components/HeaderCell.tsx
+ * @fileoverview Provides a generic header cell component for row numbers and column headers,
+ * including context menu and drag-and-drop functionality.
  */
 
 import { useState, MouseEvent } from "react";
@@ -26,7 +27,7 @@ export const HeaderCell = <T extends "row" | "column">({
     const [isHovered, setIsHovered] = useState(false);
 
     const styles = useHeaderCellStyles({
-        isSelected: isSelected || state.selectAll,
+        isSelected: isSelected || state.selection.isAllSelected,
         isHighlighted,
         isHovered,
     } as HeaderCellStylesParams);
@@ -50,7 +51,7 @@ export const HeaderCell = <T extends "row" | "column">({
                     onDragStart(index);
                 }}
                 onMouseEnter={(e) => {
-                    if (state.isDragging) {
+                    if (state.selection.dragState?.isDragging) {
                         e.preventDefault();
                         onDragEnter(index);
                     }

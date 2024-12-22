@@ -4,27 +4,27 @@
  */
 
 import { atom } from "jotai";
-import { DataPayload, State } from "../types";
+import { DataPayload, SpreadsheetState } from "../types";
 import { initialState } from "./initialState";
 
 // Create the root atom with initial state
 export const createSpreadsheetAtom = (rows: number = 4, cols: number = 4) => {
     const state = initialState(rows, cols);
-    return atom<State>({
+    return atom<SpreadsheetState>({
         data: state.data,
         past: [],
         future: [],
-        selectedColumn: null,
-        selectedRow: null,
-        selectedCell: null,
-        selectedCells: state.selectedCells,
-        selectedRows: [],
-        selectedColumns: [],
-        selectAll: false,
-        isDragging: false,
-        dragStart: null,
-        dragStartRow: null,
-        dragStartColumn: null,
+        selection: {
+            cells: state.selection.cells,
+            rows: [],
+            columns: [],
+            isAllSelected: false,
+            activeCell: null,
+            dragState: {
+                isDragging: false,
+                start: null
+            }
+        }
     });
 };
 
@@ -32,18 +32,24 @@ export const createSpreadsheetAtom = (rows: number = 4, cols: number = 4) => {
 export type SpreadsheetAtom = ReturnType<typeof createSpreadsheetAtom>;
 
 // Helper functions for state updates
-export const updateData = (state: State, payload: DataPayload): State => {
+export const updateData = (state: SpreadsheetState, payload: DataPayload): SpreadsheetState => {
     const hasDataChanged = JSON.stringify(state.data) !== JSON.stringify(payload.data);
 
     return {
         ...state,
         data: payload.data,
-        selectedCell: payload.activeCell ?? state.selectedCell,
-        selectedCells: payload.selectedCells ?? state.selectedCells,
-        selectedRows: payload.selectedRows ?? state.selectedRows,
-        selectedColumns: payload.selectedColumns ?? state.selectedColumns,
-        isDragging: payload.isDragging ?? state.isDragging,
-        selectAll: payload.isAllSelected ?? state.selectAll,
+        selection: {
+            ...state.selection,
+            activeCell: payload.activeCell ?? state.selection.activeCell,
+            cells: payload.selectedCells ?? state.selection.cells,
+            rows: payload.selectedRows ?? state.selection.rows,
+            columns: payload.selectedColumns ?? state.selection.columns,
+            isAllSelected: payload.isAllSelected ?? state.selection.isAllSelected,
+            dragState: {
+                isDragging: payload.isDragging ?? state.selection.dragState?.isDragging ?? false,
+                start: state.selection.dragState?.start ?? null
+            }
+        },
         past: hasDataChanged ? [...state.past, { ...state }] : state.past,
         future: hasDataChanged ? [] : state.future,
     };

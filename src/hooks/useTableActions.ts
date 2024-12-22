@@ -1,25 +1,32 @@
 /**
- * @fileoverview Core hook exports for spreadsheet text formatting operations.
- * Separates concerns for link handling, text formatting, and alignment.
+ * @file src/hooks/useTableActions.ts
+ * @fileoverview Provides core hooks for spreadsheet text formatting and alignment operations.
+ * Includes hooks for handling text formatting (bold, italic, code) and cell alignment.
  */
 
 import { useCallback } from "react";
 import { useAtom, PrimitiveAtom } from "jotai";
-import { Alignment, State } from "../types";
+import { 
+    Alignment, 
+    SpreadsheetState, 
+    CellData, 
+    CellCoordinate 
+} from "../types";
 import { isCellInSelection } from "../utils/selectionUtils";
 
-export const useTextFormatting = (atom: PrimitiveAtom<State>) => {
+export const useTextFormatting = (atom: PrimitiveAtom<SpreadsheetState>) => {
     const [state, setState] = useAtom(atom);
 
     return useCallback(
         (format: "bold" | "italic" | "code") => {
-            const { selectedCell, selectedCells, selectedColumns, selectedRows, selectAll, data, past } = state;
+            const { selection, data, past } = state;
+            const { activeCell, cells: selectedCells, columns: selectedColumns, rows: selectedRows, isAllSelected } = selection;
 
-            if (!selectedCell && !selectedCells.some((row) => row.some(Boolean)) && !selectedColumns.length && !selectedRows.length && !selectAll) return;
+            if (!activeCell && !selectedCells.some((row) => row.some(Boolean)) && !selectedColumns.length && !selectedRows.length && !isAllSelected) return;
 
             setState({
                 ...state,
-                data: data.map((row, ri) =>
+                data: data.map((row: CellData[], ri: number) =>
                     row.map((cell, ci) => (isCellInSelection({ state, rowIndex: ri, colIndex: ci }) ? { ...cell, [format]: !cell[format] } : cell))
                 ),
                 past: [...past, { ...state }],
@@ -30,19 +37,20 @@ export const useTextFormatting = (atom: PrimitiveAtom<State>) => {
     );
 };
 
-export const useAlignment = (atom: PrimitiveAtom<State>) => {
+export const useAlignment = (atom: PrimitiveAtom<SpreadsheetState>) => {
     const [state, setState] = useAtom(atom);
 
     return useCallback(
         (alignment: Alignment) => {
-            const { data, past, selectedCell, selectedCells, selectedColumns, selectedRows, selectAll } = state;
+            const { data, past, selection } = state;
+            const { activeCell, cells: selectedCells, columns: selectedColumns, rows: selectedRows, isAllSelected } = selection;
 
             const hasSelection =
-                selectAll || !!selectedCell || selectedCells.some((row) => row.some(Boolean)) || selectedColumns.length > 0 || selectedRows.length > 0;
+                isAllSelected || !!activeCell || selectedCells.some((row) => row.some(Boolean)) || selectedColumns.length > 0 || selectedRows.length > 0;
 
             if (!hasSelection) return;
 
-            const newData = data.map((row, r) =>
+            const newData = data.map((row: CellData[], r: number) =>
                 row.map((cell, c) => (isCellInSelection({ state, rowIndex: r, colIndex: c }) ? { ...cell, align: alignment } : cell))
             );
 
@@ -52,11 +60,11 @@ export const useAlignment = (atom: PrimitiveAtom<State>) => {
     );
 };
 
-export const useLink = (atom: PrimitiveAtom<State>) => {
+export const useLink = (atom: PrimitiveAtom<SpreadsheetState>) => {
     const [state, setState] = useAtom(atom);
 
     return useCallback(
-        (url: string | undefined, { row, col }: NonNullable<State["selectedCell"]>) => {
+        (url: string | undefined, { row, col }: CellCoordinate) => {
             const newData = [...state.data];
             const cell = newData[row][col];
 
@@ -74,7 +82,7 @@ export const useLink = (atom: PrimitiveAtom<State>) => {
 };
 
 // Optional: Combine hooks if needed
-export const useSpreadsheetActions = (atom: PrimitiveAtom<State>) => {
+export const useSpreadsheetActions = (atom: PrimitiveAtom<SpreadsheetState>) => {
     return {
         handleLink: useLink(atom),
         handleTextFormatting: useTextFormatting(atom),

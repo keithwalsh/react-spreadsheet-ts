@@ -1,6 +1,6 @@
-import { State, Alignment } from "../types";
+import { SpreadsheetState, Alignment } from "../types";
 
-export const initialState = (rows: number, columns: number): State => ({
+export const initialState = (rows: number, columns: number): SpreadsheetState => ({
     data: Array.from({ length: rows }, () =>
         Array(columns)
             .fill(undefined)
@@ -15,15 +15,15 @@ export const initialState = (rows: number, columns: number): State => ({
     ),
     past: [],
     future: [],
-    selectedCell: null,
-    selectedColumn: null,
-    selectedRow: null,
-    selectedCells: Array.from({ length: rows }, () => Array(columns).fill(false)),
-    selectedRows: [],
-    selectedColumns: [],
-    selectAll: false,
-    isDragging: false,
-    dragStart: null,
-    dragStartRow: null,
-    dragStartColumn: null,
+    selection: {
+        cells: Array.from({ length: rows }, () => Array(columns).fill(false)),
+        rows: [],
+        columns: [],
+        isAllSelected: false,
+        activeCell: null,
+        dragState: {
+            isDragging: false,
+            start: null
+        }
+    }
 });

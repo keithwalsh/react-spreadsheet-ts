@@ -1,6 +1,6 @@
 /**
- * @fileoverview Style definitions for the ButtonGroup component supporting both
- * light and dark themes.
+ * @file src/styles/buttonGroupStyles.ts
+ * @fileoverview Defines styles for the ButtonGroup component, supporting both light and dark themes.
  */
 
 export const createButtonGroupStyles = (isDark: boolean, config: any, iconMargin: number, dividerMargin: number) => ({

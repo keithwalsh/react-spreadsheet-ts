@@ -1,3 +1,9 @@
+/**
+ * @file src/utils/spreadsheetOperations.ts
+ * @fileoverview Provides functions for modifying spreadsheet data structures,
+ * including adding and removing rows and columns, and transposing data.
+ */
+
 import { CellData, Alignment } from "../types/index";
 import { TableStructureModification, AddColumnOptions, AddRowOptions } from "../types/interactionTypes";
 

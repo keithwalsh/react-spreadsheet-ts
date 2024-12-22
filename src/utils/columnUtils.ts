@@ -1,5 +1,6 @@
 /**
- * @fileoverview Utility functions for spreadsheet columns.
+ * @file src/utils/columnUtils.ts
+ * @fileoverview Provides utility functions for handling spreadsheet columns, including label generation.
  */
 
 export function getColumnLabel(index: number): string {

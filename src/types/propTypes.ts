@@ -5,7 +5,7 @@
 
 import { MenuItemProps, TableCellProps } from "@mui/material";
 import { PrimitiveAtom } from "jotai";
-import { CellData, State } from "./dataTypes";
+import { CellCoordinate, CellData, SpreadsheetState } from "./dataTypes";
 import { CSSProperties } from "react";
 import { RowContextMenu, ColumnContextMenu } from "../components";
 import { DirectionalMenuActions, ToolbarContextType } from "./interactionTypes";
@@ -45,25 +45,22 @@ export interface CellContentStyleProps {
     style?: CSSProperties;
 }
 
-/** Props for individual spreadsheet cells. */
+/** Props for the Cell component */
 export interface CellProps {
     rowIndex: number;
     colIndex: number;
     cellData: CellData;
-    selectedCells: Record<number, Record<number, boolean>>;
-    selectedCell: { row: number; col: number } | null;
-    selectedColumns?: number[];
-    selectedRows?: number[];
-    style?: React.CSSProperties;
+    activeCell: CellCoordinate | null;
+    selectedCells: boolean[][];
+    selectedColumns: number[];
+    selectedRows: number[];
     isDarkMode: boolean;
-    selectAll?: boolean;
-    onMouseDown?: (rowIndex: number, colIndex: number, shiftKey: boolean, ctrlKey: boolean) => void;
-    onMouseEnter?: (rowIndex: number, colIndex: number) => void;
-    onMouseUp?: () => void;
-    onDoubleClick?: (rowIndex: number, colIndex: number) => void;
-    onCellBlur?: () => void;
-    onCellKeyDown?: (event: React.KeyboardEvent) => void;
-    onCellChange?: (rowIndex: number, colIndex: number, value: string) => void;
+    selectAll: boolean;
+    onMouseDown: (rowIndex: number, colIndex: number, shiftKey: boolean, ctrlKey: boolean) => void;
+    onMouseEnter: (rowIndex: number, colIndex: number) => void;
+    onMouseUp: () => void;
+    onCellChange: (rowIndex: number, colIndex: number, value: string) => void;
+    onCellKeyDown: (e: React.KeyboardEvent) => void;
 }
 
 /** Props for cell styling */
@@ -94,7 +91,7 @@ export type ColumnContextMenuProps = {
 
 /** Props for the column header cell component. */
 export type ColumnHeaderCellProps = {
-    atom: PrimitiveAtom<State>;
+    atom: PrimitiveAtom<SpreadsheetState>;
     index: number;
     onAddColumnLeft: (index: number) => void;
     onAddColumnRight: (index: number) => void;
@@ -166,7 +163,7 @@ export interface MenuConfigParams extends ToolbarContextType {
 export type MenuDirection = "row" | "column";
 
 export interface HeaderCellProps<T extends "row" | "column"> {
-    atom: PrimitiveAtom<State>;
+    atom: PrimitiveAtom<SpreadsheetState>;
     index: number;
     type: T;
     isHighlighted: boolean;
@@ -212,7 +209,7 @@ export type RowMenuActions = DirectionalMenuActions<"row">;
 export type RowMenuProps = Omit<RowContextMenuProps, keyof BaseContextMenuProps>;
 
 export type RowNumberCellProps = {
-    atom: PrimitiveAtom<State>;
+    atom: PrimitiveAtom<SpreadsheetState>;
     rowIndex: number;
     onAddAbove: (index: number) => void;
     onAddBelow: (index: number) => void;
@@ -261,7 +258,7 @@ export type TableMenuProps = {
 };
 
 export type TableProps = {
-    atom: PrimitiveAtom<State>;
+    atom: PrimitiveAtom<SpreadsheetState>;
     onCellChange: (rowIndex: number, colIndex: number, value: string) => void;
     onDragStart: (row: number, col: number) => void;
     onDragEnter: (row: number, col: number) => void;
@@ -291,7 +288,7 @@ export type TableSizePayload = {
 
 export interface ToolbarProviderProps {
     children: React.ReactNode;
-    spreadsheetAtom: PrimitiveAtom<State>;
+    spreadsheetAtom: PrimitiveAtom<SpreadsheetState>;
     onClickUndo: () => void;
     onClickRedo: () => void;
     onClickAlignLeft: () => void;

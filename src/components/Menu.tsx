@@ -1,6 +1,7 @@
 /**
- * @fileoverview Unified menu component handling both file and table operations including
- * size adjustment, CSV export, and table manipulations using mui-menubar.
+ * @file src/components/Menu.tsx
+ * @fileoverview Unified menu component for file and table operations, including size adjustment,
+ * CSV export, and table manipulations using mui-menubar.
  */
 
 import React from "react";

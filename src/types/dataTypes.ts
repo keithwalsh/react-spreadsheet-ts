@@ -4,6 +4,13 @@
  * including cell data, state shape, and action definitions.
  */
 
+/** Adjacent range identified by upper left and lower right cell references */
+export type AdjacentRange = {
+    startCoordinate: CellCoordinate;
+    endCoordinate: CellCoordinate;
+};
+
+
 /** Enum for cell alignment options */
 export enum Alignment {
     LEFT = "left",
@@ -11,7 +18,7 @@ export enum Alignment {
     RIGHT = "right"
 }
 
-/** Represents a selected cell with row and column indices */
+/** Represents a cell's coordinates */
 export interface CellCoordinate {
     row: number;
     col: number;
@@ -38,6 +45,12 @@ export type DataPayload = {
     isAllSelected?: boolean;
 };
 
+/** Represents the drag state during a selection operation */
+export interface DragState {
+    isDragging: boolean;
+    start: CellCoordinate | null;
+}
+
 /** Result of a paste operation */
 export type PasteOperationResult = {
     newData: CellData[][];
@@ -52,27 +65,20 @@ export type PasteOperationResult = {
     };
 };
 
-
-/** Represents a range of selected cells */
-export type SelectionRange = {
-    startCoordinate: CellCoordinate;
-    endCoordinate: CellCoordinate;
-};
+/** Represents different types of selections in the spreadsheet */
+export interface SpreadsheetSelection {
+    cells: boolean[][];
+    rows: number[];
+    columns: number[];
+    isAllSelected: boolean;
+    activeCell: CellCoordinate | null;
+    dragState?: DragState;
+}
 
 /** Represents the state of the spreadsheet */
-export type State = {
+export type SpreadsheetState = {
     data: CellData[][];
     past: DataPayload[];
     future: DataPayload[];
-    selectedColumn: number | null;
-    selectedRow: number | null;
-    selectedCell: CellCoordinate | null;
-    selectedCells: boolean[][];
-    selectedRows: number[];
-    selectedColumns: number[];
-    selectAll: boolean;
-    isDragging: boolean;
-    dragStart: CellCoordinate | null;
-    dragStartRow: number | null;
-    dragStartColumn: number | null;
-};
+    selection: SpreadsheetSelection;
+}

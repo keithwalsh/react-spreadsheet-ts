@@ -5,9 +5,9 @@
 
 import { useCallback } from "react";
 import { PrimitiveAtom, useAtom } from "jotai";
-import { State } from "../types";
+import { SpreadsheetState } from "../types";
 
-export const useUndoRedo = (atom: PrimitiveAtom<State>) => {
+export const useUndoRedo = (atom: PrimitiveAtom<SpreadsheetState>) => {
     const [state, setState] = useAtom(atom);
 
     const handleUndo = useCallback(() => {

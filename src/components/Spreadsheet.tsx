@@ -1,4 +1,5 @@
 /**
+ * @file src/components/Spreadsheet.tsx
  * @fileoverview Core spreadsheet component managing state and user interactions
  * through a combination of Jotai atoms and React hooks.
  */
@@ -9,12 +10,12 @@ import { Box } from "@mui/material";
 import { defaultVisibleButtons } from "../config";
 import { useDragSelection, useOutsideClick, useTableActions, useTableStructure, useUndoRedo, useKeyboardNavigation } from "../hooks";
 import { initialState } from "../store";
-import { Alignment, CellData, State } from "../types";
+import { Alignment, CellData, SpreadsheetState } from "../types";
 import { createHistoryEntry, downloadCSV, handlePaste, createNewSelectionState } from "../utils";
 import { ButtonGroup, Menu, NewTableModal, Table, ToolbarProvider, TableSizeChooser } from "./";
 
 interface SpreadsheetProps {
-    atom: PrimitiveAtom<State>;
+    atom: PrimitiveAtom<SpreadsheetState>;
 }
 
 const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
@@ -67,15 +68,15 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
     );
 
     const handleDeleteSelected = useCallback(() => {
-        if (!state.selectedCell && !state.selectedCells.some((row) => row.some((cell) => cell))) {
+        if (!state.selection.activeCell && !state.selection.cells.some((row) => row.some((cell) => cell))) {
             return;
         }
 
         const newData = state.data.map((dataRow, rowIndex) => {
             return dataRow.map((cell, colIndex) => {
                 const shouldClear =
-                    (state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) ||
-                    (state.selectedCells[rowIndex] && state.selectedCells[rowIndex][colIndex]);
+                    (state.selection.activeCell?.row === rowIndex && state.selection.activeCell?.col === colIndex) ||
+                    (state.selection.cells[rowIndex] && state.selection.cells[rowIndex][colIndex]);
 
                 return shouldClear ? { ...cell, value: "" } : cell;
             });
@@ -89,11 +90,13 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
             setState({
                 ...state,
                 data: initialState(rows, cols).data,
-                selectedCells: Array(rows).fill(Array(cols).fill(false)),
-                selectedCell: null,
-                selectedRows: [],
-                selectedColumns: [],
-                selectAll: false,
+                selection: {
+                    cells: Array(rows).fill(Array(cols).fill(false)),
+                    activeCell: null,
+                    rows: [],
+                    columns: [],
+                    isAllSelected: false
+                }
             });
             setIsNewTableModalOpen(false);
         },
@@ -110,12 +113,12 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
         (event: ClipboardEvent) => {
             event.preventDefault();
             const pasteData = event.clipboardData?.getData("text");
-            if (!pasteData || !state.selectedCell) return;
+            if (!pasteData || !state.selection.activeCell) return;
 
             const result = handlePaste(
                 pasteData,
                 state.data,
-                state.selectedCell,
+                state.selection.activeCell,
                 state.data.map((row) => row.map((cell) => cell.align as Alignment)),
                 state.data.map((row) => row.map((cell) => cell.bold as boolean)),
                 state.data.map((row) => row.map((cell) => cell.italic as boolean)),
@@ -125,7 +128,10 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
             setState({
                 ...state,
                 data: result.newData,
-                selectedCells: result.newSelectedCells,
+                selection: {
+                    ...state.selection,
+                    cells: result.newSelectedCells
+                }
             });
         },
         [state, setState]
@@ -154,11 +160,13 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
                 setState({
                     ...state,
                     data: initialState(rows, cols).data,
-                    selectedCells: Array(rows).fill(Array(cols).fill(false)),
-                    selectedCell: null,
-                    selectedRows: [],
-                    selectedColumns: [],
-                    selectAll: false,
+                    selection: {
+                        cells: Array(rows).fill(Array(cols).fill(false)),
+                        activeCell: null,
+                        rows: [],
+                        columns: [],
+                        isAllSelected: false
+                    },
                     past: [...state.past, createHistoryEntry(state)],
                     future: [],
                 });
@@ -182,11 +190,13 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
                     data: transposedData,
                     past: [...state.past, createHistoryEntry(state)],
                     future: [],
-                    selectedCells: Array(transposedData.length).fill(Array(transposedData[0].length).fill(false)),
-                    selectedCell: null,
-                    selectedRows: [],
-                    selectedColumns: [],
-                    selectAll: false,
+                    selection: {
+                        cells: Array(transposedData.length).fill(Array(transposedData[0].length).fill(false)),
+                        activeCell: null,
+                        rows: [],
+                        columns: [],
+                        isAllSelected: false
+                    },
                 });
             },
         }),
@@ -207,21 +217,23 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
 
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent) => {
-            if (!state.selectedCell || state.selectedCells.some(row => row.some(cell => cell))) {
+            if (!state.selection.activeCell || state.selection.cells.some(row => row.some(cell => cell))) {
                 return;
             }
 
-            const { row, col } = state.selectedCell;
+            const { row, col } = state.selection.activeCell;
             const result = handleKeyNavigation(e, row, col, state.data.length - 1, state.data[0].length - 1);
             
             if (result) {
                 setState((prev) => ({
                     ...prev,
-                    selectedCells: createNewSelectionState(state.data, result),
-                    selectedCell: { row: result.row, col: result.col },
-                    selectAll: false,
-                    selectedRows: [],
-                    selectedColumns: [],
+                    selection: {
+                        cells: createNewSelectionState(state.data, result),
+                        activeCell: { row: result.row, col: result.col },
+                        isAllSelected: false,
+                        rows: [],
+                        columns: []
+                    }
                 }));
             }
         },

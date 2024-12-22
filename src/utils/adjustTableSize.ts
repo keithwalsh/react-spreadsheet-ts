@@ -1,4 +1,7 @@
-// src/utils/adjustTableSize.ts
+/**
+ * @file src/utils/adjustTableSize.ts
+ * @fileoverview Provides a utility function to adjust the size of spreadsheet data and initialize selected cells.
+ */
 
 import { CellData, Alignment } from "../types";
 

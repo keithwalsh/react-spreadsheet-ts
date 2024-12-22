@@ -1,16 +1,15 @@
+/**
+ * @file src/components/TableSizeChooser.tsx
+ * @fileoverview Component for choosing the size of a table by specifying the number of rows and columns.
+ */
+
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Box, Typography, TextField, TextFieldProps } from "@mui/material";
-import { TableSizeChooserProps } from "../types";
+import { Box, Typography, TextField } from "@mui/material";
+import { SizeInputProps, TableSizeChooserProps } from "../types";
 
-interface SizeInputProps extends Omit<TextFieldProps, 'onChange'> {
-    label: 'Rows' | 'Columns'
-    type: 'rows' | 'cols'
-    value: string
-    onChange: (type: 'rows' | 'cols', value: string) => void
-    max: number
-}
 
-function SizeInput({ label, type, value, onChange, max, ...props }: SizeInputProps) {
+/** SizeInput component for handling input of row or column size. */
+function SizeInput({ label, type, value, onChange, max, ...props }: SizeInputProps): JSX.Element {
     return (
         <TextField
             label={label}
@@ -21,9 +20,10 @@ function SizeInput({ label, type, value, onChange, max, ...props }: SizeInputPro
             size="small"
             {...props}
         />
-    )
+    );
 }
 
+/** Renders a component to choose the number of rows and columns in a table. */
 const TableSizeChooser: React.FC<TableSizeChooserProps> = ({ maxRows = 20, maxCols = 20, currentRows, currentCols, onSizeSelect }) => {
     const [hoveredRow, setHoveredRow] = useState(0);
     const [hoveredCol, setHoveredCol] = useState(0);
@@ -84,7 +84,7 @@ const TableSizeChooser: React.FC<TableSizeChooserProps> = ({ maxRows = 20, maxCo
     const sizeInputs = [
         { label: 'Rows' as const, type: 'rows' as const, value: inputRows, max: maxRows },
         { label: 'Columns' as const, type: 'cols' as const, value: inputCols, max: maxCols }
-    ]
+    ];
 
     return (
         <Box sx={{ padding: 2, width: "auto" }}>

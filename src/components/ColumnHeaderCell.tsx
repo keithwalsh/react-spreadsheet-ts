@@ -1,5 +1,6 @@
 /**
- * @fileoverview Column header cell implementation using the generic HeaderCell component.
+ * @file src/components/ColumnHeaderCell.tsx
+ * @fileoverview Implements the column header cell using the generic HeaderCell component.
  */
 
 import { useAtom } from "jotai";
@@ -10,7 +11,9 @@ import { ColumnContextMenu, HeaderCell } from "./";
 export const ColumnHeaderCell = ({ atom, index, ...props }: ColumnHeaderCellProps & DragHandlers) => {
     const [state] = useAtom(atom);
 
-    const isSelected = state.selectedColumns.includes(index) || state.selectedCell?.col === index || state.selectedCells.some((row: boolean[]) => row[index]);
+    const isSelected = state.selection.columns.includes(index) || 
+                      state.selection.activeCell?.col === index || 
+                      state.selection.cells.some((row: boolean[]) => row[index]);
 
     const menuProps = createMenuProps({
         props: { ...props, atom, index },

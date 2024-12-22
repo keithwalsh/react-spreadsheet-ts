@@ -6,34 +6,35 @@
 import { useCallback } from "react";
 import { useAtom } from "jotai";
 import { PrimitiveAtom } from "jotai";
-import { State } from "../types";
+import { SpreadsheetState } from "../types";
 
-export const useDragSelection = (atom: PrimitiveAtom<State>) => {
+export const useDragSelection = (atom: PrimitiveAtom<SpreadsheetState>) => {
     const [state, setState] = useAtom(atom);
 
     const handleDragStart = useCallback(
         (row: number, col: number) => {
             const newState = { ...state };
-            newState.isDragging = true;
-            newState.dragStart = { row, col };
+            // Update drag state
+            newState.selection.dragState = {
+                isDragging: true,
+                start: { row, col }
+            };
 
             // Clear previous selections
-            newState.selectedCell = null;
-            newState.selectedColumns = [];
-            newState.selectedRows = [];
-            newState.selectedCells = state.selectedCells.map((row) => row.map(() => false));
-            newState.selectAll = false;
+            newState.selection.activeCell = null;
+            newState.selection.columns = [];
+            newState.selection.rows = [];
+            newState.selection.cells = state.selection.cells.map((row) => row.map(() => false));
+            newState.selection.isAllSelected = false;
 
             // Set new selection
             if (col === -1 && row >= 0) {
-                newState.selectedRows = [row];
+                newState.selection.rows = [row];
             } else if (row === -1 && col >= 0) {
-                newState.selectedColumns = [col];
+                newState.selection.columns = [col];
             } else if (row >= 0 && col >= 0) {
-                newState.dragStartRow = row;
-                newState.dragStartColumn = col;
-                if (newState.selectedCells[row]) {
-                    newState.selectedCells[row][col] = true;
+                if (newState.selection.cells[row]) {
+                    newState.selection.cells[row][col] = true;
                 }
             }
 
@@ -44,40 +45,45 @@ export const useDragSelection = (atom: PrimitiveAtom<State>) => {
 
     const handleDragEnter = useCallback(
         (row: number, col: number) => {
-            if (!state.isDragging || !state.dragStart) return;
+            if (!state.selection.dragState?.isDragging || !state.selection.dragState.start) return;
 
-            const { row: startRow, col: startCol } = state.dragStart;
+            const { row: startRow, col: startCol } = state.selection.dragState.start;
 
             // Helper function to generate range array
-            const getRange = (start: number, end: number) => Array.from({ length: Math.abs(end - start) + 1 }, (_, i) => Math.min(start, end) + i);
+            const getRange = (start: number, end: number) => 
+                Array.from({ length: Math.abs(end - start) + 1 }, (_, i) => Math.min(start, end) + i);
 
-            setState({
-                ...state,
-                ...(startCol === -1 &&
-                    row >= 0 && {
-                        selectedRows: getRange(startRow, row),
-                    }),
-                ...(startRow === -1 &&
-                    col >= 0 && {
-                        selectedColumns: getRange(startCol, col),
-                    }),
-                ...(row >= 0 &&
-                    col >= 0 && {
-                        selectedCells: state.selectedCells.map((rowCells, rowIndex) =>
-                            rowCells.map((_, colIndex) => {
-                                const [minRow, maxRow] = [Math.min(state.dragStartRow!, row), Math.max(state.dragStartRow!, row)];
-                                const [minCol, maxCol] = [Math.min(state.dragStartColumn!, col), Math.max(state.dragStartColumn!, col)];
-                                return rowIndex >= minRow && rowIndex <= maxRow && colIndex >= minCol && colIndex <= maxCol;
-                            })
-                        ),
-                    }),
-            });
+            const newState = { ...state };
+            
+            if (startCol === -1 && row >= 0) {
+                newState.selection.rows = getRange(startRow, row);
+            } else if (startRow === -1 && col >= 0) {
+                newState.selection.columns = getRange(startCol, col);
+            } else if (row >= 0 && col >= 0) {
+                const [minRow, maxRow] = [Math.min(startRow, row), Math.max(startRow, row)];
+                const [minCol, maxCol] = [Math.min(startCol, col), Math.max(startCol, col)];
+                
+                newState.selection.cells = state.selection.cells.map((rowCells, rowIndex) =>
+                    rowCells.map((_, colIndex) => 
+                        rowIndex >= minRow && rowIndex <= maxRow && 
+                        colIndex >= minCol && colIndex <= maxCol
+                    )
+                );
+            }
+
+            setState(newState);
         },
         [state, setState]
     );
 
     const handleDragEnd = useCallback(() => {
-        setState({ ...state, isDragging: false });
+        setState({
+            ...state,
+            selection: {
+                ...state.selection,
+                dragState: { isDragging: false, start: null }
+            }
+        });
     }, [state, setState]);
 
     return {

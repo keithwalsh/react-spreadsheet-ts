@@ -1,6 +1,6 @@
 /**
- * @fileoverview Styles for the Table component, including theme-specific styles for
- * light and dark modes.
+ * @file src/styles/tableStyles.ts
+ * @fileoverview Defines styles for the Table component, supporting both light and dark themes.
  */
 
 import { SxProps, Theme } from "@mui/material";

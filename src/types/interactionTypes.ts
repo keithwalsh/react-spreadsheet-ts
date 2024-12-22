@@ -5,9 +5,9 @@
  */
 
 import { PrimitiveAtom } from "jotai";
-import { Alignment, CellData, PasteOperationResult, State } from "./dataTypes";
+import { Alignment, CellData, PasteOperationResult, SpreadsheetState } from "./dataTypes";
 import type { MenuDirection } from "./propTypes";
-import { PopoverOrigin } from "@mui/material";
+import { PopoverOrigin, TextFieldProps } from "@mui/material";
 import { ArrowForward } from "@mui/icons-material";
 import { ArrowBack } from "@mui/icons-material";
 import { ArrowDownward } from "@mui/icons-material";
@@ -77,7 +77,7 @@ export type HandlerMap = {
     onClickAddColumn: (position: "left" | "right") => void;
 };
 
-export type Handler = HandlerMap[HandlerKey] | string | number | boolean | PrimitiveAtom<State>;
+export type Handler = HandlerMap[HandlerKey] | string | number | boolean | PrimitiveAtom<SpreadsheetState>;
 
 export interface MenuPositionConfig {
     anchorOrigin: PopoverOrigin;
@@ -88,6 +88,14 @@ export interface MenuPositionConfig {
     afterText: string;
 }
 
+export interface SizeInputProps extends Omit<TextFieldProps, 'onChange'> {
+    label: 'Rows' | 'Columns';
+    type: 'rows' | 'cols';
+    value: string;
+    onChange: (type: 'rows' | 'cols', value: string) => void;
+    max: number;
+}
+
 export interface TableStructureModification {
     data: CellData[][];
     selectedCells: boolean[][];
@@ -95,7 +103,7 @@ export interface TableStructureModification {
 }
 
 export interface ToolbarContextType {
-    spreadsheetAtom: PrimitiveAtom<State>;
+    spreadsheetAtom: PrimitiveAtom<SpreadsheetState>;
     onClickUndo: () => void;
     onClickRedo: () => void;
     onClickAlignLeft: () => void;

@@ -1,4 +1,5 @@
 /**
+ * @file src/styles/useHeaderCellStyles.ts
  * @fileoverview Provides styles for header cells based on theme mode and selection state.
  */
 

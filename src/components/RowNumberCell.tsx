@@ -1,5 +1,6 @@
 /**
- * @fileoverview Row number cell implementation using the generic HeaderCell component.
+ * @file src/components/RowNumberCell.tsx
+ * @fileoverview Implements a row number cell using the generic HeaderCell component.
  */
 
 import { useMemo } from "react";
@@ -12,11 +13,15 @@ export const RowNumberCell = ({ atom, rowIndex, ...props }: RowNumberCellProps) 
     const [state] = useAtom(atom);
 
     const isHighlighted = useMemo(
-        () => state.selectedCell?.row === rowIndex || (state.selectedCells && state.selectedCells[rowIndex]?.some(Boolean)),
-        [state.selectedCell, state.selectedCells, rowIndex]
+        () => state.selection.activeCell?.row === rowIndex || 
+             (state.selection.cells && state.selection.cells[rowIndex]?.some(Boolean)),
+        [state.selection.activeCell, state.selection.cells, rowIndex]
     );
 
-    const isSelected = useMemo(() => state.selectedRows.includes(rowIndex), [state.selectedRows, rowIndex]);
+    const isSelected = useMemo(
+        () => state.selection.rows.includes(rowIndex),
+        [state.selection.rows, rowIndex]
+    );
 
     const menuProps = createMenuProps({
         props: { ...props, atom, rowIndex },

@@ -5,7 +5,7 @@
 
 import { useCallback } from "react";
 import { PrimitiveAtom, useAtom } from "jotai";
-import { State, AddRowOptions, AddColumnOptions, CellData } from "../types";
+import { SpreadsheetState, AddRowOptions, AddColumnOptions, CellData } from "../types";
 import { addRow, addColumn, removeRow, removeColumn } from "../utils";
 import { createHistoryEntry } from "../utils/historyUtils";
 
@@ -20,7 +20,7 @@ type ColumnPosition = "left" | "right";
 type RowOperation = (options: AddRowOptions) => OperationResult;
 type ColumnOperation = (options: AddColumnOptions) => OperationResult;
 
-const useStateUpdater = (state: State, setState: (state: State) => void) => {
+const useStateUpdater = (state: SpreadsheetState, setState: (state: SpreadsheetState) => void) => {
     return useCallback(
         (result: OperationResult, additionalState = {}) => {
             setState({
@@ -28,8 +28,11 @@ const useStateUpdater = (state: State, setState: (state: State) => void) => {
                 data: result.newData,
                 past: [...state.past, createHistoryEntry(state)],
                 future: [],
-                selectedCells: result.newSelectedCells,
-                ...additionalState,
+                selection: {
+                    ...state.selection,
+                    cells: result.newSelectedCells,
+                    ...additionalState
+                },
             });
         },
         [state, setState]
@@ -37,7 +40,7 @@ const useStateUpdater = (state: State, setState: (state: State) => void) => {
 };
 
 const useOperationHandler = <T extends RowPosition | ColumnPosition>(
-    state: State,
+    state: SpreadsheetState,
     operation: RowOperation | ColumnOperation,
     updateStateWithNewData: ReturnType<typeof useStateUpdater>
 ) => {
@@ -45,10 +48,10 @@ const useOperationHandler = <T extends RowPosition | ColumnPosition>(
         (index: number, position: T) => {
             const result = operation({
                 data: state.data,
-                selectedCells: state.selectedCells,
+                selectedCells: state.selection.cells,
                 index,
                 position,
-            } as any); // Using 'any' here because we know the operation matches the position type
+            } as any);
 
             updateStateWithNewData(result);
         },
@@ -56,22 +59,26 @@ const useOperationHandler = <T extends RowPosition | ColumnPosition>(
     );
 };
 
-export const useRowOperations = (atom: PrimitiveAtom<State>) => {
+export const useRowOperations = (atom: PrimitiveAtom<SpreadsheetState>) => {
     const [state, setState] = useAtom(atom);
     const update = useStateUpdater(state, setState);
     const op = useOperationHandler<RowPosition>(state, addRow, update);
 
-    const handleAddRow = useCallback((position: "above" | "below") => op(state.selectedCell?.row ?? state.data.length, position), [state, op]);
+    const handleAddRow = useCallback(
+        (position: "above" | "below") => 
+            op(state.selection.activeCell?.row ?? state.data.length, position),
+        [state, op]
+    );
 
     const handleRemoveRow = useCallback(
         (index?: number) =>
             update(
                 removeRow({
                     data: state.data,
-                    selectedCells: state.selectedCells,
+                    selectedCells: state.selection.cells,
                     index: index ?? state.data.length - 1,
                 }),
-                { selectedCell: null, selectedRows: [] }
+                { activeCell: null, rows: [] }
             ),
         [state, update]
     );
@@ -82,22 +89,26 @@ export const useRowOperations = (atom: PrimitiveAtom<State>) => {
     return { handleAddRow, handleRemoveRow, handleAddRowAbove, handleAddRowBelow };
 };
 
-export const useColumnOperations = (atom: PrimitiveAtom<State>) => {
+export const useColumnOperations = (atom: PrimitiveAtom<SpreadsheetState>) => {
     const [state, setState] = useAtom(atom);
     const update = useStateUpdater(state, setState);
     const op = useOperationHandler<ColumnPosition>(state, addColumn, update);
 
-    const handleAddColumn = useCallback((position: "left" | "right") => op(state.selectedCell?.col ?? state.data[0].length, position), [state, op]);
+    const handleAddColumn = useCallback(
+        (position: "left" | "right") => 
+            op(state.selection.activeCell?.col ?? state.data[0].length, position),
+        [state, op]
+    );
 
     const handleRemoveColumn = useCallback(
         (index?: number) =>
             update(
                 removeColumn({
                     data: state.data,
-                    selectedCells: state.selectedCells,
+                    selectedCells: state.selection.cells,
                     index: index ?? state.data[0].length - 1,
                 }),
-                { selectedCell: null, selectedColumns: [] }
+                { activeCell: null, columns: [] }
             ),
         [state, update]
     );
@@ -109,7 +120,7 @@ export const useColumnOperations = (atom: PrimitiveAtom<State>) => {
 };
 
 // Optional: Combine hooks if needed
-export const useTableStructure = (atom: PrimitiveAtom<State>) => {
+export const useTableStructure = (atom: PrimitiveAtom<SpreadsheetState>) => {
     const rowOperations = useRowOperations(atom);
     const columnOperations = useColumnOperations(atom);
 

@@ -1,10 +1,18 @@
+/**
+ * @file src/components/ToolbarProvider.tsx
+ * @fileoverview Provides context and handlers for spreadsheet toolbar actions including undo/redo and link management.
+ */
+
+// External dependencies
 import { useState, createContext, useContext } from "react";
 import { useAtom } from "jotai";
-import LinkModal from "./LinkModal";
 import { Snackbar } from "@mui/material";
+
+// Internal project modules
+import LinkModal from "./LinkModal";
 import { ToolbarContextType, ToolbarProviderProps } from "../types";
 import { useTableActions, useUndoRedo } from "../hooks";
-import type { State } from "../types";
+import type { SpreadsheetState } from "../types";
 
 export const ToolbarContext = createContext<ToolbarContextType | null>(null);
 
@@ -14,7 +22,7 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
     const [snackbarMessage, setSnackbarMessage] = useState("");
     const [state] = useAtom(spreadsheetAtom);
     const { handleLink } = useTableActions(spreadsheetAtom);
-    const [activeCell, setActiveCell] = useState<State["selectedCell"]>(null);
+    const [activeCell, setActiveCell] = useState<SpreadsheetState["selection"]["activeCell"]>(null);
     const { handleUndo, handleRedo } = useUndoRedo(spreadsheetAtom);
 
     const handleLinkModalClose = () => {
@@ -25,7 +33,25 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
     const handleSnackbarClose = () => setIsSnackbarOpen(false);
 
     const handleSetLink = () => {
-        const totalSelectedCells = state.selectedCells.flat().filter((cell) => cell).length;
+        const selectedCell = state.selection.cells.findIndex((row: boolean[], rowIndex: number) => 
+            row.findIndex((isSelected: boolean, colIndex: number) => {
+                if (isSelected) {
+                    setActiveCell({ row: rowIndex, col: colIndex });
+                    return true;
+                }
+                return false;
+            }) !== -1
+        );
+
+        if (selectedCell === -1) {
+            setSnackbarMessage("Please select exactly one cell to set a link.");
+            setIsSnackbarOpen(true);
+            return;
+        }
+
+        const totalSelectedCells = state.selection.cells.reduce((acc: number, row: boolean[]) => 
+            acc + row.filter(Boolean).length, 0
+        );
 
         if (totalSelectedCells !== 1) {
             setSnackbarMessage("Please select exactly one cell to set a link.");
@@ -33,7 +59,6 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
             return;
         }
 
-        setActiveCell(state.selectedCell);
         setIsLinkModalOpen(true);
     };
 

@@ -1,26 +1,27 @@
 /**
- * @fileoverview Selection state utility functions for the spreadsheet component
+ * @file src/utils/selectionUtils.ts
+ * @fileoverview Provides utility functions for managing selection state in the spreadsheet component.
  */
 
-import { SelectionRange, State } from "../types/index";
+import { AdjacentRange, SpreadsheetState } from "../types/index";
 import { CellData } from "../types/index";
 import { markSelectedCells } from "./markSelectedCells";
 
-export function createSelectionMatrix({ data, selection }: { data: CellData[][]; selection: SelectionRange }): boolean[][] {
+export function createSelectionMatrix({ data, selection }: { data: CellData[][]; selection: AdjacentRange }): boolean[][] {
     return markSelectedCells(data.length, data[0].length, selection);
 }
 
-export function isCellInSelection({ state, rowIndex, colIndex }: { state: State; rowIndex: number; colIndex: number }): boolean {
+export function isCellInSelection({ state, rowIndex, colIndex }: { state: SpreadsheetState; rowIndex: number; colIndex: number }): boolean {
     return (
-        state.selectAll ||
-        (state.selectedCell?.row === rowIndex && state.selectedCell?.col === colIndex) ||
-        state.selectedCells[rowIndex]?.[colIndex] ||
-        state.selectedColumns.includes(colIndex) ||
-        state.selectedRows.includes(rowIndex)
+        state.selection.isAllSelected ||
+        (state.selection.activeCell?.row === rowIndex && state.selection.activeCell?.col === colIndex) ||
+        state.selection.cells[rowIndex]?.[colIndex] ||
+        state.selection.columns.includes(colIndex) ||
+        state.selection.rows.includes(rowIndex)
     );
 }
 
-export function isCellSelected({ state, rowIndex, colIndex }: { state: State; rowIndex: number; colIndex: number }): boolean {
+export function isCellSelected({ state, rowIndex, colIndex }: { state: SpreadsheetState; rowIndex: number; colIndex: number }): boolean {
     return isCellInSelection({ state, rowIndex, colIndex });
 }
 

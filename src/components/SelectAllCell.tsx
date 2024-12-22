@@ -1,4 +1,5 @@
 /**
+ * @file src/components/SelectAllCell.tsx
  * @fileoverview Cell component for selecting all cells in the spreadsheet,
  * featuring a checkbox that toggles selection state.
  */

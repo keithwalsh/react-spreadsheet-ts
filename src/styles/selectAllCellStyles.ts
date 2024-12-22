@@ -1,6 +1,6 @@
 /**
- * @fileoverview Styles for the SelectAllCell component, including table cell and
- * icon button theming with dark mode support.
+ * @file src/styles/selectAllCellStyles.ts
+ * @fileoverview Defines styles for the SelectAllCell component, covering table cell and icon button theming with support for dark mode.
  */
 
 import { SxProps, Theme } from "@mui/material";

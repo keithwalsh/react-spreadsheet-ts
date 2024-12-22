@@ -5,9 +5,9 @@
 
 import { useEffect } from "react";
 import { PrimitiveAtom, useSetAtom } from "jotai";
-import { State } from "../types";
+import { SpreadsheetState } from "../types";
 
-const useOutsideClick = (refs: React.RefObject<HTMLElement>[], atom: PrimitiveAtom<State>) => {
+const useOutsideClick = (refs: React.RefObject<HTMLElement>[], atom: PrimitiveAtom<SpreadsheetState>) => {
     const setState = useSetAtom(atom);
 
     useEffect(() => {

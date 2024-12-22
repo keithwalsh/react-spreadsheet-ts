@@ -1,7 +1,11 @@
-// src/utils/csvConversion.ts
+/**
+ * @file src/utils/csvConversion.ts
+ * @fileoverview Provides functions to convert spreadsheet data to CSV format and download it as a file.
+ */
 
 import { CellData } from "../types";
 
+/** Converts a 2D array of CellData into a CSV formatted string. */
 export const convertToCSV = (data: CellData[][]): string => {
     return data
         .map((row) =>
@@ -19,6 +23,7 @@ export const convertToCSV = (data: CellData[][]): string => {
         .join("\n");
 };
 
+/** Downloads the provided spreadsheet data as a CSV file. */
 export const downloadCSV = (data: CellData[][], filename: string = "Table.csv"): void => {
     const csvContent = convertToCSV(data);
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });

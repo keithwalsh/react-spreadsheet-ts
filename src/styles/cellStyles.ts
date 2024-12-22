@@ -1,6 +1,6 @@
 /**
- * @fileoverview Provides styling utilities for spreadsheet cells, including
- * background colors, borders, and interactive states like selection and editing.
+ * @file src/styles/cellStyles.ts
+ * @fileoverview Styling utilities for spreadsheet cells, covering background colors, borders, and interactive states such as selection and editing.
  */
 
 import { CSSProperties } from "react";

@@ -1,6 +1,7 @@
 /**
+ * @file src/components/NewTableModal.tsx
  * @fileoverview Modal dialog for creating new tables with customizable dimensions.
- * Validates input and provides immediate feedback.
+ * Provides input validation and immediate feedback.
  */
 
 import { useState } from "react";

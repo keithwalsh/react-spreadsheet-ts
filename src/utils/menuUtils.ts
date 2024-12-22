@@ -1,6 +1,6 @@
 /**
- * @fileoverview Utility functions for creating consistent menu props across
- * different header cell types.
+ * @file src/utils/menuUtils.ts
+ * @fileoverview Provides utility functions for creating consistent menu props across different header cell types.
  */
 
 import { CreateMenuProps, MenuActionConfig } from "../types";
