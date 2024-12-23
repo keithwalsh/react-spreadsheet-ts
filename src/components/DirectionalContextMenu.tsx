@@ -6,7 +6,7 @@
 import React from "react";
 import { ListItemText, ListItemIcon, Menu, MenuItem, Divider } from "@mui/material";
 import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward, DeleteOutline } from "@mui/icons-material";
-import { ActionMenuItemProps, DirectionalContextMenuProps, MenuPositionConfig, BaseMenuProps, DirectionalMenuActions, MenuDirection } from "../types";
+import { ActionMenuItemProps, DirectionalContextMenuProps, MenuPositionConfig, BaseMenuProps, DirectionalMenuActions, SpreadsheetDirection } from "../types";
 
 const ActionMenuItem: React.FC<ActionMenuItemProps> = ({ icon: Icon, text, onClick, ...props }) => (
     <MenuItem dense onClick={onClick} {...props}>
@@ -18,7 +18,7 @@ const ActionMenuItem: React.FC<ActionMenuItemProps> = ({ icon: Icon, text, onCli
 );
 
 const DirectionalContextMenu: React.FC<DirectionalContextMenuProps> = ({ direction, anchorEl, open, onClose, onAddBefore, onAddAfter, onRemove }) => {
-    const isRow = direction === "row";
+    const isRow = direction === SpreadsheetDirection.ROW;
     const menuConfig: MenuPositionConfig = {
         anchorOrigin: {
             vertical: isRow ? "center" : "bottom",
@@ -49,22 +49,26 @@ const DirectionalContextMenu: React.FC<DirectionalContextMenuProps> = ({ directi
     );
 };
 
-type WithDirectionalMenuProps<T extends MenuDirection> = BaseMenuProps & DirectionalMenuActions<T>;
+type WithDirectionalMenuProps<T extends SpreadsheetDirection> = BaseMenuProps & DirectionalMenuActions<T>;
 
-const createDirectionalMenu = <T extends MenuDirection>(direction: T) => {
+const createDirectionalMenu = <T extends SpreadsheetDirection>(direction: T) => {
     return (props: WithDirectionalMenuProps<T>) => {
         const { anchorEl, open, onClose } = props;
 
         const menuProps = {
-            onAddBefore: direction === "row" ? (props as WithDirectionalMenuProps<"row">).onAddAbove : (props as WithDirectionalMenuProps<"column">).onAddLeft,
-            onAddAfter: direction === "row" ? (props as WithDirectionalMenuProps<"row">).onAddBelow : (props as WithDirectionalMenuProps<"column">).onAddRight,
-            onRemove: props.onRemove,
+            onAddBefore: direction === SpreadsheetDirection.ROW 
+                ? (props as WithDirectionalMenuProps<typeof SpreadsheetDirection.ROW>).addAbove 
+                : (props as WithDirectionalMenuProps<typeof SpreadsheetDirection.COLUMN>).addLeft,
+            onAddAfter: direction === SpreadsheetDirection.ROW 
+                ? (props as WithDirectionalMenuProps<typeof SpreadsheetDirection.ROW>).addBelow 
+                : (props as WithDirectionalMenuProps<typeof SpreadsheetDirection.COLUMN>).addRight,
+            onRemove: props.remove,
         };
 
         return <DirectionalContextMenu direction={direction} anchorEl={anchorEl} open={open} onClose={onClose} {...menuProps} />;
     };
 };
 
-export const RowContextMenu = createDirectionalMenu("row");
-export const ColumnContextMenu = createDirectionalMenu("column");
+export const RowContextMenu = createDirectionalMenu(SpreadsheetDirection.ROW);
+export const ColumnContextMenu = createDirectionalMenu(SpreadsheetDirection.COLUMN);
 export default DirectionalContextMenu;

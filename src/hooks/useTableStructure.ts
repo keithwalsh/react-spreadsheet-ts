@@ -5,7 +5,15 @@
 
 import { useCallback } from "react";
 import { PrimitiveAtom, useAtom } from "jotai";
-import { ColumnOperation, OperationResult, Position, RowOperation, SpreadsheetState } from "../types";
+import { 
+    ColumnOperation, 
+    InsertPosition, 
+    OperationResult, 
+    RowOperation, 
+    SpreadsheetDirection, 
+    SpreadsheetState,
+    AddStructurePayload 
+} from "../types";
 import { addRow, addColumn, createHistoryEntry, removeRow, removeColumn } from "../utils";
 
 const useStateUpdater = (state: SpreadsheetState, setState: (state: SpreadsheetState) => void) => {
@@ -27,19 +35,27 @@ const useStateUpdater = (state: SpreadsheetState, setState: (state: SpreadsheetS
     );
 };
 
-const useOperationHandler = <T extends Position>(
+const useOperationHandler = <T extends SpreadsheetDirection>(
     state: SpreadsheetState,
-    operation: RowOperation | ColumnOperation,
+    operation: T extends SpreadsheetDirection.ROW ? RowOperation : ColumnOperation,
     updateStateWithNewData: ReturnType<typeof useStateUpdater>
 ) => {
     return useCallback(
-        (index: number, position: T) => {
+        (index: number, position: T extends SpreadsheetDirection.ROW 
+            ? InsertPosition.ROW_ABOVE | InsertPosition.ROW_BELOW
+            : InsertPosition.COL_LEFT | InsertPosition.COL_RIGHT
+        ) => {
+            const direction = position === InsertPosition.ROW_ABOVE || position === InsertPosition.ROW_BELOW
+                ? SpreadsheetDirection.ROW
+                : SpreadsheetDirection.COLUMN;
+
             const result = operation({
                 data: state.data,
                 selectedCells: state.selection.cells,
-                index,
+                targetIndex: index,
                 position,
-            } as any);
+                direction
+            } as AddStructurePayload);
 
             updateStateWithNewData(result);
         },
@@ -50,10 +66,10 @@ const useOperationHandler = <T extends Position>(
 export const useRowOperations = (atom: PrimitiveAtom<SpreadsheetState>) => {
     const [state, setState] = useAtom(atom);
     const update = useStateUpdater(state, setState);
-    const op = useOperationHandler<Position>(state, addRow, update);
+    const op = useOperationHandler<SpreadsheetDirection.ROW>(state, addRow as RowOperation, update);
 
     const handleAddRow = useCallback(
-        (position: Position.ROW_ABOVE | Position.ROW_BELOW) => {
+        (position: InsertPosition.ROW_ABOVE | InsertPosition.ROW_BELOW) => {
             const index = state.selection.activeCell?.rowIndex ?? state.data.length;
             op(index, position);
         },
@@ -76,12 +92,12 @@ export const useRowOperations = (atom: PrimitiveAtom<SpreadsheetState>) => {
     );
 
     const handleAddRowAbove = useCallback(
-        (index: number) => op(index, Position.ROW_ABOVE),
+        (index: number) => op(index, InsertPosition.ROW_ABOVE),
         [op]
     );
     
     const handleAddRowBelow = useCallback(
-        (index: number) => op(index, Position.ROW_BELOW),
+        (index: number) => op(index, InsertPosition.ROW_BELOW),
         [op]
     );
 
@@ -91,10 +107,10 @@ export const useRowOperations = (atom: PrimitiveAtom<SpreadsheetState>) => {
 export const useColumnOperations = (atom: PrimitiveAtom<SpreadsheetState>) => {
     const [state, setState] = useAtom(atom);
     const update = useStateUpdater(state, setState);
-    const op = useOperationHandler<Position>(state, addColumn, update);
+    const op = useOperationHandler<SpreadsheetDirection.COLUMN>(state, addColumn as ColumnOperation, update);
 
     const handleAddColumn = useCallback(
-        (position: Position.COL_LEFT | Position.COL_RIGHT) => 
+        (position: InsertPosition.COL_LEFT | InsertPosition.COL_RIGHT) => 
             op(state.selection.activeCell?.colIndex ?? state.data[0].length, position),
         [state, op]
     );
@@ -112,8 +128,8 @@ export const useColumnOperations = (atom: PrimitiveAtom<SpreadsheetState>) => {
         [state, update]
     );
 
-    const handleAddColumnLeft = useCallback((i: number) => op(i, Position.COL_LEFT), [op]);
-    const handleAddColumnRight = useCallback((i: number) => op(i, Position.COL_RIGHT), [op]);
+    const handleAddColumnLeft = useCallback((i: number) => op(i, InsertPosition.COL_LEFT), [op]);
+    const handleAddColumnRight = useCallback((i: number) => op(i, InsertPosition.COL_RIGHT), [op]);
 
     return { handleAddColumn, handleRemoveColumn, handleAddColumnLeft, handleAddColumnRight };
 };

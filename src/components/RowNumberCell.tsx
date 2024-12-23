@@ -3,38 +3,39 @@
  * @fileoverview Implements a row number cell using the generic HeaderCell component.
  */
 
-import { useMemo } from "react";
 import { useAtom } from "jotai";
-import { RowNumberCellProps } from "../types";
+import { 
+    RowNumberCellProps, 
+    DragHandlers, 
+    SpreadsheetDirection,
+    RowMenuProps
+} from "../types";
 import { HeaderCell, RowContextMenu } from "./";
-import { createMenuProps } from "../utils";
+import { useState } from "react";
 
-export const RowNumberCell = ({ atom, rowIndex, ...props }: RowNumberCellProps) => {
-    const [state] = useAtom(atom);
+export const RowNumberCell = ({ atom: spreadsheetAtom, rowIndex: index, onAddAbove, onAddBelow, onRemove, ...props }: RowNumberCellProps & DragHandlers) => {
+    const [state] = useAtom(spreadsheetAtom);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
-    const isHighlighted = useMemo(
-        () => state.selection.activeCell?.rowIndex === rowIndex || 
-             (state.selection.cells && state.selection.cells[rowIndex]?.some(Boolean)),
-        [state.selection.activeCell, state.selection.cells, rowIndex]
-    );
+    const isSelected = state.selection.rows.includes(index) || 
+                      state.selection.activeCell?.rowIndex === index || 
+                      (state.selection.cells && state.selection.cells[index]?.some(Boolean));
 
-    const isSelected = useMemo(
-        () => state.selection.rows.includes(rowIndex),
-        [state.selection.rows, rowIndex]
-    );
-
-    const menuProps = createMenuProps({
-        props: { ...props, atom, rowIndex },
-        index: rowIndex,
-        type: "row",
-    });
+    const menuProps: RowMenuProps = {
+        anchorEl,
+        open: Boolean(anchorEl),
+        onClose: () => setAnchorEl(null),
+        onAddAbove: () => onAddAbove(index),
+        onAddBelow: () => onAddBelow(index),
+        onRemove: () => onRemove(index)
+    };
 
     return (
-        <HeaderCell<"row">
-            type="row"
-            atom={atom}
-            index={rowIndex}
-            isHighlighted={isHighlighted}
+        <HeaderCell<SpreadsheetDirection.ROW>
+            type={SpreadsheetDirection.ROW}
+            atom={spreadsheetAtom}
+            index={index}
+            isHighlighted={false}
             isSelected={isSelected}
             ContextMenu={RowContextMenu}
             menuProps={menuProps}
@@ -46,5 +47,4 @@ export const RowNumberCell = ({ atom, rowIndex, ...props }: RowNumberCellProps) 
     );
 };
 
-// Add both named and default exports
 export default RowNumberCell;

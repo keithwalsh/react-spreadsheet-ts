@@ -7,10 +7,15 @@
 import { useState, MouseEvent } from "react";
 import { TableCell } from "@mui/material";
 import { useAtom } from "jotai";
-import { HeaderCellProps, HeaderCellStylesParams, RowContextMenuProps, ColumnContextMenuProps } from "../types";
+import { 
+    HeaderCellProps, 
+    HeaderCellStylesParams, 
+    SpreadsheetDirection,
+    WithDirectionalMenuProps
+} from "../types";
 import { useHeaderCellStyles } from "../styles";
 
-export const HeaderCell = <T extends "row" | "column">({
+export const HeaderCell = <T extends SpreadsheetDirection>({
     atom,
     index,
     isHighlighted,
@@ -39,7 +44,13 @@ export const HeaderCell = <T extends "row" | "column">({
 
     const handleCloseMenu = () => setAnchorEl(null);
 
-    const MenuComponent = ContextMenu as (props: RowContextMenuProps | ColumnContextMenuProps) => JSX.Element;
+    // Create menu props with proper typing
+    const menuComponentProps = {
+        ...menuProps,
+        anchorEl,
+        open: Boolean(anchorEl),
+        onClose: handleCloseMenu,
+    } as WithDirectionalMenuProps<T>;
 
     return (
         <>
@@ -63,7 +74,9 @@ export const HeaderCell = <T extends "row" | "column">({
             >
                 {renderContent(index)}
             </TableCell>
-            <MenuComponent anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseMenu} {...menuProps} />
+            {ContextMenu && (
+                <ContextMenu {...(menuComponentProps as any)} />
+            )}
         </>
     );
 };

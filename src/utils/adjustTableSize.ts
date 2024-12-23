@@ -25,9 +25,11 @@ export const adjustTableSize = (
                 const newCell: CellData = {
                     value: "",
                     align: Alignment.LEFT,
-                    bold: false,
-                    italic: false,
-                    code: false
+                    style: {
+                        bold: false,
+                        italic: false,
+                        code: false
+                    }
                 };
                 rowData.push(newCell);
             }

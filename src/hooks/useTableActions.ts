@@ -1,7 +1,6 @@
 /**
  * @file src/hooks/useTableActions.ts
  * @fileoverview Provides core hooks for spreadsheet text formatting and alignment operations.
- * Includes hooks for handling text formatting (bold, italic, code) and cell alignment.
  */
 
 import { useCallback } from "react";
@@ -11,7 +10,7 @@ import {
     SpreadsheetState, 
     CellData, 
     CellCoordinate,
-    TextFormatAction 
+    TextStyle 
 } from "../types";
 import { isCellInSelection } from "../utils/selectionUtils";
 
@@ -19,7 +18,7 @@ export const useTextFormatting = (atom: PrimitiveAtom<SpreadsheetState>) => {
     const [state, setState] = useAtom(atom);
 
     return useCallback(
-        (format: Lowercase<Exclude<TextFormatAction, "Link">>) => {
+        (format: keyof TextStyle) => {
             const { selection, data, past } = state;
             const { activeCell, cells: selectedCells, columns: selectedColumns, rows: selectedRows, isAllSelected } = selection;
 
@@ -28,7 +27,18 @@ export const useTextFormatting = (atom: PrimitiveAtom<SpreadsheetState>) => {
             setState({
                 ...state,
                 data: data.map((row: CellData[], ri: number) =>
-                    row.map((cell, ci) => (isCellInSelection({ state, rowIndex: ri, colIndex: ci }) ? { ...cell, [format]: !cell[format] } : cell))
+                    row.map((cell, ci) => {
+                        if (isCellInSelection({ state, rowIndex: ri, colIndex: ci })) {
+                            return { 
+                                ...cell, 
+                                style: { 
+                                    ...cell.style, 
+                                    [format]: !cell.style[format] 
+                                } 
+                            };
+                        }
+                        return cell;
+                    })
                 ),
                 past: [...past, { ...state }],
                 future: [],

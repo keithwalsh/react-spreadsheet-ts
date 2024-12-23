@@ -56,28 +56,30 @@ export const handlePaste = (
     // Create new array with required dimensions
     const newData = Array.from({ length: requiredRows }, (_, rowIndex) => {
         if (rowIndex < data.length) {
-            // Existing row: copy and extend if needed
             const existingRow = [...data[rowIndex]];
             while (existingRow.length < requiredCols) {
                 existingRow.push({
                     value: "",
                     align: Alignment.LEFT,
-                    bold: false,
-                    italic: false,
-                    code: false,
+                    style: {
+                        bold: false,
+                        italic: false,
+                        code: false
+                    }
                 });
             }
             return existingRow;
         }
-        // New row: create with empty cells
         return Array(requiredCols)
             .fill(null)
             .map(() => ({
                 value: "",
                 align: Alignment.LEFT,
-                bold: false,
-                italic: false,
-                code: false,
+                style: {
+                    bold: false,
+                    italic: false,
+                    code: false
+                }
             }));
     });
 
@@ -124,6 +126,12 @@ export const handlePaste = (
                 newData[targetRow][targetCol] = {
                     ...newData[targetRow][targetCol],
                     value: cellData,
+                    style: {
+                        ...newData[targetRow][targetCol].style,
+                        bold: newBold[targetRow][targetCol],
+                        italic: newItalic[targetRow][targetCol],
+                        code: newCode[targetRow][targetCol]
+                    }
                 };
             }
         });

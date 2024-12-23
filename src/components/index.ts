@@ -12,3 +12,5 @@ export { default as SelectAllCell } from "./SelectAllCell";
 export { default as Table } from "./Table";
 export { default as TableSizeChooser } from "./TableSizeChooser";
 export { ToolbarProvider, useToolbar } from "./ToolbarProvider";
+export { default as Spreadsheet } from "./Spreadsheet";
+export { default as SpreadsheetWrapper } from "./SpreadsheetWrapper";

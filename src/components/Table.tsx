@@ -7,11 +7,12 @@
 import React, { useCallback } from "react";
 import { TableContainer as TableContainerMui, Table as TableMui, Paper as PaperMui, TableHead, TableBody, useTheme } from "@mui/material";
 import { useAtom } from "jotai";
-import { TableProps, SpreadsheetState, CellData } from "../types";
+import { TableProps, SpreadsheetState, CellData, SpreadsheetDirection } from "../types";
 import { Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, useToolbar } from "./";
 import { useKeyboardNavigation } from "../hooks";
 import { createNewSelectionState } from "../utils";
 import { getTableContainerStyles, tableStyles } from "../styles";
+import { ColumnContextMenu } from "./";
 
 /** Renders the spreadsheet table. */
 const Table = React.forwardRef<HTMLTableElement, TableProps>(
@@ -237,14 +238,20 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                                     <ColumnHeaderCell
                                         key={colIndex}
                                         atom={atom}
-                                        spreadsheetAtom={atom}
+                                        type={SpreadsheetDirection.COLUMN}
                                         index={colIndex}
+                                        isHighlighted={false}
+                                        isSelected={state.selection.columns.includes(colIndex)}
                                         onDragStart={handleColumnDragStart}
                                         onDragEnter={handleColumnDragEnter}
                                         onDragEnd={onDragEnd}
-                                        onAddColumnLeft={onAddColumnLeft}
-                                        onAddColumnRight={onAddColumnRight}
-                                        onRemoveColumn={onRemoveColumn}
+                                        ContextMenu={ColumnContextMenu}
+                                        menuProps={{
+                                            onAddLeft: () => onAddColumnLeft(colIndex),
+                                            onAddRight: () => onAddColumnRight(colIndex),
+                                            onRemove: () => onRemoveColumn(colIndex)
+                                        }}
+                                        renderContent={(index) => `${String.fromCharCode(65 + index)}`}
                                     />
                                 ))}
                             </Row>

@@ -4,20 +4,32 @@
  * including adding and removing rows and columns, and transposing data.
  */
 
-import { CellData, Alignment, AddColumnOptions, AddRowOptions, TableStructureModification, Position } from "../types";
+import { CellData, Alignment, TableStructureModification, InsertPosition } from "../types";
+
+type AddRowOptions = TableStructureModification & {
+    position?: InsertPosition.ROW_ABOVE | InsertPosition.ROW_BELOW;
+};
+
+type AddColumnOptions = TableStructureModification & {
+    position?: InsertPosition.COL_LEFT | InsertPosition.COL_RIGHT;
+};
 
 const spliceColumn = <T>(array: T[][], index: number, count: number): T[][] => {
-    return array.map((row) => {
+    return array.map((row: T[]) => {
         const newRow = [...row];
         newRow.splice(index, count);
         return newRow;
     });
 };
 
-export function addRow({ data, selectedCells, targetIndex = data.length, position = Position.ROW_BELOW }: AddRowOptions) {
-    const newRow = Array(data[0].length).fill({ value: "", bold: false, italic: false, code: false, align: Alignment.LEFT });
+export function addRow({ data, selectedCells, targetIndex = data.length, position = InsertPosition.ROW_BELOW }: AddRowOptions) {
+    const newRow = Array(data[0].length).fill({
+        value: "",
+        style: { bold: false, italic: false, code: false },
+        align: Alignment.LEFT
+    });
     const newSelectedRow = Array(data[0].length).fill(false);
-    const insertIndex = position === Position.ROW_ABOVE ? targetIndex : targetIndex + 1;
+    const insertIndex = position === InsertPosition.ROW_ABOVE ? targetIndex : targetIndex + 1;
 
     const newData = [...data];
     newData.splice(insertIndex, 0, newRow);
@@ -37,17 +49,21 @@ export const removeRow = ({ data, selectedCells, targetIndex = data.length - 1 }
     };
 };
 
-export function addColumn({ data, selectedCells, targetIndex = 0, position = Position.COL_RIGHT }: AddColumnOptions) {
+export function addColumn({ data, selectedCells, targetIndex = 0, position = InsertPosition.COL_RIGHT }: AddColumnOptions) {
     const newData = data.map((row) => {
         const newRow = [...row];
-        const insertIndex = position === Position.COL_LEFT ? targetIndex : targetIndex + 1;
-        newRow.splice(insertIndex, 0, { value: "", bold: false, italic: false, code: false, align: Alignment.LEFT });
+        const insertIndex = position === InsertPosition.COL_LEFT ? targetIndex : targetIndex + 1;
+        newRow.splice(insertIndex, 0, {
+            value: "",
+            style: { bold: false, italic: false, code: false },
+            align: Alignment.LEFT
+        });
         return newRow;
     });
 
     const newSelectedCells = selectedCells.map((row) => {
         const newRow = [...row];
-        const insertIndex = position === Position.COL_LEFT ? targetIndex : targetIndex + 1;
+        const insertIndex = position === InsertPosition.COL_LEFT ? targetIndex : targetIndex + 1;
         newRow.splice(insertIndex, 0, false);
         return newRow;
     });

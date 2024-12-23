@@ -7,7 +7,6 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Box, Typography, TextField } from "@mui/material";
 import { SizeInputProps, TableSizeChooserProps } from "../types";
 
-
 /** SizeInput component for handling input of row or column size. */
 function SizeInput({ label, type, value, onChange, max, ...props }: SizeInputProps): JSX.Element {
     return (

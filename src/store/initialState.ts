@@ -13,10 +13,12 @@ export const initialState = (rows: number, columns: number): SpreadsheetState =>
             .map(() => ({
                 value: "",
                 align: Alignment.LEFT,
-                bold: false,
-                italic: false,
-                code: false,
                 link: undefined,
+                style: {
+                    bold: false,
+                    italic: false,
+                    code: false
+                }
             }))
     ),
     past: [],

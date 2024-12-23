@@ -32,6 +32,4 @@ const Row: React.FC<RowProps> = React.memo(({ children, className }) => {
     );
 });
 
-Row.displayName = "Row";
-
 export default Row;

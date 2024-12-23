@@ -8,7 +8,7 @@ import React from "react";
 import { IconButton as IconButtonMui, TableCell as TableCellMui, useTheme, SxProps, Theme } from "@mui/material";
 import { FaRegSquare, FaCheckSquare } from "react-icons/fa";
 import { SelectAllCellProps } from "../types";
-import { getTableCellStyles, getIconButtonStyles } from "../styles/selectAllCellStyles";
+import { getTableCellStyles, getIconButtonStyles } from "../styles";
 
 const SelectAllCell: React.FC<SelectAllCellProps> = ({ selectAll, toggleSelectAll, size = "small", sx = {} }) => {
     const theme = useTheme();

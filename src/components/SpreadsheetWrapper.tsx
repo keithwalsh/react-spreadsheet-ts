@@ -8,7 +8,7 @@ import React from "react";
 import { Provider } from "jotai";
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import { createSpreadsheetAtom } from "../store/atoms";
-import Spreadsheet from "./Spreadsheet";
+import { Spreadsheet } from "./";
 import { SpreadsheetWrapperProps } from "../types";
 
 /** Sets up theme and state management for the Spreadsheet component. */

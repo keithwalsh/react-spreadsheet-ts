@@ -87,45 +87,75 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
 
     const value: ToolbarContextType = {
         spreadsheetAtom,
+        // UI State
         handleLinkModalClose,
         handleSnackbarClose,
         isLinkModalOpen,
         isSnackbarOpen,
         snackbarMessage,
+        
+        // Text formatting handlers
         handleBold: handlers.onClickSetBold,
         handleItalic: handlers.onClickSetItalic,
         handleCode: handlers.onClickSetCode,
-        onClickLink: handleSetLink,
-        handleAlignLeft: handlers.onClickAlignLeft,
-        handleAlignCenter: handlers.onClickAlignCenter,
-        handleAlignRight: handlers.onClickAlignRight,
-        handleUndo: handlers.onClickUndo,
-        handleRedo: handlers.onClickRedo,
-        currentRows: handlers.currentRows,
-        currentCols: handlers.currentCols,
-        setTableSize: handlers.setTableSize,
-        clearTable: handlers.clearTable,
-        deleteSelected: handlers.deleteSelected,
-        transposeTable: handlers.transposeTable,
         onClickBold: handlers.onClickSetBold,
         onClickItalic: handlers.onClickSetItalic,
         onClickCode: handlers.onClickSetCode,
+        onClickLink: handleSetLink,
+        onClickSetLink: handleSetLink,
+        handleLink,
+        
+        // Toggle handlers
+        onClickTOGGLE_BOLD: handlers.onClickSetBold,
+        handleTOGGLE_BOLD: handlers.onClickSetBold,
+        onClickTOGGLE_ITALIC: handlers.onClickSetItalic,
+        handleTOGGLE_ITALIC: handlers.onClickSetItalic,
+        onClickTOGGLE_CODE: handlers.onClickSetCode,
+        handleTOGGLE_CODE: handlers.onClickSetCode,
+        onClickTOGGLE_LINK: handleSetLink,
+        handleTOGGLE_LINK: handleSetLink,
+        
+        // Alignment handlers
+        handleAlignLeft: handlers.onClickAlignLeft,
+        handleAlignCenter: handlers.onClickAlignCenter,
+        handleAlignRight: handlers.onClickAlignRight,
         onClickAlignLeft: handlers.onClickAlignLeft,
         onClickAlignCenter: handlers.onClickAlignCenter,
         onClickAlignRight: handlers.onClickAlignRight,
+        onClickLEFT: handlers.onClickAlignLeft,
+        handleLEFT: handlers.onClickAlignLeft,
+        onClickCENTER: handlers.onClickAlignCenter,
+        handleCENTER: handlers.onClickAlignCenter,
+        onClickRIGHT: handlers.onClickAlignRight,
+        handleRIGHT: handlers.onClickAlignRight,
+        
+        // History handlers
+        handleUndo: handlers.onClickUndo,
+        handleRedo: handlers.onClickRedo,
         onClickUndo: handlers.onClickUndo,
         onClickRedo: handlers.onClickRedo,
+        onClickUNDO: handlers.onClickUndo,
+        handleUNDO: handlers.onClickUndo,
+        onClickREDO: handlers.onClickRedo,
+        handleREDO: handlers.onClickRedo,
+        
+        // Table structure handlers
         onClickAddRow: handlers.onClickAddRow,
         onClickAddColumn: handlers.onClickAddColumn,
         onClickRemoveRow: handlers.onClickRemoveRow,
         onClickRemoveColumn: handlers.onClickRemoveColumn,
-        handleLink,
-        onClickClearTable: handlers.clearTable,
-        handleClearTable: handlers.clearTable,
-        onClickDeleteSelected: handlers.deleteSelected,
-        handleDeleteSelected: handlers.deleteSelected,
-        onClickTransposeTable: handlers.transposeTable,
-        handleTransposeTable: handlers.transposeTable
+        currentRows: handlers.currentRows,
+        currentCols: handlers.currentCols,
+        setTableSize: handlers.setTableSize,
+        
+        // Table operations
+        clearTable: handlers.clearTable,
+        deleteSelected: handlers.deleteSelected,
+        transposeTable: handlers.transposeTable,
+        onClickCLEAR_TABLE: handlers.clearTable,
+        handleCLEAR_TABLE: handlers.clearTable,
+        onClickTRANSPOSE_TABLE: handlers.transposeTable,
+        handleTRANSPOSE_TABLE: handlers.transposeTable
     };
 
     return (

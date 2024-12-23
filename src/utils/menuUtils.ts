@@ -3,9 +3,19 @@
  * @fileoverview Provides utility functions for creating consistent menu props across different header cell types.
  */
 
-import { ActionConfig, BaseMenuAction, CreateMenuProps, MenuActionConfig, MenuTypeConfig, Position, ActionType } from "../types";
+import { 
+    ActionConfig, 
+    BaseMenuAction,
+    CreateMenuProps,
+    InsertPosition, 
+    ActionType, 
+    SpreadsheetDirection,
+    DirectionalMenuHandlers,
+    DirectionalHeaderCellProps
+} from "../types";
 
-const createActionConfig = (base: BaseMenuAction, position?: Position): ActionConfig => {
+/** Configuration for a menu action's key and method names */
+export const createActionConfig = (base: BaseMenuAction, position?: InsertPosition): ActionConfig => {
     const actionName = base === ActionType.ADD_ROW || base === ActionType.ADD_COLUMN ? "Add" : "Remove";
     return {
         key: `on${actionName}${position ? position.charAt(0).toUpperCase() + position.slice(1).toLowerCase() : ""}`,
@@ -13,37 +23,48 @@ const createActionConfig = (base: BaseMenuAction, position?: Position): ActionCo
     };
 };
 
-const menuActions: Record<"row" | "column", MenuTypeConfig> = {
-    row: {
-        add: [createActionConfig(ActionType.ADD_ROW, Position.ROW_ABOVE), createActionConfig(ActionType.ADD_ROW, Position.ROW_BELOW)],
-        remove: createActionConfig(ActionType.REMOVE_ROW),
-    },
-    column: {
-        add: [createActionConfig(ActionType.ADD_COLUMN, Position.COL_LEFT), createActionConfig(ActionType.ADD_COLUMN, Position.COL_RIGHT)],
-        remove: createActionConfig(ActionType.REMOVE_COLUMN),
-    },
-} as const;
+export const createMenuProps = <T extends SpreadsheetDirection>({ 
+    props, 
+    index, 
+    type 
+}: CreateMenuProps<T>): DirectionalMenuHandlers<T> => {
+    if (type === SpreadsheetDirection.ROW) {
+        const rowProps = props as unknown as DirectionalHeaderCellProps<SpreadsheetDirection.ROW>;
+        return {
+            onAddAbove: () => {
+                if (typeof rowProps.onAddAbove === 'function') {
+                    rowProps.onAddAbove(index);
+                }
+            },
+            onAddBelow: () => {
+                if (typeof rowProps.onAddBelow === 'function') {
+                    rowProps.onAddBelow(index);
+                }
+            },
+            onRemove: () => {
+                if (typeof rowProps.onRemove === 'function') {
+                    rowProps.onRemove(index);
+                }
+            }
+        } as DirectionalMenuHandlers<T>;
+    }
 
-export const createMenuProps = <T extends keyof MenuActionConfig>({ props, index, type }: CreateMenuProps<T>) => {
-    const actions = menuActions[type];
-
+    const colProps = props as unknown as DirectionalHeaderCellProps<SpreadsheetDirection.COLUMN>;
     return {
-        ...Object.fromEntries(
-            actions.add.map(({ key, method }) => [
-                key,
-                () => {
-                    const methodFn = props[method as keyof typeof props];
-                    if (typeof methodFn === "function") {
-                        methodFn(index);
-                    }
-                },
-            ])
-        ),
-        onRemove: () => {
-            const removeFn = props[actions.remove.method as keyof typeof props];
-            if (typeof removeFn === "function") {
-                removeFn(index);
+        onAddLeft: () => {
+            if (typeof colProps.onAddColumnLeft === 'function') {
+                colProps.onAddColumnLeft(index);
             }
         },
-    } as MenuActionConfig[T]["props"];
+        onAddRight: () => {
+            if (typeof colProps.onAddColumnRight === 'function') {
+                colProps.onAddColumnRight(index);
+            }
+        },
+        onRemove: () => {
+            if (typeof colProps.onRemoveColumn === 'function') {
+                colProps.onRemoveColumn(index);
+            }
+        }
+    } as DirectionalMenuHandlers<T>;
 };

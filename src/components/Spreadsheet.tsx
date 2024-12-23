@@ -10,9 +10,9 @@ import { Box } from "@mui/material";
 import { defaultVisibleButtons } from "../config";
 import { useDragSelection, useOutsideClick, useTableActions, useTableStructure, useUndoRedo, useKeyboardNavigation } from "../hooks";
 import { initialState } from "../store";
-import { Alignment, CellData, CellCoordinate, Position } from "../types";
-import { createHistoryEntry, downloadCSV, handlePaste, createNewSelectionState } from "../utils";
-import { ButtonGroup, Menu, NewTableModal, Table, ToolbarProvider, TableSizeChooser } from "./";
+import { Alignment, CellCoordinate, CellData, InsertPosition } from "../types";
+import { createHistoryEntry, createNewSelectionState, downloadCSV, handlePaste } from "../utils";
+import { ButtonGroup, Menu, NewTableModal, Table, TableSizeChooser, ToolbarProvider } from "./";
 import { SpreadsheetProps } from "../types";
 
 const Spreadsheet: React.FC<SpreadsheetProps> = ({ 
@@ -140,9 +140,9 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
                     col: state.selection.activeCell.colIndex
                 },
                 state.data.map((row) => row.map((cell) => cell.align as Alignment)),
-                state.data.map((row) => row.map((cell) => cell.bold as boolean)),
-                state.data.map((row) => row.map((cell) => cell.italic as boolean)),
-                state.data.map((row) => row.map((cell) => cell.code as boolean))
+                state.data.map((row) => row.map((cell) => cell.style.bold)),
+                state.data.map((row) => row.map((cell) => cell.style.italic)),
+                state.data.map((row) => row.map((cell) => cell.style.code))
             );
 
             setState({
@@ -169,9 +169,9 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
             onClickAlignLeft: () => handleSetAlignment(Alignment.LEFT),
             onClickAlignCenter: () => handleSetAlignment(Alignment.CENTER),
             onClickAlignRight: () => handleSetAlignment(Alignment.RIGHT),
-            onClickAddRow: (position: Position.ROW_ABOVE | Position.ROW_BELOW) => handleAddRow(position),
+            onClickAddRow: (position: InsertPosition.ROW_ABOVE | InsertPosition.ROW_BELOW) => handleAddRow(position),
             onClickRemoveRow: handleRemoveRow,
-            onClickAddColumn: (position: Position.COL_LEFT | Position.COL_RIGHT) => handleAddColumn(position),
+            onClickAddColumn: (position: InsertPosition.COL_LEFT | InsertPosition.COL_RIGHT) => handleAddColumn(position),
             onClickRemoveColumn: handleRemoveColumn,
             onClickSetBold: () => handleTextFormatting("bold"),
             onClickSetItalic: () => handleTextFormatting("italic"),

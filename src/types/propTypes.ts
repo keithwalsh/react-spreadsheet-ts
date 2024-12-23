@@ -5,24 +5,26 @@
 
 import { MenuItemProps, PopoverOrigin, TableCellProps, TextFieldProps } from "@mui/material";
 import { PrimitiveAtom } from "jotai";
-import { CellCoordinate, CellData, SpreadsheetState } from "./dataTypes";
 import { CSSProperties } from "react";
+import { ArrowBack, ArrowForward, ArrowDownward, ArrowUpward } from "@mui/icons-material";
 import { RowContextMenu, ColumnContextMenu } from "../components";
-import { ArrowBack } from "@mui/icons-material";
-import { ArrowForward } from "@mui/icons-material";
-import { ArrowDownward } from "@mui/icons-material";
-import { ArrowUpward } from "@mui/icons-material";
-import { ActionType, Position, TextFormatOperation } from "./interactionTypes";
+import { ActionType, Alignment, CellCoordinate, CellData, Dimensions, InsertPosition, SpreadsheetDirection, SpreadsheetState, TableDimensions, TextFormatOperation, UIState } from "./";
 
-export type ActionHandler<T extends string> = `onClick${T}` | `handle${T}`;
+/** Base handler name pattern */
+export type HandlerPattern = `on${'Click' | 'Handle'}${string}`;
+
+/** Unified click/handle action type */
+export type ActionHandler = {
+    [K in TextFormatOperation | keyof typeof Alignment | ToolbarTableAction as 
+        | `onClick${K}` 
+        | `handle${K}`]: () => void;
+};
 
 /** Configuration for a menu action's key and method names */
 export type ActionConfig = {
     key: string;
     method: string;
 };
-
-export type AlignmentAction = "AlignLeft" | "AlignCenter" | "AlignRight";
 
 /** Props for action menu items, omitting onClick from MenuItemProps */
 export interface ActionMenuItemProps extends Omit<MenuItemProps, "onClick"> {
@@ -31,9 +33,11 @@ export interface ActionMenuItemProps extends Omit<MenuItemProps, "onClick"> {
     onClick: () => void;
 }
 
-// Base click handlers
+/** Base click handlers for alignment, text formatting, and toolbar actions */
 export type BaseClickHandlers = {
-    [K in AlignmentAction | TextFormatAction | TableAction as ActionHandler<K>]: () => void;
+    [K in keyof typeof Alignment | TextFormatOperation | ToolbarTableAction as 
+        | `onClick${K}` 
+        | `handle${K}`]: () => void;
 };
 
 /** Base actions available for menu operations */
@@ -132,65 +136,71 @@ export interface CellStyleProps {
     hasLink?: boolean;
 }
 
+/** Directional menu actions */
+export type DirectionalMenuHandlers<T extends SpreadsheetDirection> = T extends SpreadsheetDirection.ROW
+    ? {
+        onAddAbove: () => void;
+        onAddBelow: () => void;
+        onRemove: () => void;
+    }
+    : {
+        onAddLeft: () => void;
+        onAddRight: () => void;
+        onRemove: () => void;
+    };
+
+/** Unified menu props */
+export type DirectionalMenuProps<T extends SpreadsheetDirection> = BaseMenuProps & DirectionalMenuHandlers<T>;
+
 /** Props for the column context menu. */
-export type ColumnContextMenuProps = {
-    anchorEl: HTMLElement | null;
-    open: boolean;
-    onClose: () => void;
-    onAddLeft: () => void;
-    onAddRight: () => void;
-    onRemove: () => void;
-};
+export type ColumnContextMenuProps = DirectionalMenuProps<SpreadsheetDirection.COLUMN>;
 
-/** Props for the column header cell component. */
-export type ColumnHeaderCellProps = BaseProps & BaseHandlers & {
+/** Base header cell props */
+export interface BaseHeaderCellProps extends BaseProps, BaseHandlers {
     index: number;
-    onAddColumnLeft: (index: number) => void;
-    onAddColumnRight: (index: number) => void;
-    onRemoveColumn: (index: number) => void;
     atom: PrimitiveAtom<SpreadsheetState>;
-};
+}
 
-/** Actions for column menu */
-export type ColumnMenuActions = DirectionalMenuActions<"column">;
+/** Directional header cell props */
+export type DirectionalHeaderCellProps<T extends SpreadsheetDirection> = BaseHeaderCellProps & 
+    (T extends SpreadsheetDirection.ROW 
+        ? {
+            onAddAbove: (index: number) => void;
+            onAddBelow: (index: number) => void;
+            onRemove: (index: number) => void;
+        }
+        : {
+            onAddColumnLeft: (index: number) => void;
+            onAddColumnRight: (index: number) => void;
+            onRemoveColumn: (index: number) => void;
+        }
+    );
 
 /** Props for column menu excluding base context menu props */
 export type ColumnMenuProps = Omit<ColumnContextMenuProps, keyof BaseMenuProps>;
 
+export type RowMenuProps = DirectionalMenuProps<SpreadsheetDirection.ROW>;
+
 /** Props for creating a menu based on type (row or column) */
-export type CreateMenuProps<T extends "row" | "column"> = {
-    props: T extends "row" ? RowNumberCellProps : ColumnHeaderCellProps;
+export type CreateMenuProps<T extends SpreadsheetDirection> = {
+    props: HeaderCellProps<T>;
     index: number;
     type: T;
 };
 
-/** Represents the dimensions of the table. */
-export type Dimensions = {
-    rows: string;
-    columns: string;
-};
-
 /** Props for directional context menu */
 export interface DirectionalContextMenuProps extends BaseMenuProps {
-    direction: MenuDirection;
+    direction: SpreadsheetDirection;
     onAddBefore: () => void;
     onAddAfter: () => void;
     onRemove: () => void;
 }
 
-export type DirectionalMenuActions<T extends MenuDirection> = T extends "row"
-    ? {
-          onAddAbove: () => void;
-          onAddBelow: () => void;
-          onRemove: () => void;
-      }
-    : {
-          onAddLeft: () => void;
-          onAddRight: () => void;
-          onRemove: () => void;
-      };
+/** Get menu actions for a specific direction */
+export type DirectionalMenuActions<T extends SpreadsheetDirection> = MenuActionMap[T];
 
-export interface HeaderCellProps<T extends "row" | "column"> {
+/** Props for header cells with type safety */
+export interface HeaderCellProps<T extends SpreadsheetDirection> {
     atom: PrimitiveAtom<SpreadsheetState>;
     index: number;
     type: T;
@@ -199,8 +209,8 @@ export interface HeaderCellProps<T extends "row" | "column"> {
     onDragStart: (index: number) => void;
     onDragEnter: (index: number) => void;
     onDragEnd: () => void;
-    ContextMenu: T extends "row" ? typeof RowContextMenu : typeof ColumnContextMenu;
-    menuProps: T extends "row" ? MenuActionConfig["row"]["props"] : MenuActionConfig["column"]["props"];
+    ContextMenu: T extends SpreadsheetDirection.ROW ? typeof RowContextMenu : typeof ColumnContextMenu;
+    menuProps: T extends SpreadsheetDirection.ROW ? RowMenuProps : ColumnMenuProps;
     renderContent: (index: number) => React.ReactNode;
 }
 
@@ -217,27 +227,17 @@ export interface LinkModalProps {
     initialUrl?: string;
 }
 
+/** Generic menu actions map keyed by SpreadsheetDirection */
 export type MenuActionMap = {
-    row: {
-        addAbove: () => void;
-        addBelow: () => void;
-        remove: () => void;
-    };
-    column: {
-        addLeft: () => void;
-        addRight: () => void;
-        remove: () => void;
-    };
+    [D in SpreadsheetDirection]: D extends SpreadsheetDirection.ROW
+        ? { addAbove: () => void; addBelow: () => void; remove: () => void }
+        : { addLeft: () => void; addRight: () => void; remove: () => void };
 };
 
 export type MenuActionConfig = {
-    row: {
-        props: RowMenuProps;
-        actions: MenuActionMap["row"];
-    };
-    column: {
-        props: ColumnMenuProps;
-        actions: MenuActionMap["column"];
+    [D in SpreadsheetDirection]: {
+        props: D extends SpreadsheetDirection.ROW ? RowMenuProps : ColumnMenuProps;
+        actions: MenuActionMap[D];
     };
 };
 
@@ -248,8 +248,6 @@ export interface MenuConfigParams extends ToolbarContextType {
     TableSizeChooser: React.ComponentType<TableSizeChooserProps>;
     toolbarContext: ToolbarContextType;
 }
-
-export type MenuDirection = "row" | "column";
 
 export interface MenuPositionConfig {
     anchorOrigin: PopoverOrigin;
@@ -273,24 +271,13 @@ export type NewTableModalProps = {
 };
 
 export type PositionalHandlers = {
-    onClickAddRow: (position: Position.ROW_ABOVE | Position.ROW_BELOW) => void;
-    onClickAddColumn: (position: Position.COL_LEFT | Position.COL_RIGHT) => void;
+    onClickAddRow: (position: InsertPosition.ROW_ABOVE | InsertPosition.ROW_BELOW) => void;
+    onClickAddColumn: (position: InsertPosition.COL_LEFT | InsertPosition.COL_RIGHT) => void;
     onClickRemoveRow: () => void;
     onClickRemoveColumn: () => void;
 };
 
-export interface RowContextMenuProps {
-    anchorEl: HTMLElement | null;
-    open: boolean;
-    onClose: () => void;
-    onAddAbove: () => void;
-    onAddBelow: () => void;
-    onRemove: () => void;
-}
-
-export type RowMenuActions = DirectionalMenuActions<"row">;
-
-export type RowMenuProps = Omit<RowContextMenuProps, keyof BaseMenuProps>;
+export type RowContextMenuProps = DirectionalMenuProps<SpreadsheetDirection.ROW>;
 
 export type RowNumberCellProps = BaseProps & BaseHandlers & {
     rowIndex: number;
@@ -335,7 +322,10 @@ export interface SpreadsheetWrapperProps {
     darkMode?: boolean;
 }
 
-export type TableAction = "Undo" | "Redo" | "ClearTable" | "DeleteSelected" | "TransposeTable";
+export type ToolbarTableAction = 
+    | Extract<ActionType, ActionType.UNDO | ActionType.REDO>
+    | ActionType.CLEAR_TABLE
+    | ActionType.TRANSPOSE_TABLE;
 
 export type TableDimensionInputProps = {
     label: keyof Dimensions;
@@ -349,8 +339,6 @@ export type TableMenuProps = {
     onDownloadCSV: () => void;
 };
 
-export type TextFormatAction = "Bold" | "Italic" | "Code" | "Link";
-
 // Table operations and state
 export interface TableState {
     setTableSize: (rows: number, cols: number) => void;
@@ -363,26 +351,46 @@ export interface TableState {
     handleRedo: () => void;
 }
 
-// All text formatting and alignment actions
-export type ToolbarActions = {
-    [K in TextFormatOperation | "ALIGN_LEFT" | "ALIGN_CENTER" | "ALIGN_RIGHT"]: () => void;
+/** All toolbar actions */
+export type ToolbarActionHandlers = {
+    [K in TextFormatOperation | keyof typeof Alignment as `onClick${K}` | `handle${K}`]: () => void;
 } & {
-    onClickUndo: () => void;
-    onClickRedo: () => void;
-    onClickAddRow: (position: Position.ROW_ABOVE | Position.ROW_BELOW) => void;
+    [K in ToolbarTableAction as `onClick${K}` | `handle${K}`]: () => void;
+} & {
+    onClickAddRow: (position: InsertPosition.ROW_ABOVE | InsertPosition.ROW_BELOW) => void;
+    onClickAddColumn: (position: InsertPosition.COL_LEFT | InsertPosition.COL_RIGHT) => void;
     onClickRemoveRow: () => void;
-    onClickAddColumn: (position: Position.COL_LEFT | Position.COL_RIGHT) => void;
     onClickRemoveColumn: () => void;
     onClickSetLink: () => void;
+    handleLink: (url: string | undefined, activeCell: CellCoordinate) => void;
 };
 
+/** Base context interface */
+export interface BaseContextType {
+    spreadsheetAtom: PrimitiveAtom<SpreadsheetState>;
+    clearTable: () => void;
+    deleteSelected: () => void;
+    transposeTable: () => void;
+    // Add alignment handlers using enum values
+    onClickLEFT: () => void;
+    handleLEFT: () => void;
+    onClickCENTER: () => void;
+    handleCENTER: () => void;
+    onClickRIGHT: () => void;
+    handleRIGHT: () => void;
+}
+
+/** Extended toolbar context */
 export interface ToolbarContextType extends 
-    BaseClickHandlers,
-    PositionalHandlers,
+    BaseContextType,
+    ToolbarActionHandlers,
     UIState,
     TableDimensions {
-    spreadsheetAtom: PrimitiveAtom<SpreadsheetState>;
-    // Text formatting handlers (both naming conventions for compatibility)
+    handleUndo: () => void;
+    handleRedo: () => void;
+    onClickUndo: () => void;
+    onClickRedo: () => void;
+    // Text formatting handlers
     handleBold: () => void;
     handleItalic: () => void;
     handleCode: () => void;
@@ -390,29 +398,25 @@ export interface ToolbarContextType extends
     onClickItalic: () => void;
     onClickCode: () => void;
     onClickLink: () => void;
-    // Alignment handlers (both naming conventions for compatibility)
+    handleLink: () => void;
+    // Toggle handlers
+    handleTOGGLE_BOLD: () => void;
+    handleTOGGLE_ITALIC: () => void;
+    handleTOGGLE_CODE: () => void;
+    handleTOGGLE_LINK: () => void;
+    onClickTOGGLE_BOLD: () => void;
+    onClickTOGGLE_ITALIC: () => void;
+    onClickTOGGLE_CODE: () => void;
+    onClickTOGGLE_LINK: () => void;
+    // Alignment handlers
     handleAlignLeft: () => void;
     handleAlignCenter: () => void;
     handleAlignRight: () => void;
     onClickAlignLeft: () => void;
     onClickAlignCenter: () => void;
     onClickAlignRight: () => void;
-    // History handlers (both naming conventions for compatibility)
-    handleUndo: () => void;
-    handleRedo: () => void;
-    onClickUndo: () => void;
-    onClickRedo: () => void;
-    // Table operations
-    clearTable: () => void;
-    deleteSelected: () => void;
-    transposeTable: () => void;
 }
 
-export interface TableDimensions {
-    currentRows: number;
-    currentCols: number;
-    setTableSize: (rows: number, cols: number) => void;
-}
 export type TableProps = {
     atom: PrimitiveAtom<SpreadsheetState>;
     onCellChange: (rowIndex: number, colIndex: number, value: string) => void;
@@ -437,9 +441,9 @@ export interface ToolbarProviderProps {
     onClickAlignLeft: () => void;
     onClickAlignCenter: () => void;
     onClickAlignRight: () => void;
-    onClickAddRow: (position: Position.ROW_ABOVE | Position.ROW_BELOW) => void;
+    onClickAddRow: (position: InsertPosition.ROW_ABOVE | InsertPosition.ROW_BELOW) => void;
     onClickRemoveRow: () => void;
-    onClickAddColumn: (position: Position.COL_LEFT | Position.COL_RIGHT) => void;
+    onClickAddColumn: (position: InsertPosition.COL_LEFT | InsertPosition.COL_RIGHT) => void;
     onClickRemoveColumn: () => void;
     onClickSetBold: () => void;
     onClickSetItalic: () => void;
@@ -460,16 +464,23 @@ export type TableSizeChooserProps = {
     onSizeSelect: (rows: number, cols: number) => void;
 };
 
-export type TableSizePayload = {
-    row: number;
-    col: number;
-    isInitialSetup?: boolean;
+/** Menu actions mapped by direction */
+export type DirectionalMenuActionMap = {
+    [SpreadsheetDirection.ROW]: DirectionalMenuActions<SpreadsheetDirection.ROW>;
+    [SpreadsheetDirection.COLUMN]: DirectionalMenuActions<SpreadsheetDirection.COLUMN>;
 };
 
-export interface UIState {
-    isLinkModalOpen: boolean;
-    isSnackbarOpen: boolean;
-    snackbarMessage: string;
-    handleLinkModalClose: () => void;
-    handleSnackbarClose: () => void;
+/** Base menu configuration */
+export interface MenuConfig<T extends SpreadsheetDirection> {
+    props: DirectionalMenuProps<T>;
+    actions: MenuActionMap[T];
 }
+
+/** Menu configuration by direction */
+export type DirectionalMenuConfig = {
+    [D in SpreadsheetDirection]: MenuConfig<D>;
+};
+
+export type WithDirectionalMenuProps<T extends SpreadsheetDirection> = T extends SpreadsheetDirection.ROW
+    ? RowContextMenuProps
+    : ColumnContextMenuProps;

@@ -4,7 +4,7 @@
  */
 
 import { PrimitiveAtom } from "jotai";
-import { CellData, OperationResult, SpreadsheetState, TableStructureModification } from "./dataTypes";
+import { CellData, InsertPosition, SpreadsheetDirection, SpreadsheetState, TextFormatOperation } from "./";
 
 /** Action types for spreadsheet operations */
 export enum ActionType {
@@ -45,40 +45,33 @@ export enum ActionType {
     END_COLUMN_SELECTION = "END_COLUMN_SELECTION"
 }
 
-/** Represents possible positions for adding rows and columns */
-export enum Position {
-    COL_LEFT = "COL_LEFT",
-    COL_RIGHT = "COL_RIGHT",
-    ROW_ABOVE = "ROW_ABOVE",
-    ROW_BELOW = "ROW_BELOW"
-}
 
-/** Common base types */
-interface BasePayload {
+
+/** Payload for single-dimension operations (row or column) */
+interface SingleDimensionPayload {
     index: number;
 }
 
-interface BaseDragPayload {
+/** Payload for cell coordinate operations */
+interface CellCoordinatePayload {
     row: number;
     col: number;
 }
 
-export type TextFormatOperation = "BOLD" | "ITALIC" | "CODE";
-
 /** Consolidated action payloads */
-export type PositionalPayload = BasePayload & {
-    position: Position.ROW_ABOVE | Position.ROW_BELOW | Position.COL_LEFT | Position.COL_RIGHT;
+export type PositionalPayload = SingleDimensionPayload & {
+    position: InsertPosition.ROW_ABOVE | InsertPosition.ROW_BELOW | InsertPosition.COL_LEFT | InsertPosition.COL_RIGHT;
 };
 
-export type DragPayload = Omit<BaseDragPayload, "col"> | Omit<BaseDragPayload, "row"> | BaseDragPayload;
+export type DragPayload = Omit<CellCoordinatePayload, "col"> | Omit<CellCoordinatePayload, "row"> | CellCoordinatePayload;
 
 /** Represents actions for spreadsheet state management. */
 export type Action =
     | { type: ActionType.SET_DATA; payload: CellData[][] }
     | { type: Extract<ActionType, ActionType.UNDO | ActionType.REDO | ActionType.CLEAR_SELECTION> }
     | { type: ActionType.ADD_ROW | ActionType.ADD_COLUMN; payload: PositionalPayload }
-    | { type: ActionType.REMOVE_ROW | ActionType.REMOVE_COLUMN; payload: Pick<BasePayload, "index"> }
-    | { type: ActionType.START_DRAG | ActionType.UPDATE_DRAG; payload: BaseDragPayload }
+    | { type: ActionType.REMOVE_ROW | ActionType.REMOVE_COLUMN; payload: Pick<SingleDimensionPayload, "index"> }
+    | { type: ActionType.START_DRAG | ActionType.UPDATE_DRAG; payload: CellCoordinatePayload }
     | { type: ActionType.END_DRAG }
     | { type: ActionType.START_ROW_DRAG; payload: number }
     | { type: ActionType.UPDATE_ROW_DRAG; payload: number }
@@ -97,16 +90,6 @@ export type Action =
     | { type: ActionType.UPDATE_COLUMN_SELECTION; payload: number }
     | { type: ActionType.END_COLUMN_SELECTION };
 
-/** Options for adding a column */
-export interface AddColumnOptions extends TableStructureModification {
-    position: Position.COL_LEFT | Position.COL_RIGHT;
-}
-
-/** Options for adding a row */
-export interface AddRowOptions extends TableStructureModification {
-    position: Position.ROW_ABOVE | Position.ROW_BELOW;
-}
-
 /** Represents a mapping of button handler keys to their corresponding functions. */
 export interface ButtonHandlerKey {
     [key: string]: () => void;
@@ -119,22 +102,16 @@ export interface DragHandlers {
     onDragEnd: () => void;
 }
 
-/** Keys for handler functions related to adding rows and columns. */
-export type HandlerKey = "onClickAddRow" | "onClickAddColumn";
-
 /** Mapping of handler keys to their corresponding functions */
 export type HandlerMap = {
-    onClickAddRow: (position: Position.ROW_ABOVE | Position.ROW_BELOW) => void;
-    onClickAddColumn: (position: Position.COL_LEFT | Position.COL_RIGHT) => void;
+    [K in `onClick${'Add'}${Capitalize<Lowercase<SpreadsheetDirection>>}`]: (
+        position: K extends `onClickAddRow` 
+            ? InsertPosition.ROW_ABOVE | InsertPosition.ROW_BELOW
+            : InsertPosition.COL_LEFT | InsertPosition.COL_RIGHT
+    ) => void;
 };
 
 /** Represents various handler types used in the spreadsheet. */
-export type Handler = HandlerMap[HandlerKey] | string | number | boolean | PrimitiveAtom<SpreadsheetState>;
-
-/** Type for row operations */
-export type RowOperation = (options: AddRowOptions) => OperationResult;
-
-/** Type for column operations */
-export type ColumnOperation = (options: AddColumnOptions) => OperationResult;
+export type Handler = HandlerMap[keyof HandlerMap] | string | number | boolean | PrimitiveAtom<SpreadsheetState>;
 
 
