@@ -51,7 +51,7 @@ export interface DragState {
     start: CellCoordinate | null;
 }
 
-/** Result of a paste operation */
+/** Result of a paste operation, pure data transfer object (DTO) */
 export type PasteOperationResult = {
     newData: CellData[][];
     newSelectedCells: boolean[][];
@@ -89,3 +89,12 @@ export interface TableStructureModification {
     selectedCells: boolean[][]; /** The current selection state of cells */
     targetIndex: number; /** The target row/column index for the modification */
 }
+
+/** Result of a table structure operation */
+export type OperationResult = {
+    newData: CellData[][];
+    newSelectedCells: boolean[][];
+};
+
+/** Type representing a Jotai atom for spreadsheet state management */
+export type SpreadsheetAtom = ReturnType<typeof import("../store/atoms").createSpreadsheetAtom>;

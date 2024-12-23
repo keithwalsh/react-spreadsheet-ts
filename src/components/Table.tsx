@@ -237,6 +237,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                                     <ColumnHeaderCell
                                         key={colIndex}
                                         atom={atom}
+                                        spreadsheetAtom={atom}
                                         index={colIndex}
                                         onDragStart={handleColumnDragStart}
                                         onDragEnter={handleColumnDragEnter}
@@ -253,6 +254,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                                 <Row key={rowIndex}>
                                     <RowNumberCell
                                         atom={atom}
+                                        spreadsheetAtom={atom}
                                         rowIndex={rowIndex}
                                         onDragStart={handleRowDragStart}
                                         onDragEnter={handleRowDragEnter}

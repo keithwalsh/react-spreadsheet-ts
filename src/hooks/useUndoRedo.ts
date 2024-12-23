@@ -1,6 +1,7 @@
 /**
- * @fileoverview Hook managing undo/redo functionality for spreadsheet operations,
- * maintaining state history through Jotai atoms.
+ * @file src/hooks/useUndoRedo.ts
+ * @fileoverview Manages undo/redo functionality for spreadsheet operations,
+ * maintaining state history using Jotai atoms.
  */
 
 import { useCallback } from "react";

@@ -1,6 +1,7 @@
 /**
- * @fileoverview Menu configuration for the spreadsheet application, defining
- * structure and default options for file and table operations.
+ * @file src/config/menuConfig.ts
+ * @fileoverview Defines the menu configuration for the spreadsheet application,
+ * including structure and default options for file and table operations.
  */
 
 import React from "react";

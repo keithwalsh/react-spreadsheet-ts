@@ -14,7 +14,7 @@ const Cell: React.FC<CellProps> = React.memo(
         colIndex,
         cellData,
         selectedCells,
-        selectedCell,
+        activeCell,
         selectedColumns = [],
         selectedRows = [],
         style,
@@ -32,7 +32,7 @@ const Cell: React.FC<CellProps> = React.memo(
         const [isEditing, setIsEditing] = useState(false);
         const cellRef = useRef<HTMLDivElement>(null);
 
-        const isSingleCellSelected = selectedCell?.row === rowIndex && selectedCell?.col === colIndex;
+        const isSingleCellSelected = activeCell?.rowIndex === rowIndex && activeCell?.colIndex === colIndex;
         const isColumnSelected = selectedColumns.includes(colIndex);
         const isRowSelected = selectedRows.includes(rowIndex);
         const isMultiSelected = !!selectedCells[rowIndex]?.[colIndex];

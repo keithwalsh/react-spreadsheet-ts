@@ -1,5 +1,6 @@
 /**
- * @fileoverview Exports all custom hooks.
+ * @file src/hooks/index.ts
+ * @fileoverview Exports custom hooks for handling outside clicks, table actions, drag selection, table structure, undo/redo functionality, and keyboard navigation.
  */
 
 import useOutsideClick from "./useOutsideClick";

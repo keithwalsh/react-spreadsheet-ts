@@ -3,34 +3,24 @@
  * @fileoverview Provides utility functions for creating consistent menu props across different header cell types.
  */
 
-import { CreateMenuProps, MenuActionConfig } from "../types";
+import { ActionConfig, BaseMenuAction, CreateMenuProps, MenuActionConfig, MenuTypeConfig, Position, ActionType } from "../types";
 
-type ActionConfig = {
-    key: string;
-    method: string;
+const createActionConfig = (base: BaseMenuAction, position?: Position): ActionConfig => {
+    const actionName = base === ActionType.ADD_ROW || base === ActionType.ADD_COLUMN ? "Add" : "Remove";
+    return {
+        key: `on${actionName}${position ? position.charAt(0).toUpperCase() + position.slice(1).toLowerCase() : ""}`,
+        method: `on${actionName}${position ? (actionName === "Add" ? `Column${position.charAt(0).toUpperCase() + position.slice(1).toLowerCase()}` : "Column") : ""}`,
+    };
 };
-
-type MenuTypeConfig = {
-    add: ActionConfig[];
-    remove: ActionConfig;
-};
-
-type Direction = "Above" | "Below" | "Left" | "Right";
-type BaseAction = "Add" | "Remove";
-
-const createActionConfig = (base: BaseAction, direction?: Direction): ActionConfig => ({
-    key: `on${base}${direction ?? ""}`,
-    method: `on${base}${direction ? (base === "Add" ? `Column${direction}` : "Column") : ""}`,
-});
 
 const menuActions: Record<"row" | "column", MenuTypeConfig> = {
     row: {
-        add: [createActionConfig("Add", "Above"), createActionConfig("Add", "Below")],
-        remove: createActionConfig("Remove"),
+        add: [createActionConfig(ActionType.ADD_ROW, Position.ROW_ABOVE), createActionConfig(ActionType.ADD_ROW, Position.ROW_BELOW)],
+        remove: createActionConfig(ActionType.REMOVE_ROW),
     },
     column: {
-        add: [createActionConfig("Add", "Left"), createActionConfig("Add", "Right")],
-        remove: createActionConfig("Remove"),
+        add: [createActionConfig(ActionType.ADD_COLUMN, Position.COL_LEFT), createActionConfig(ActionType.ADD_COLUMN, Position.COL_RIGHT)],
+        remove: createActionConfig(ActionType.REMOVE_COLUMN),
     },
 } as const;
 

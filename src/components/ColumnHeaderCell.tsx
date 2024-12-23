@@ -8,15 +8,15 @@ import { ColumnHeaderCellProps, DragHandlers } from "../types";
 import { createMenuProps, getColumnLabel } from "../utils";
 import { ColumnContextMenu, HeaderCell } from "./";
 
-export const ColumnHeaderCell = ({ atom, index, ...props }: ColumnHeaderCellProps & DragHandlers) => {
-    const [state] = useAtom(atom);
+export const ColumnHeaderCell = ({ spreadsheetAtom, index, ...props }: ColumnHeaderCellProps & DragHandlers) => {
+    const [state] = useAtom(spreadsheetAtom);
 
     const isSelected = state.selection.columns.includes(index) || 
                       state.selection.activeCell?.colIndex === index || 
                       state.selection.cells.some((row: boolean[]) => row[index]);
 
     const menuProps = createMenuProps({
-        props: { ...props, atom, index },
+        props: { ...props, spreadsheetAtom, index },
         index,
         type: "column",
     });
@@ -24,7 +24,7 @@ export const ColumnHeaderCell = ({ atom, index, ...props }: ColumnHeaderCellProp
     return (
         <HeaderCell<"column">
             type="column"
-            atom={atom}
+            atom={spreadsheetAtom}
             index={index}
             isHighlighted={false}
             isSelected={isSelected}

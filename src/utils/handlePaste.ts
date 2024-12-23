@@ -1,9 +1,11 @@
+/**
+ * @file src/utils/handlePaste.ts
+ * @fileoverview Manages pasting operations in the spreadsheet, adjusting table size and updating cell data and formatting.
+ */
+
 import { Alignment, CellData, PasteOperationResult } from "../types/index";
 
-/**
- * Handles pasting clipboard data into the table.
- * Adjusts the table size if necessary and updates data and alignments.
- */
+/** Handles pasting clipboard data into the table, adjusting table size and updating data and alignments. */
 const createFormattingArray = <T>(sourceArray: T[][], rowIndex: number, requiredCols: number, defaultValue: T): T[] => {
     if (rowIndex < sourceArray.length) {
         // Existing row: copy and extend if needed

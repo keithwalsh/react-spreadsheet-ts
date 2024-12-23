@@ -1,6 +1,7 @@
 /**
- * @fileoverview Jotai atoms for spreadsheet state management. Each spreadsheet instance
- * gets its own isolated state.
+ * @file src/store/atoms.ts
+ * @fileoverview Defines Jotai atoms for managing the state of spreadsheet instances,
+ * ensuring each instance maintains its own isolated state.
  */
 
 import { atom } from "jotai";
@@ -27,9 +28,6 @@ export const createSpreadsheetAtom = (rows: number = 4, cols: number = 4) => {
         }
     });
 };
-
-// Type for the spreadsheet atom
-export type SpreadsheetAtom = ReturnType<typeof createSpreadsheetAtom>;
 
 // Helper functions for state updates
 export const updateData = (state: SpreadsheetState, payload: DataPayload): SpreadsheetState => {

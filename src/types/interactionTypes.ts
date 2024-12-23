@@ -4,7 +4,7 @@
  */
 
 import { PrimitiveAtom } from "jotai";
-import { Alignment, CellData, PasteOperationResult, SpreadsheetState, TableStructureModification } from "./dataTypes";
+import { CellData, OperationResult, SpreadsheetState, TableStructureModification } from "./dataTypes";
 
 /** Action types for spreadsheet operations */
 export enum ActionType {
@@ -14,7 +14,7 @@ export enum ActionType {
     SET_ALIGNMENTS = "SET_ALIGNMENTS",
     SET_SELECTED_COLUMN = "SET_SELECTED_COLUMN",
     SET_SELECTED_ROW = "SET_SELECTED_ROW",
-    SET_SELECTED_CELL = "SET_SELECTED_CELL",
+    SET_ACTIVE_CELL = "SET_ACTIVE_CELL",
     SET_SELECTED_CELLS = "SET_SELECTED_CELLS",
     SET_SELECT_ALL = "SET_SELECT_ALL",
     CLEAR_SELECTION = "CLEAR_SELECTION",
@@ -45,26 +45,40 @@ export enum ActionType {
     END_COLUMN_SELECTION = "END_COLUMN_SELECTION"
 }
 
+/** Represents possible positions for adding rows and columns */
+export enum Position {
+    COL_LEFT = "COL_LEFT",
+    COL_RIGHT = "COL_RIGHT",
+    ROW_ABOVE = "ROW_ABOVE",
+    ROW_BELOW = "ROW_BELOW"
+}
+
+/** Common base types */
+interface BasePayload {
+    index: number;
+}
+
+interface BaseDragPayload {
+    row: number;
+    col: number;
+}
+
+export type TextFormatOperation = "BOLD" | "ITALIC" | "CODE";
+
+/** Consolidated action payloads */
+export type PositionalPayload = BasePayload & {
+    position: Position.ROW_ABOVE | Position.ROW_BELOW | Position.COL_LEFT | Position.COL_RIGHT;
+};
+
+export type DragPayload = Omit<BaseDragPayload, "col"> | Omit<BaseDragPayload, "row"> | BaseDragPayload;
+
 /** Represents actions for spreadsheet state management. */
 export type Action =
     | { type: ActionType.SET_DATA; payload: CellData[][] }
-    | { type: ActionType.UNDO }
-    | { type: ActionType.REDO }
-    | { type: ActionType.SET_ALIGNMENTS; payload: Alignment[][] }
-    | { type: ActionType.SET_SELECTED_COLUMN; payload: number | null }
-    | { type: ActionType.SET_SELECTED_ROW; payload: number | null }
-    | { type: ActionType.SET_SELECTED_CELL; payload: { row: number; col: number } | null }
-    | { type: ActionType.SET_SELECTED_CELLS; payload: boolean[][] }
-    | { type: ActionType.SET_SELECT_ALL; payload: boolean }
-    | { type: ActionType.CLEAR_SELECTION }
-    | { type: ActionType.ADD_ROW }
-    | { type: ActionType.REMOVE_ROW }
-    | { type: ActionType.ADD_COLUMN; payload: { index: number; position: "left" | "right" } }
-    | { type: ActionType.REMOVE_COLUMN; payload: { index: number } }
-    | { type: ActionType.SET_ALIGNMENT; payload: Alignment }
-    | { type: ActionType.HANDLE_PASTE; payload: PasteOperationResult }
-    | { type: ActionType.START_DRAG; payload: { row: number; col: number } }
-    | { type: ActionType.UPDATE_DRAG; payload: { row: number; col: number } }
+    | { type: Extract<ActionType, ActionType.UNDO | ActionType.REDO | ActionType.CLEAR_SELECTION> }
+    | { type: ActionType.ADD_ROW | ActionType.ADD_COLUMN; payload: PositionalPayload }
+    | { type: ActionType.REMOVE_ROW | ActionType.REMOVE_COLUMN; payload: Pick<BasePayload, "index"> }
+    | { type: ActionType.START_DRAG | ActionType.UPDATE_DRAG; payload: BaseDragPayload }
     | { type: ActionType.END_DRAG }
     | { type: ActionType.START_ROW_DRAG; payload: number }
     | { type: ActionType.UPDATE_ROW_DRAG; payload: number }
@@ -75,7 +89,7 @@ export type Action =
     | { type: ActionType.SET_TABLE_SIZE; payload: { row: number; col: number } }
     | { type: ActionType.CLEAR_TABLE }
     | { type: ActionType.TRANSPOSE_TABLE }
-    | { type: ActionType.APPLY_TEXT_FORMATTING; payload: { operation: "BOLD" | "ITALIC" | "CODE" } }
+    | { type: ActionType.APPLY_TEXT_FORMATTING; payload: { operation: TextFormatOperation } }
     | { type: ActionType.START_ROW_SELECTION; payload: number }
     | { type: ActionType.UPDATE_ROW_SELECTION; payload: number }
     | { type: ActionType.END_ROW_SELECTION }
@@ -83,14 +97,14 @@ export type Action =
     | { type: ActionType.UPDATE_COLUMN_SELECTION; payload: number }
     | { type: ActionType.END_COLUMN_SELECTION };
 
-/** Options for adding a column, including position and table structure modification. */
+/** Options for adding a column */
 export interface AddColumnOptions extends TableStructureModification {
-    position: "left" | "right";
+    position: Position.COL_LEFT | Position.COL_RIGHT;
 }
 
-/** Options for adding a row, including position and table structure modification. */
+/** Options for adding a row */
 export interface AddRowOptions extends TableStructureModification {
-    position: "above" | "below";
+    position: Position.ROW_ABOVE | Position.ROW_BELOW;
 }
 
 /** Represents a mapping of button handler keys to their corresponding functions. */
@@ -108,18 +122,19 @@ export interface DragHandlers {
 /** Keys for handler functions related to adding rows and columns. */
 export type HandlerKey = "onClickAddRow" | "onClickAddColumn";
 
-/** Mapping of handler keys to their corresponding functions for adding rows and columns. */
+/** Mapping of handler keys to their corresponding functions */
 export type HandlerMap = {
-    onClickAddRow: (position: "above" | "below") => void;
-    onClickAddColumn: (position: "left" | "right") => void;
+    onClickAddRow: (position: Position.ROW_ABOVE | Position.ROW_BELOW) => void;
+    onClickAddColumn: (position: Position.COL_LEFT | Position.COL_RIGHT) => void;
 };
 
 /** Represents various handler types used in the spreadsheet. */
 export type Handler = HandlerMap[HandlerKey] | string | number | boolean | PrimitiveAtom<SpreadsheetState>;
 
-/** Text formatting operations with optional payloads. */
-export type TextFormattingOperation =
-    | { operation: "BOLD" | "ITALIC" | "CODE" | "LINK" | "REMOVE_LINK"; payload?: string }
-    | { operation: "ALIGN_LEFT" | "ALIGN_CENTER" | "ALIGN_RIGHT" };
-    
+/** Type for row operations */
+export type RowOperation = (options: AddRowOptions) => OperationResult;
+
+/** Type for column operations */
+export type ColumnOperation = (options: AddColumnOptions) => OperationResult;
+
 

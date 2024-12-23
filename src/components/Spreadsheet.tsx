@@ -5,20 +5,22 @@
  */
 
 import React, { useCallback, useRef, useEffect, useMemo, useState } from "react";
-import { PrimitiveAtom, useAtom } from "jotai";
+import { useAtom } from "jotai";
 import { Box } from "@mui/material";
 import { defaultVisibleButtons } from "../config";
 import { useDragSelection, useOutsideClick, useTableActions, useTableStructure, useUndoRedo, useKeyboardNavigation } from "../hooks";
 import { initialState } from "../store";
-import { Alignment, CellData, SpreadsheetState, CellCoordinate } from "../types";
+import { Alignment, CellData, CellCoordinate, Position } from "../types";
 import { createHistoryEntry, downloadCSV, handlePaste, createNewSelectionState } from "../utils";
 import { ButtonGroup, Menu, NewTableModal, Table, ToolbarProvider, TableSizeChooser } from "./";
+import { SpreadsheetProps } from "../types";
 
-interface SpreadsheetProps {
-    atom: PrimitiveAtom<SpreadsheetState>;
-}
-
-const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
+const Spreadsheet: React.FC<SpreadsheetProps> = ({ 
+    atom, 
+    tableHeight,
+    value,
+    onChange 
+}) => {
     const [state, setState] = useAtom(atom);
     const {
         handleAddRow,
@@ -46,6 +48,21 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
     }, []);
 
     useOutsideClick([containerRef, tableRef], atom);
+
+    useEffect(() => {
+        if (value) {
+            setState({
+                ...state,
+                data: value,
+                past: [],
+                future: []
+            });
+        }
+    }, [value, setState]);
+
+    useEffect(() => {
+        onChange?.(state.data);
+    }, [state.data, onChange]);
 
     const saveToHistory = useCallback(
         (newData: CellData[][]) => {
@@ -152,9 +169,9 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
             onClickAlignLeft: () => handleSetAlignment(Alignment.LEFT),
             onClickAlignCenter: () => handleSetAlignment(Alignment.CENTER),
             onClickAlignRight: () => handleSetAlignment(Alignment.RIGHT),
-            onClickAddRow: (position: "above" | "below") => handleAddRow(position),
+            onClickAddRow: (position: Position.ROW_ABOVE | Position.ROW_BELOW) => handleAddRow(position),
             onClickRemoveRow: handleRemoveRow,
-            onClickAddColumn: (position: "left" | "right") => handleAddColumn(position),
+            onClickAddColumn: (position: Position.COL_LEFT | Position.COL_RIGHT) => handleAddColumn(position),
             onClickRemoveColumn: handleRemoveColumn,
             onClickSetBold: () => handleTextFormatting("bold"),
             onClickSetItalic: () => handleTextFormatting("italic"),
@@ -253,7 +270,10 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
                 ref={containerRef} 
                 tabIndex={-1}
                 onKeyDown={handleKeyDown}
-                style={{ outline: 'none' }}
+                style={{ 
+                    outline: 'none',
+                    height: tableHeight
+                }}
             >
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                     <Menu handleNewTable={handleOpenNewTableModal} onDownloadCSV={handleDownloadCSV} TableSizeChooser={TableSizeChooser} />
@@ -274,6 +294,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({ atom }) => {
                     onAddRowBelow={handleAddRowBelow}
                     onRemoveRow={handleRemoveRow}
                     ref={tableRef}
+                    style={{ height: tableHeight }}
                 />
                 <NewTableModal open={isNewTableModalOpen} onClose={handleCloseNewTableModal} onCreateNewTable={handleCreateNewTable} />
             </div>

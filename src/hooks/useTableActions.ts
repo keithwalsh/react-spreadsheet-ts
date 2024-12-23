@@ -10,7 +10,8 @@ import {
     Alignment, 
     SpreadsheetState, 
     CellData, 
-    CellCoordinate 
+    CellCoordinate,
+    TextFormatAction 
 } from "../types";
 import { isCellInSelection } from "../utils/selectionUtils";
 
@@ -18,7 +19,7 @@ export const useTextFormatting = (atom: PrimitiveAtom<SpreadsheetState>) => {
     const [state, setState] = useAtom(atom);
 
     return useCallback(
-        (format: "bold" | "italic" | "code") => {
+        (format: Lowercase<Exclude<TextFormatAction, "Link">>) => {
             const { selection, data, past } = state;
             const { activeCell, cells: selectedCells, columns: selectedColumns, rows: selectedRows, isAllSelected } = selection;
 

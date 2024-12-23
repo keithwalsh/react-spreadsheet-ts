@@ -6,7 +6,7 @@
 import React from "react";
 import { ListItemText, ListItemIcon, Menu, MenuItem, Divider } from "@mui/material";
 import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward, DeleteOutline } from "@mui/icons-material";
-import { ActionMenuItemProps, DirectionalContextMenuProps, MenuPositionConfig, BaseContextMenuProps, DirectionalMenuActions, MenuDirection } from "../types";
+import { ActionMenuItemProps, DirectionalContextMenuProps, MenuPositionConfig, BaseMenuProps, DirectionalMenuActions, MenuDirection } from "../types";
 
 const ActionMenuItem: React.FC<ActionMenuItemProps> = ({ icon: Icon, text, onClick, ...props }) => (
     <MenuItem dense onClick={onClick} {...props}>
@@ -49,7 +49,7 @@ const DirectionalContextMenu: React.FC<DirectionalContextMenuProps> = ({ directi
     );
 };
 
-type WithDirectionalMenuProps<T extends MenuDirection> = BaseContextMenuProps & DirectionalMenuActions<T>;
+type WithDirectionalMenuProps<T extends MenuDirection> = BaseMenuProps & DirectionalMenuActions<T>;
 
 const createDirectionalMenu = <T extends MenuDirection>(direction: T) => {
     return (props: WithDirectionalMenuProps<T>) => {

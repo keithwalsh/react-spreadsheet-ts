@@ -1,3 +1,9 @@
+/**
+ * @file src/store/initialState.ts
+ * @fileoverview Provides the initial state configuration for spreadsheet instances,
+ * including default cell properties and selection states.
+ */
+
 import { SpreadsheetState, Alignment } from "../types";
 
 export const initialState = (rows: number, columns: number): SpreadsheetState => ({

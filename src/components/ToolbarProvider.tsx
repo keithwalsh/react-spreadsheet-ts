@@ -11,7 +11,7 @@ import { Snackbar } from "@mui/material";
 // Internal project modules
 import LinkModal from "./LinkModal";
 import { ToolbarContextType, ToolbarProviderProps } from "../types";
-import { useTableActions, useUndoRedo } from "../hooks";
+import { useTableActions } from "../hooks";
 import type { SpreadsheetState } from "../types";
 
 export const ToolbarContext = createContext<ToolbarContextType | null>(null);
@@ -21,9 +21,8 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
     const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
     const [state] = useAtom(spreadsheetAtom);
-    const { handleLink } = useTableActions(spreadsheetAtom);
+    const { handleLink: originalHandleLink } = useTableActions(spreadsheetAtom);
     const [activeCell, setActiveCell] = useState<SpreadsheetState["selection"]["activeCell"]>(null);
-    const { handleUndo, handleRedo } = useUndoRedo(spreadsheetAtom);
 
     const handleLinkModalClose = () => {
         setIsLinkModalOpen(false);
@@ -70,7 +69,7 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
         }
 
         try {
-            handleLink(url, activeCell);
+            originalHandleLink(url, activeCell);
             setIsLinkModalOpen(false);
             setActiveCell(null);
             setSnackbarMessage(url ? "Link added successfully!" : "Link removed successfully!");
@@ -81,17 +80,52 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
         }
     };
 
+    const handleLink = () => {
+        if (!activeCell) return;
+        originalHandleLink(undefined, activeCell);
+    };
+
     const value: ToolbarContextType = {
         spreadsheetAtom,
-        ...handlers,
         handleLinkModalClose,
         handleSnackbarClose,
         isLinkModalOpen,
         isSnackbarOpen,
         snackbarMessage,
-        onClickSetLink: handleSetLink,
-        handleUndo,
-        handleRedo,
+        handleBold: handlers.onClickSetBold,
+        handleItalic: handlers.onClickSetItalic,
+        handleCode: handlers.onClickSetCode,
+        onClickLink: handleSetLink,
+        handleAlignLeft: handlers.onClickAlignLeft,
+        handleAlignCenter: handlers.onClickAlignCenter,
+        handleAlignRight: handlers.onClickAlignRight,
+        handleUndo: handlers.onClickUndo,
+        handleRedo: handlers.onClickRedo,
+        currentRows: handlers.currentRows,
+        currentCols: handlers.currentCols,
+        setTableSize: handlers.setTableSize,
+        clearTable: handlers.clearTable,
+        deleteSelected: handlers.deleteSelected,
+        transposeTable: handlers.transposeTable,
+        onClickBold: handlers.onClickSetBold,
+        onClickItalic: handlers.onClickSetItalic,
+        onClickCode: handlers.onClickSetCode,
+        onClickAlignLeft: handlers.onClickAlignLeft,
+        onClickAlignCenter: handlers.onClickAlignCenter,
+        onClickAlignRight: handlers.onClickAlignRight,
+        onClickUndo: handlers.onClickUndo,
+        onClickRedo: handlers.onClickRedo,
+        onClickAddRow: handlers.onClickAddRow,
+        onClickAddColumn: handlers.onClickAddColumn,
+        onClickRemoveRow: handlers.onClickRemoveRow,
+        onClickRemoveColumn: handlers.onClickRemoveColumn,
+        handleLink,
+        onClickClearTable: handlers.clearTable,
+        handleClearTable: handlers.clearTable,
+        onClickDeleteSelected: handlers.deleteSelected,
+        handleDeleteSelected: handlers.deleteSelected,
+        onClickTransposeTable: handlers.transposeTable,
+        handleTransposeTable: handlers.transposeTable
     };
 
     return (

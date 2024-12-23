@@ -1,9 +1,11 @@
-import { useCallback } from 'react';
+/**
+ * @file src/hooks/useKeyboardNavigation.ts
+ * @fileoverview Provides a hook for handling keyboard navigation within a spreadsheet,
+ * allowing movement between cells using arrow keys and tab navigation.
+ */
 
-interface CellCoordinate {
-    rowIndex: number;
-    colIndex: number;
-}
+import { useCallback } from 'react';
+import { CellCoordinate } from '../types';
 
 export const useKeyboardNavigation = () => {
     const handleKeyNavigation = useCallback((

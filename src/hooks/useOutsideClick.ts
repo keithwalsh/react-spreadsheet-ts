@@ -1,6 +1,7 @@
 /**
- * @fileoverview Custom hook to detect clicks outside specified elements and
- * trigger a cleanup action, commonly used for closing menus or clearing selections.
+ * @file src/hooks/useOutsideClick.ts
+ * @fileoverview Detects clicks outside specified elements and triggers a cleanup action,
+ * commonly used for closing menus or clearing selections in a spreadsheet.
  */
 
 import { useEffect } from "react";

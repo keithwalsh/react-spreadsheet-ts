@@ -1,3 +1,8 @@
+/**
+ * @file stories/index.stories.tsx
+ * @fileoverview Storybook configuration for the Spreadsheet component, including theme customization and control options.
+ */
+
 import { Meta, StoryObj } from "@storybook/react";
 import { ThemeProvider, createTheme } from "@mui/material";
 import SpreadsheetWrapper from "../src";

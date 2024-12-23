@@ -9,7 +9,7 @@ import { IconButton, ButtonGroup as MuiButtonGroup, Tooltip, Divider, Paper } fr
 import { useTheme } from "@mui/material/styles";
 import { buttonConfig, buttonDefinitions, defaultVisibleButtons } from "../config";
 import { createButtonGroupStyles } from "../styles";
-import { ButtonGroupProps, HandlerMap } from "../types";
+import { ButtonGroupProps, HandlerMap, Position } from "../types";
 import { useToolbar } from "./ToolbarProvider";
 
 const ButtonGroup: React.FC<ButtonGroupProps> = ({
@@ -28,8 +28,8 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
     const styles = createButtonGroupStyles(isDark, config, iconMargin, dividerMargin);
 
     const handleClickMap: Record<string, () => void> = {
-        onClickAddRow: () => handlers.onClickAddRow?.("below"),
-        onClickAddColumn: () => handlers.onClickAddColumn?.("right"),
+        onClickAddRow: () => handlers.onClickAddRow?.(Position.ROW_BELOW),
+        onClickAddColumn: () => handlers.onClickAddColumn?.(Position.COL_RIGHT),
     };
 
     const renderButton = useCallback(

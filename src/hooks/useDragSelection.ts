@@ -1,6 +1,6 @@
 /**
- * @fileoverview Hook to manage drag selection state and actions for spreadsheet
- * rows and columns.
+ * @file src/hooks/useDragSelection.ts
+ * @fileoverview Manages drag selection state and actions for spreadsheet rows and columns.
  */
 
 import { useCallback } from "react";

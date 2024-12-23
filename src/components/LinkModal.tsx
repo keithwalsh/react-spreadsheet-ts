@@ -36,7 +36,7 @@ const LinkModal: React.FC<LinkModalProps> = ({ open, onClose, onSubmit, initialU
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                    placeholder="https://example.com"
+                    placeholder="https://markdowntablegenerator.com"
                 />
             </DialogContent>
             <DialogActions sx={{ justifyContent: "space-between", px: 1 }}>
