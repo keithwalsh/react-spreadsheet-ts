@@ -6,13 +6,12 @@
 import { useCallback } from "react";
 import { PrimitiveAtom, useAtom } from "jotai";
 import { 
-    ColumnOperation, 
     InsertPosition, 
     OperationResult, 
-    RowOperation, 
     SpreadsheetDirection, 
     SpreadsheetState,
-    AddStructurePayload 
+    AddStructurePayload,
+    StructureOperation 
 } from "../types";
 import { addRow, addColumn, createHistoryEntry, removeRow, removeColumn } from "../utils";
 
@@ -37,7 +36,7 @@ const useStateUpdater = (state: SpreadsheetState, setState: (state: SpreadsheetS
 
 const useOperationHandler = <T extends SpreadsheetDirection>(
     state: SpreadsheetState,
-    operation: T extends SpreadsheetDirection.ROW ? RowOperation : ColumnOperation,
+    operation: StructureOperation,
     updateStateWithNewData: ReturnType<typeof useStateUpdater>
 ) => {
     return useCallback(
@@ -52,7 +51,7 @@ const useOperationHandler = <T extends SpreadsheetDirection>(
             const result = operation({
                 data: state.data,
                 selectedCells: state.selection.cells,
-                targetIndex: index,
+                index,
                 position,
                 direction
             } as AddStructurePayload);
@@ -66,7 +65,11 @@ const useOperationHandler = <T extends SpreadsheetDirection>(
 export const useRowOperations = (atom: PrimitiveAtom<SpreadsheetState>) => {
     const [state, setState] = useAtom(atom);
     const update = useStateUpdater(state, setState);
-    const op = useOperationHandler<SpreadsheetDirection.ROW>(state, addRow as RowOperation, update);
+    const op = useOperationHandler<SpreadsheetDirection.ROW>(
+        state, 
+        addRow as StructureOperation,
+        update
+    );
 
     const handleAddRow = useCallback(
         (position: InsertPosition.ROW_ABOVE | InsertPosition.ROW_BELOW) => {
@@ -107,7 +110,11 @@ export const useRowOperations = (atom: PrimitiveAtom<SpreadsheetState>) => {
 export const useColumnOperations = (atom: PrimitiveAtom<SpreadsheetState>) => {
     const [state, setState] = useAtom(atom);
     const update = useStateUpdater(state, setState);
-    const op = useOperationHandler<SpreadsheetDirection.COLUMN>(state, addColumn as ColumnOperation, update);
+    const op = useOperationHandler<SpreadsheetDirection.COLUMN>(
+        state, 
+        addColumn as StructureOperation,
+        update
+    );
 
     const handleAddColumn = useCallback(
         (position: InsertPosition.COL_LEFT | InsertPosition.COL_RIGHT) => 

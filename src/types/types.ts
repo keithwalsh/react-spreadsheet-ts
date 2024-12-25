@@ -1,17 +1,232 @@
 /**
- * @file src/types/propTypes.ts
- * @fileoverview Defines prop types for React components in the spreadsheet to ensure type safety.
+ * @file src/types/dataTypes.ts
+ * @fileoverview Core data structures and state management types for the spreadsheet,
+ * including cell data, state shape, and action definitions.
  */
 
-import { MenuItemProps, PopoverOrigin, TableCellProps, TextFieldProps } from "@mui/material";
+import { 
+  MenuItemProps, 
+  TextFieldProps, 
+  TableCellProps, 
+  PopoverOrigin 
+} from "@mui/material";
+import { 
+  ArrowDownward, 
+  ArrowUpward, 
+  ArrowForward, 
+  ArrowBack 
+} from "@mui/icons-material";
 import { PrimitiveAtom } from "jotai";
 import { CSSProperties } from "react";
-import { ArrowBack, ArrowForward, ArrowDownward, ArrowUpward } from "@mui/icons-material";
-import { RowContextMenu, ColumnContextMenu } from "../components";
-import { ActionType, Alignment, CellCoordinate, CellData, Dimensions, InsertPosition, SpreadsheetDirection, SpreadsheetState, TableDimensions, TextFormatOperation, UIState } from "./";
+import { ColumnContextMenu, RowContextMenu } from "src/components";
+import { ActionType, Alignment, InsertPosition, SpreadsheetDirection, TextFormatOperation, Orientation, TooltipPlacement, DimensionType, HandlerAction } from "./enums";
 
-/** Base handler name pattern */
-export type HandlerPattern = `on${'Click' | 'Handle'}${string}`;
+/** Coordinates of a cell (rowIndex, colIndex) */
+export interface CellCoordinate {
+    rowIndex: number;
+    colIndex: number;
+  }
+  
+  /** Text formatting styles */
+  export interface TextStyle {
+    bold: boolean;
+    italic: boolean;
+    code: boolean;
+  }
+  
+  /** Data for a single cell */
+  export interface CellData {
+    value: string;
+    align?: Alignment;
+    link?: string;
+    style: TextStyle;
+  }
+
+  /** Basic dimensions type */
+  export interface Dimensions {
+    rows: number;
+    cols: number;
+  }
+  
+  /** Used for styling or dimension info */
+  export interface TableDimensions {
+    setTableSize: (dimensions: Dimensions) => void;
+  }
+  
+  /** Defines an adjacent range by two corner coordinates */
+  export interface AdjacentRange {
+    startCoordinate: CellCoordinate;
+    endCoordinate: CellCoordinate;
+  }
+  
+  /** Drag state for row/column/cell selection */
+  export interface DragState {
+    isDragging: boolean;
+    start: CellCoordinate | null;
+  }
+
+  
+  /** 
+   * Base structure payload for modifications:
+   * - `data` and `selectedCells` are current table state
+   * - `index` indicates insertion or deletion target 
+   */
+  export interface BaseStructurePayload {
+    data: CellData[][];
+    selectedCells: boolean[][];
+    index: number;
+  }
+  
+  /** 
+   * Payload for adding rows or columns with direction-specific positions.
+   * Combines the base with row/column union constraints.
+   */
+  export type AddStructurePayload = BaseStructurePayload &
+    (
+      | {
+          direction: SpreadsheetDirection.ROW;
+          position: InsertPosition.ROW_ABOVE | InsertPosition.ROW_BELOW;
+        }
+      | {
+          direction: SpreadsheetDirection.COLUMN;
+          position: InsertPosition.COL_LEFT | InsertPosition.COL_RIGHT;
+        }
+    );
+  
+  /** Result of a structure-modification operation */
+  export interface OperationResult {
+    newData: CellData[][];
+    newSelectedCells: boolean[][];
+  }
+  
+  /** Result for paste operations */
+  export interface PasteOperationResult {
+    newData: CellData[][];
+    newSelectedCells: boolean[][];
+    newAlignments: Alignment[][];
+    newBold: boolean[][];
+    newItalic: boolean[][];
+    newCode: boolean[][];
+    dimensions: Dimensions;
+  }
+  
+  /** Function type for a structure operation */
+  export type StructureOperation = (options: AddStructurePayload) => OperationResult;
+  
+  /** Stores selection state in the spreadsheet */
+  export interface SpreadsheetSelection {
+    cells: boolean[][];
+    rows: number[];
+    columns: number[];
+    isAllSelected: boolean;
+    activeCell: CellCoordinate | null;
+    dragState?: DragState;
+  }
+  
+  /** Payload for data-related actions (for undo/redo or direct updates) */
+  export interface DataPayload {
+    data: CellData[][];
+    activeCell?: CellCoordinate | null;
+    selectedCells?: boolean[][];
+    selectedRows?: number[];
+    selectedColumns?: number[];
+    isDragging?: boolean;
+    isAllSelected?: boolean;
+  }
+  
+  /** Entire spreadsheet state */
+  export interface SpreadsheetState {
+    data: CellData[][];
+    past: DataPayload[];
+    future: DataPayload[];
+    selection: SpreadsheetSelection;
+  }
+  
+  /** For Jotai-based state; replace import path if needed */
+  export type SpreadsheetAtom = ReturnType<
+    typeof import("../store/atoms").createSpreadsheetAtom
+  >;
+  
+  /** UI state for link modals and snackbars */
+  export interface UIState {
+    isLinkModalOpen: boolean;
+    isSnackbarOpen: boolean;
+    snackbarMessage: string;
+    handleLinkModalClose: () => void;
+    handleSnackbarClose: () => void;
+  }
+  
+  /** Base interface for table structure modifications */
+  export interface TableStructureModification {
+    data: CellData[][];
+    selectedCells: boolean[][];
+    targetIndex?: number;
+  }
+  
+  /** Minimal payload for single-dimension operations (DELETE, etc.) */
+  export interface DimensionPayload {
+    index: number;
+  }
+  
+  /** Payload for row/column insertion with position only (Action-level) */
+  export interface PositionalPayload extends DimensionPayload {
+    position:
+      | InsertPosition.ROW_ABOVE
+      | InsertPosition.ROW_BELOW
+      | InsertPosition.COL_LEFT
+      | InsertPosition.COL_RIGHT;
+  }
+  
+  /** Payload for drag events: row-based, column-based, or cell-based */
+  export type DragPayload =
+    | Omit<CellCoordinate, "colIndex">
+    | Omit<CellCoordinate, "rowIndex">
+    | CellCoordinate;
+  
+  /** Consolidated action definition for spreadsheet updates */
+  export type Action =
+    | { type: ActionType.UPDATE_TABLE_DATA; payload: CellData[][] }
+    | {
+        type: Extract<
+          ActionType,
+          ActionType.UNDO | ActionType.REDO | ActionType.CLEAR_SELECTION
+        >;
+      }
+    | { type: ActionType.INSERT_ROW | ActionType.INSERT_COLUMN; payload: PositionalPayload }
+    | { type: ActionType.DELETE_ROW | ActionType.DELETE_COLUMN; payload: DimensionPayload }
+    | { type: ActionType.START_CELL_DRAG | ActionType.UPDATE_CELL_DRAG; payload: CellCoordinate }
+    | { type: ActionType.END_CELL_DRAG }
+    | { type: ActionType.START_ROW_DRAG; payload: number }
+    | { type: ActionType.UPDATE_ROW_DRAG; payload: number }
+    | { type: ActionType.END_ROW_DRAG }
+    | { type: ActionType.START_COLUMN_DRAG; payload: number }
+    | { type: ActionType.UPDATE_COLUMN_DRAG; payload: number }
+    | { type: ActionType.END_COLUMN_DRAG }
+    | { type: ActionType.RESIZE_TABLE; payload: { row: number; col: number } }
+    | { type: ActionType.CLEAR_TABLE }
+    | { type: ActionType.TRANSPOSE_DATA }
+    | { type: ActionType.APPLY_TEXT_FORMAT; payload: { operation: TextFormatOperation } }
+    | { type: ActionType.START_ROW_SELECTION; payload: number }
+    | { type: ActionType.UPDATE_ROW_SELECTION; payload: number }
+    | { type: ActionType.END_ROW_SELECTION }
+    | { type: ActionType.START_COLUMN_SELECTION; payload: number }
+    | { type: ActionType.UPDATE_COLUMN_SELECTION; payload: number }
+    | { type: ActionType.END_COLUMN_SELECTION };
+  
+  /** Button-handler mapping by string keys */
+  export interface ButtonHandlerKey {
+    [key: string]: () => void;
+  }
+  
+  /** Handlers for drag events in the spreadsheet */
+  export interface DragHandlers {
+    onDragStart: (colIndex: number) => void;
+    onDragEnter: (colIndex: number) => void;
+    onDragEnd: () => void;
+  }
+  
+/** Pattern for handler method names using HandlerAction enum */
+export type HandlerPattern = `${Lowercase<keyof typeof HandlerAction>}${string}`;
 
 /** Unified click/handle action type */
 export type ActionHandler = {
@@ -43,10 +258,10 @@ export type BaseClickHandlers = {
 /** Base actions available for menu operations */
 export type BaseMenuAction = Extract<
     ActionType,
-    | ActionType.ADD_ROW 
-    | ActionType.ADD_COLUMN 
-    | ActionType.REMOVE_ROW 
-    | ActionType.REMOVE_COLUMN
+    | ActionType.INSERT_ROW 
+    | ActionType.INSERT_COLUMN 
+    | ActionType.DELETE_ROW 
+    | ActionType.DELETE_COLUMN
 >;
 
 // Common handler props
@@ -77,25 +292,18 @@ export interface ButtonDefinition {
 
 export interface ButtonGroupProps {
     visibleButtons?: string[];
-    orientation?: "horizontal" | "vertical";
+    orientation?: Orientation;
     iconSize?: number;
     iconMargin?: number;
     dividerMargin?: number;
     tooltipArrow?: boolean;
-    tooltipPlacement?: "top" | "bottom" | "left" | "right";
+    tooltipPlacement?: TooltipPlacement;
 }
 
 /** Props for cell content styling */
 export interface CellContentStyleProps {
     isEditing: boolean;
-    cellData: {
-        bold?: boolean;
-        italic?: boolean;
-        code?: boolean;
-        align?: string;
-        value: string;
-        link?: string;
-    };
+    cellData: CellData;
     style?: CSSProperties;
 }
 
@@ -176,11 +384,6 @@ export type DirectionalHeaderCellProps<T extends SpreadsheetDirection> = BaseHea
         }
     );
 
-/** Props for column menu excluding base context menu props */
-export type ColumnMenuProps = Omit<ColumnContextMenuProps, keyof BaseMenuProps>;
-
-export type RowMenuProps = DirectionalMenuProps<SpreadsheetDirection.ROW>;
-
 /** Props for creating a menu based on type (row or column) */
 export type CreateMenuProps<T extends SpreadsheetDirection> = {
     props: HeaderCellProps<T>;
@@ -210,7 +413,7 @@ export interface HeaderCellProps<T extends SpreadsheetDirection> {
     onDragEnter: (index: number) => void;
     onDragEnd: () => void;
     ContextMenu: T extends SpreadsheetDirection.ROW ? typeof RowContextMenu : typeof ColumnContextMenu;
-    menuProps: T extends SpreadsheetDirection.ROW ? RowMenuProps : ColumnMenuProps;
+    menuProps: T extends SpreadsheetDirection.ROW ? DirectionalMenuProps<SpreadsheetDirection.ROW> : Omit<ColumnContextMenuProps, keyof BaseMenuProps>;
     renderContent: (index: number) => React.ReactNode;
 }
 
@@ -236,7 +439,7 @@ export type MenuActionMap = {
 
 export type MenuActionConfig = {
     [D in SpreadsheetDirection]: {
-        props: D extends SpreadsheetDirection.ROW ? RowMenuProps : ColumnMenuProps;
+        props: D extends SpreadsheetDirection.ROW ? DirectionalMenuProps<SpreadsheetDirection.ROW> : Omit<ColumnContextMenuProps, keyof BaseMenuProps>;
         actions: MenuActionMap[D];
     };
 };
@@ -301,11 +504,12 @@ export type SelectAllCellProps = TableCellProps & {
     iconSize?: number;
 };
 
+/** Props for size input component */
 export interface SizeInputProps extends Omit<TextFieldProps, 'onChange'> {
-    label: 'Rows' | 'Columns';
-    type: 'rows' | 'cols';
+    label: DimensionType;
+    type: Lowercase<DimensionType>;
     value: string;
-    onChange: (type: 'rows' | 'cols', value: string) => void;
+    onChange: (type: Lowercase<DimensionType>, value: string) => void;
     max: number;
 }
 
@@ -325,7 +529,7 @@ export interface SpreadsheetWrapperProps {
 export type ToolbarTableAction = 
     | Extract<ActionType, ActionType.UNDO | ActionType.REDO>
     | ActionType.CLEAR_TABLE
-    | ActionType.TRANSPOSE_TABLE;
+    | ActionType.TRANSPOSE_DATA;
 
 export type TableDimensionInputProps = {
     label: keyof Dimensions;
@@ -341,7 +545,7 @@ export type TableMenuProps = {
 
 // Table operations and state
 export interface TableState {
-    setTableSize: (rows: number, cols: number) => void;
+    setTableSize: (dimensions: Dimensions)  => void;
     currentRows: number;
     currentCols: number;
     clearTable: () => void;
@@ -385,7 +589,10 @@ export interface ToolbarContextType extends
     BaseContextType,
     ToolbarActionHandlers,
     UIState,
-    TableDimensions {
+    Omit<TableDimensions, 'rows' | 'cols'> {
+    currentRows: number;
+    currentCols: number;
+    setTableSize: (dimensions: Dimensions)  => void;
     handleUndo: () => void;
     handleRedo: () => void;
     onClickUndo: () => void;

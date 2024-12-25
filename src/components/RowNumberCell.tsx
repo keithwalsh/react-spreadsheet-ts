@@ -8,7 +8,7 @@ import {
     RowNumberCellProps, 
     DragHandlers, 
     SpreadsheetDirection,
-    RowMenuProps
+    DirectionalMenuProps
 } from "../types";
 import { HeaderCell, RowContextMenu } from "./";
 import { useState } from "react";
@@ -21,7 +21,7 @@ export const RowNumberCell = ({ atom: spreadsheetAtom, rowIndex: index, onAddAbo
                       state.selection.activeCell?.rowIndex === index || 
                       (state.selection.cells && state.selection.cells[index]?.some(Boolean));
 
-    const menuProps: RowMenuProps = {
+    const menuProps: DirectionalMenuProps<SpreadsheetDirection.ROW> = {
         anchorEl,
         open: Boolean(anchorEl),
         onClose: () => setAnchorEl(null),

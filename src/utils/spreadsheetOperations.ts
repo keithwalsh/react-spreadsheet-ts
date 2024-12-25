@@ -50,7 +50,7 @@ export const removeRow = ({ data, selectedCells, targetIndex = data.length - 1 }
 };
 
 export function addColumn({ data, selectedCells, targetIndex = 0, position = InsertPosition.COL_RIGHT }: AddColumnOptions) {
-    const newData = data.map((row) => {
+    const newData = data.map((row: CellData[]) => {
         const newRow = [...row];
         const insertIndex = position === InsertPosition.COL_LEFT ? targetIndex : targetIndex + 1;
         newRow.splice(insertIndex, 0, {
@@ -61,7 +61,7 @@ export function addColumn({ data, selectedCells, targetIndex = 0, position = Ins
         return newRow;
     });
 
-    const newSelectedCells = selectedCells.map((row) => {
+    const newSelectedCells = selectedCells.map((row: boolean[]) => {
         const newRow = [...row];
         const insertIndex = position === InsertPosition.COL_LEFT ? targetIndex : targetIndex + 1;
         newRow.splice(insertIndex, 0, false);

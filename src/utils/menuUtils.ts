@@ -16,7 +16,7 @@ import {
 
 /** Configuration for a menu action's key and method names */
 export const createActionConfig = (base: BaseMenuAction, position?: InsertPosition): ActionConfig => {
-    const actionName = base === ActionType.ADD_ROW || base === ActionType.ADD_COLUMN ? "Add" : "Remove";
+    const actionName = base === ActionType.INSERT_ROW || base === ActionType.INSERT_COLUMN ? "Add" : "Remove";
     return {
         key: `on${actionName}${position ? position.charAt(0).toUpperCase() + position.slice(1).toLowerCase() : ""}`,
         method: `on${actionName}${position ? (actionName === "Add" ? `Column${position.charAt(0).toUpperCase() + position.slice(1).toLowerCase()}` : "Column") : ""}`,

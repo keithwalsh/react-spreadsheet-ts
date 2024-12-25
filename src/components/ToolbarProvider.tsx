@@ -12,7 +12,7 @@ import { Snackbar } from "@mui/material";
 import LinkModal from "./LinkModal";
 import { ToolbarContextType, ToolbarProviderProps } from "../types";
 import { useTableActions } from "../hooks";
-import type { SpreadsheetState } from "../types";
+import type { Dimensions, SpreadsheetState } from "../types";
 
 export const ToolbarContext = createContext<ToolbarContextType | null>(null);
 
@@ -88,11 +88,43 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
     const value: ToolbarContextType = {
         spreadsheetAtom,
         // UI State
-        handleLinkModalClose,
-        handleSnackbarClose,
         isLinkModalOpen,
         isSnackbarOpen,
         snackbarMessage,
+        handleLinkModalClose,
+        handleSnackbarClose,
+        
+        // Table dimensions
+        currentRows: handlers.currentRows,
+        currentCols: handlers.currentCols,
+        setTableSize: (dimensions: Dimensions) => {
+            handlers.setTableSize(dimensions.rows, dimensions.cols);
+        },
+        
+        // Row/Column operations
+        onClickAddRow: handlers.onClickAddRow,
+        onClickAddColumn: handlers.onClickAddColumn,
+        onClickRemoveRow: handlers.onClickRemoveRow,
+        onClickRemoveColumn: handlers.onClickRemoveColumn,
+        
+        // Table operations
+        clearTable: handlers.clearTable,
+        deleteSelected: handlers.deleteSelected,
+        transposeTable: handlers.transposeTable,
+        onClickCLEAR_TABLE: handlers.clearTable,
+        handleCLEAR_TABLE: handlers.clearTable,
+        onClickTRANSPOSE_DATA: handlers.transposeTable,
+        handleTRANSPOSE_DATA: handlers.transposeTable,
+        
+        // History handlers with UNDO/REDO enum values
+        handleUNDO: handlers.onClickUndo,
+        handleREDO: handlers.onClickRedo,
+        onClickUNDO: handlers.onClickUndo,
+        onClickREDO: handlers.onClickRedo,
+        handleUndo: handlers.onClickUndo,
+        handleRedo: handlers.onClickRedo,
+        onClickUndo: handlers.onClickUndo,
+        onClickRedo: handlers.onClickRedo,
         
         // Text formatting handlers
         handleBold: handlers.onClickSetBold,
@@ -106,14 +138,14 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
         handleLink,
         
         // Toggle handlers
-        onClickTOGGLE_BOLD: handlers.onClickSetBold,
         handleTOGGLE_BOLD: handlers.onClickSetBold,
-        onClickTOGGLE_ITALIC: handlers.onClickSetItalic,
         handleTOGGLE_ITALIC: handlers.onClickSetItalic,
-        onClickTOGGLE_CODE: handlers.onClickSetCode,
         handleTOGGLE_CODE: handlers.onClickSetCode,
-        onClickTOGGLE_LINK: handleSetLink,
         handleTOGGLE_LINK: handleSetLink,
+        onClickTOGGLE_BOLD: handlers.onClickSetBold,
+        onClickTOGGLE_ITALIC: handlers.onClickSetItalic,
+        onClickTOGGLE_CODE: handlers.onClickSetCode,
+        onClickTOGGLE_LINK: handleSetLink,
         
         // Alignment handlers
         handleAlignLeft: handlers.onClickAlignLeft,
@@ -122,40 +154,12 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
         onClickAlignLeft: handlers.onClickAlignLeft,
         onClickAlignCenter: handlers.onClickAlignCenter,
         onClickAlignRight: handlers.onClickAlignRight,
-        onClickLEFT: handlers.onClickAlignLeft,
         handleLEFT: handlers.onClickAlignLeft,
-        onClickCENTER: handlers.onClickAlignCenter,
         handleCENTER: handlers.onClickAlignCenter,
-        onClickRIGHT: handlers.onClickAlignRight,
         handleRIGHT: handlers.onClickAlignRight,
-        
-        // History handlers
-        handleUndo: handlers.onClickUndo,
-        handleRedo: handlers.onClickRedo,
-        onClickUndo: handlers.onClickUndo,
-        onClickRedo: handlers.onClickRedo,
-        onClickUNDO: handlers.onClickUndo,
-        handleUNDO: handlers.onClickUndo,
-        onClickREDO: handlers.onClickRedo,
-        handleREDO: handlers.onClickRedo,
-        
-        // Table structure handlers
-        onClickAddRow: handlers.onClickAddRow,
-        onClickAddColumn: handlers.onClickAddColumn,
-        onClickRemoveRow: handlers.onClickRemoveRow,
-        onClickRemoveColumn: handlers.onClickRemoveColumn,
-        currentRows: handlers.currentRows,
-        currentCols: handlers.currentCols,
-        setTableSize: handlers.setTableSize,
-        
-        // Table operations
-        clearTable: handlers.clearTable,
-        deleteSelected: handlers.deleteSelected,
-        transposeTable: handlers.transposeTable,
-        onClickCLEAR_TABLE: handlers.clearTable,
-        handleCLEAR_TABLE: handlers.clearTable,
-        onClickTRANSPOSE_TABLE: handlers.transposeTable,
-        handleTRANSPOSE_TABLE: handlers.transposeTable
+        onClickLEFT: handlers.onClickAlignLeft,
+        onClickCENTER: handlers.onClickAlignCenter,
+        onClickRIGHT: handlers.onClickAlignRight
     };
 
     return (

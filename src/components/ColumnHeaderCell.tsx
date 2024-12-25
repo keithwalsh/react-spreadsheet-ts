@@ -8,7 +8,7 @@ import {
     HeaderCellProps,
     DragHandlers, 
     SpreadsheetDirection,
-    ColumnMenuProps 
+    DirectionalMenuProps
 } from "../types";
 import { createMenuProps, getColumnLabel } from "../utils";
 import { ColumnContextMenu, HeaderCell } from "./";
@@ -38,7 +38,7 @@ export const ColumnHeaderCell = ({
             isHighlighted={false}
             isSelected={isSelected}
             ContextMenu={ColumnContextMenu}
-            menuProps={menuProps as ColumnMenuProps}
+            menuProps={menuProps as DirectionalMenuProps<SpreadsheetDirection.COLUMN>}
             renderContent={getColumnLabel}
             onDragStart={props.onDragStart}
             onDragEnter={props.onDragEnter}

@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Box, Typography, TextField } from "@mui/material";
-import { SizeInputProps, TableSizeChooserProps } from "../types";
+import { SizeInputProps, TableSizeChooserProps, DimensionType } from "../types";
 
 /** SizeInput component for handling input of row or column size. */
 function SizeInput({ label, type, value, onChange, max, ...props }: SizeInputProps): JSX.Element {
@@ -47,7 +47,7 @@ const TableSizeChooser: React.FC<TableSizeChooserProps> = ({ maxRows = 20, maxCo
     }, [onSizeSelect, hoveredRow, hoveredCol]);
 
     const handleInputChange = useCallback(
-        (type: "rows" | "cols", value: string) => {
+        (type: "rows" | "columns", value: string) => {
             const numValue = parseInt(value, 10);
             if (isNaN(numValue)) return;
 
@@ -81,8 +81,18 @@ const TableSizeChooser: React.FC<TableSizeChooserProps> = ({ maxRows = 20, maxCo
     };
 
     const sizeInputs = [
-        { label: 'Rows' as const, type: 'rows' as const, value: inputRows, max: maxRows },
-        { label: 'Columns' as const, type: 'cols' as const, value: inputCols, max: maxCols }
+        { 
+            label: DimensionType.ROWS, 
+            type: 'rows' as const, 
+            value: inputRows, 
+            max: maxRows 
+        },
+        { 
+            label: DimensionType.COLUMNS, 
+            type: 'columns' as const, 
+            value: inputCols, 
+            max: maxCols 
+        }
     ];
 
     return (

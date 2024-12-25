@@ -1,7 +1,6 @@
 /**
- * @file src/components/NewTableModal.tsx
  * @fileoverview Modal dialog for creating new tables with customizable dimensions.
- * Provides input validation and immediate feedback.
+ * Validates input and provides immediate feedback.
  */
 
 import { useState } from "react";
@@ -35,7 +34,7 @@ function TableDimensionInput({ label, value, onChange, max }: TableDimensionInpu
 
 const DIMENSION_LIMITS = {
     rows: { min: 1, max: 500 },
-    columns: { min: 1, max: 20 },
+    cols: { min: 1, max: 20 },
 } as const;
 
 const validateDimension = (value: number, dimension: keyof typeof DIMENSION_LIMITS): string | null => {
@@ -46,11 +45,11 @@ const validateDimension = (value: number, dimension: keyof typeof DIMENSION_LIMI
     return null;
 };
 
-const validateDimensions = ({ rows, columns }: Dimensions): string | null => {
-    const rowsNum = parseInt(rows, 10);
-    const colsNum = parseInt(columns, 10);
+const validateDimensions = (dimensions: { rows: string; cols: string }): string | null => {
+    const rowsNum = Number(dimensions.rows);
+    const colsNum = Number(dimensions.cols);
 
-    return validateDimension(rowsNum, "rows") || validateDimension(colsNum, "columns") || null;
+    return validateDimension(rowsNum, "rows") || validateDimension(colsNum, "cols") || null;
 };
 
 const ModalContent = ({ onClose, error, children }: { onClose: () => void; error: string | null; children: React.ReactNode }) => (
@@ -83,10 +82,10 @@ const ModalContent = ({ onClose, error, children }: { onClose: () => void; error
     </Box>
 );
 
-const DIMENSIONS: Array<keyof Dimensions> = ["rows", "columns"];
+const DIMENSIONS: Array<keyof Dimensions> = ["rows", "cols"];
 
 export function NewTableModal({ open, onClose, onCreateNewTable }: NewTableModalProps) {
-    const [dimensions, setDimensions] = useState<Dimensions>({ rows: "", columns: "" });
+    const [dimensions, setDimensions] = useState<{ rows: string; cols: string }>({ rows: "", cols: "" });
     const [error, setError] = useState<string | null>(null);
 
     const handleCreate = () => {
@@ -96,17 +95,17 @@ export function NewTableModal({ open, onClose, onCreateNewTable }: NewTableModal
             return;
         }
 
-        onCreateNewTable(parseInt(dimensions.rows, 10), parseInt(dimensions.columns, 10));
+        onCreateNewTable(Number(dimensions.rows), Number(dimensions.cols));
         handleClose();
     };
 
     const handleClose = () => {
         setError(null);
-        setDimensions({ rows: "", columns: "" });
+        setDimensions({ rows: "", cols: "" });
         onClose();
     };
 
-    const updateDimension = (field: keyof Dimensions) => (value: string) => {
+    const updateDimension = (field: keyof typeof dimensions) => (value: string) => {
         setDimensions((prev) => ({ ...prev, [field]: value }));
     };
 

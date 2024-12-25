@@ -1,7 +1,6 @@
 /**
  * @fileoverview Toolbar button group component providing spreadsheet operation controls
- * like adding rows/columns, undo/redo, and formatting. Supports customizable button
- * visibility, orientation, icon sizing, and theming.
+ * like adding rows/columns, undo/redo, and formatting.
  */
 
 import React, { useCallback } from "react";
@@ -9,17 +8,17 @@ import { IconButton, ButtonGroup as MuiButtonGroup, Tooltip, Divider, Paper } fr
 import { useTheme } from "@mui/material/styles";
 import { buttonConfig, buttonDefinitions, defaultVisibleButtons } from "../config";
 import { createButtonGroupStyles } from "../styles";
-import { ButtonGroupProps, HandlerMap, InsertPosition } from "../types";
+import { ButtonGroupProps, Orientation, TooltipPlacement, InsertPosition, ToolbarContextType } from "../types";
 import { useToolbar } from "./ToolbarProvider";
 
 const ButtonGroup: React.FC<ButtonGroupProps> = ({
     visibleButtons = defaultVisibleButtons,
-    orientation = "horizontal",
+    orientation = Orientation.HORIZONTAL,
     iconSize = 20,
     iconMargin = 0.25,
     dividerMargin = 0.5,
     tooltipArrow = true,
-    tooltipPlacement = "top",
+    tooltipPlacement = TooltipPlacement.TOP,
 }) => {
     const theme = useTheme();
     const isDark = theme.palette.mode === "dark";
@@ -27,6 +26,7 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
     const config = buttonConfig(isDark ? "dark" : "light");
     const styles = createButtonGroupStyles(isDark, config, iconMargin, dividerMargin);
 
+    // Map button clicks to their corresponding handlers
     const handleClickMap: Record<string, () => void> = {
         onClickAddRow: () => handlers.onClickAddRow?.(InsertPosition.ROW_BELOW),
         onClickAddColumn: () => handlers.onClickAddColumn?.(InsertPosition.COL_RIGHT),
@@ -38,9 +38,9 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
                 return (
                     <Divider
                         key={`divider-${index}`}
-                        orientation={orientation === "horizontal" ? "vertical" : "horizontal"}
+                        orientation={orientation === Orientation.HORIZONTAL ? "vertical" : "horizontal"}
                         flexItem
-                        sx={styles.divider(orientation)}
+                        sx={styles.divider(orientation.toLowerCase() as "horizontal" | "vertical")}
                     />
                 );
             }
@@ -49,10 +49,20 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
             if (!btn) return null;
 
             const { title, icon: Icon, handlerKey } = btn;
-            const handleClick = handleClickMap[handlerKey] || handlers[handlerKey as keyof HandlerMap];
+            const handleClick = () => {
+                const handler = handleClickMap[handlerKey] || handlers[handlerKey as keyof ToolbarContextType];
+                if (typeof handler === 'function') {
+                    handler();
+                }
+            };
 
             return (
-                <Tooltip key={title} title={title} arrow={tooltipArrow} placement={tooltipPlacement}>
+                <Tooltip 
+                    key={title} 
+                    title={title} 
+                    arrow={tooltipArrow} 
+                    placement={tooltipPlacement.toLowerCase() as "top" | "bottom" | "left" | "right"}
+                >
                     <IconButton onClick={handleClick} size="small" sx={styles.iconButton}>
                         <Icon size={iconSize} />
                     </IconButton>
@@ -64,7 +74,10 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
 
     return (
         <Paper elevation={1} sx={styles.paper}>
-            <MuiButtonGroup orientation={orientation} sx={styles.buttonGroup}>
+            <MuiButtonGroup 
+                orientation={orientation === Orientation.HORIZONTAL ? "horizontal" : "vertical"} 
+                sx={styles.buttonGroup}
+            >
                 {visibleButtons.map(renderButton)}
             </MuiButtonGroup>
         </Paper>
