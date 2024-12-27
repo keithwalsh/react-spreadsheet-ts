@@ -94,8 +94,26 @@ export const useLink = (atom: PrimitiveAtom<SpreadsheetState>) => {
 
 // Optional: Combine hooks if needed
 export const useSpreadsheetActions = (atom: PrimitiveAtom<SpreadsheetState>) => {
+    const [state, setState] = useAtom(atom);
+
+    const handleLink = ({ url, activeCell }: { url: string | undefined, activeCell: CellCoordinate }) => {
+        const newData = [...state.data];
+        const cell = newData[activeCell.rowIndex][activeCell.colIndex];
+
+        newData[activeCell.rowIndex][activeCell.colIndex] = url 
+            ? { ...cell, link: url } 
+            : (({ link, ...rest }) => rest)(cell);
+
+        setState({
+            ...state,
+            data: newData,
+            past: [...state.past, { ...state }],
+            future: [],
+        });
+    };
+
     return {
-        handleLink: useLink(atom),
+        handleLink,
         handleTextFormatting: useTextFormatting(atom),
         handleSetAlignment: useAlignment(atom),
     };

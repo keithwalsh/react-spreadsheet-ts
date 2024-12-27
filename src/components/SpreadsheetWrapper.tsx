@@ -10,9 +10,14 @@ import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import { createSpreadsheetAtom } from "../store/atoms";
 import { Spreadsheet } from "./";
 import { SpreadsheetWrapperProps } from "../types";
+import { TableDimensionLimits } from "../types/enums";
 
 /** Sets up theme and state management for the Spreadsheet component. */
-export const SpreadsheetWrapper: React.FC<SpreadsheetWrapperProps> = ({ rows = 4, cols = 4, darkMode = false }) => {
+export const SpreadsheetWrapper: React.FC<SpreadsheetWrapperProps> = ({ 
+    rows = TableDimensionLimits.MIN_ROWS, 
+    cols = TableDimensionLimits.MIN_COLUMNS, 
+    darkMode = false 
+}) => {
     const spreadsheetAtom = React.useMemo(() => createSpreadsheetAtom(rows, cols), [rows, cols]);
 
     const theme = React.useMemo(

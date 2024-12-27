@@ -6,7 +6,7 @@
 import React from "react";
 import { ListItemText, ListItemIcon, Menu, MenuItem, Divider } from "@mui/material";
 import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward, DeleteOutline } from "@mui/icons-material";
-import { ActionMenuItemProps, DirectionalContextMenuProps, MenuPositionConfig, BaseMenuProps, DirectionalMenuActions, SpreadsheetDirection } from "../types";
+import { ActionMenuItemProps, DirectionalContextMenuProps, MenuPositionConfig, BaseMenuProps, DirectionalMenuActions, SpreadsheetDirection, MenuAction } from "../types";
 
 const ActionMenuItem: React.FC<ActionMenuItemProps> = ({ icon: Icon, text, onClick, ...props }) => (
     <MenuItem dense onClick={onClick} {...props}>
@@ -30,8 +30,8 @@ const DirectionalContextMenu: React.FC<DirectionalContextMenuProps> = ({ directi
         },
         beforeIcon: isRow ? ArrowUpward : ArrowBack,
         afterIcon: isRow ? ArrowDownward : ArrowForward,
-        beforeText: isRow ? "Add row above" : "Add column to the left",
-        afterText: isRow ? "Add row below" : "Add column to the right",
+        beforeText: isRow ? `Add row ${MenuAction.ADD_ABOVE}` : `Add column ${MenuAction.ADD_LEFT}`,
+        afterText: isRow ? `Add row ${MenuAction.ADD_BELOW}` : `Add column ${MenuAction.ADD_RIGHT}`,
     };
 
     const handleAction = (action: () => void) => {

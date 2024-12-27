@@ -13,8 +13,77 @@ import LinkModal from "./LinkModal";
 import { ToolbarContextType, ToolbarProviderProps } from "../types";
 import { useTableActions } from "../hooks";
 import type { Dimensions, SpreadsheetState } from "../types";
+import { ButtonType } from "../types/enums";
 
 export const ToolbarContext = createContext<ToolbarContextType | null>(null);
+
+/** Maps ButtonType to its corresponding handler keys */
+type ButtonTypeHandlers = {
+    [ButtonType.HISTORY]: {
+        handleUNDO: () => void;
+        handleREDO: () => void;
+        onClickUNDO: () => void;
+        onClickREDO: () => void;
+        handleUndo: () => void;
+        handleRedo: () => void;
+        onClickUndo: () => void;
+        onClickRedo: () => void;
+    };
+    [ButtonType.TEXT_FORMATTING]: {
+        handleBold: () => void;
+        handleItalic: () => void;
+        handleCode: () => void;
+        onClickBold: () => void;
+        onClickItalic: () => void;
+        onClickCode: () => void;
+        onClickLink: () => void;
+        onClickSetLink: () => void;
+        handleLink: () => void;
+        handleBOLD: () => void;
+        onClickBOLD: () => void;
+        handleCODE: () => void;
+        onClickCODE: () => void;
+        handleITALIC: () => void;
+        onClickITALIC: () => void;
+        handleLINK: () => void;
+        onClickLINK: () => void;
+        handleTOGGLE_BOLD: () => void;
+        handleTOGGLE_ITALIC: () => void;
+        handleTOGGLE_CODE: () => void;
+        handleTOGGLE_LINK: () => void;
+        onClickTOGGLE_BOLD: () => void;
+        onClickTOGGLE_ITALIC: () => void;
+        onClickTOGGLE_CODE: () => void;
+        onClickTOGGLE_LINK: () => void;
+    };
+    [ButtonType.ALIGNMENT]: {
+        handleAlignLeft: () => void;
+        handleAlignCenter: () => void;
+        handleAlignRight: () => void;
+        onClickAlignLeft: () => void;
+        onClickAlignCenter: () => void;
+        onClickAlignRight: () => void;
+        handleLEFT: () => void;
+        handleCENTER: () => void;
+        handleRIGHT: () => void;
+        onClickLEFT: () => void;
+        onClickCENTER: () => void;
+        onClickRIGHT: () => void;
+    };
+    [ButtonType.TABLE_STRUCTURE]: {
+        onClickAddRow: () => void;
+        onClickAddColumn: () => void;
+        onClickRemoveRow: () => void;
+        onClickRemoveColumn: () => void;
+        clearTable: () => void;
+        deleteSelected: () => void;
+        transposeTable: () => void;
+        onClickCLEAR_TABLE: () => void;
+        handleCLEAR_TABLE: () => void;
+        onClickTRANSPOSE_DATA: () => void;
+        handleTRANSPOSE_DATA: () => void;
+    };
+};
 
 export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: ToolbarProviderProps) => {
     const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
@@ -69,7 +138,7 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
         }
 
         try {
-            originalHandleLink(url, activeCell);
+            originalHandleLink({ url, activeCell });
             setIsLinkModalOpen(false);
             setActiveCell(null);
             setSnackbarMessage(url ? "Link added successfully!" : "Link removed successfully!");
@@ -82,32 +151,30 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
 
     const handleLink = () => {
         if (!activeCell) return;
-        originalHandleLink(undefined, activeCell);
+        originalHandleLink({ url: undefined, activeCell });
     };
 
-    const value: ToolbarContextType = {
+    const value: ToolbarContextType & ButtonTypeHandlers[ButtonType] = {
         spreadsheetAtom,
-        // UI State
+        // UI State handlers
         isLinkModalOpen,
         isSnackbarOpen,
         snackbarMessage,
         handleLinkModalClose,
         handleSnackbarClose,
-        
+
         // Table dimensions
         currentRows: handlers.currentRows,
         currentCols: handlers.currentCols,
         setTableSize: (dimensions: Dimensions) => {
-            handlers.setTableSize(dimensions.rows, dimensions.cols);
+            handlers.setTableSize(dimensions);
         },
-        
-        // Row/Column operations
+
+        // ButtonType.TABLE_STRUCTURE handlers
         onClickAddRow: handlers.onClickAddRow,
         onClickAddColumn: handlers.onClickAddColumn,
         onClickRemoveRow: handlers.onClickRemoveRow,
         onClickRemoveColumn: handlers.onClickRemoveColumn,
-        
-        // Table operations
         clearTable: handlers.clearTable,
         deleteSelected: handlers.deleteSelected,
         transposeTable: handlers.transposeTable,
@@ -115,8 +182,8 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
         handleCLEAR_TABLE: handlers.clearTable,
         onClickTRANSPOSE_DATA: handlers.transposeTable,
         handleTRANSPOSE_DATA: handlers.transposeTable,
-        
-        // History handlers with UNDO/REDO enum values
+
+        // ButtonType.HISTORY handlers
         handleUNDO: handlers.onClickUndo,
         handleREDO: handlers.onClickRedo,
         onClickUNDO: handlers.onClickUndo,
@@ -125,8 +192,8 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
         handleRedo: handlers.onClickRedo,
         onClickUndo: handlers.onClickUndo,
         onClickRedo: handlers.onClickRedo,
-        
-        // Text formatting handlers
+
+        // ButtonType.TEXT_FORMATTING handlers
         handleBold: handlers.onClickSetBold,
         handleItalic: handlers.onClickSetItalic,
         handleCode: handlers.onClickSetCode,
@@ -136,8 +203,14 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
         onClickLink: handleSetLink,
         onClickSetLink: handleSetLink,
         handleLink,
-        
-        // Toggle handlers
+        handleBOLD: handlers.onClickSetBold,
+        onClickBOLD: handlers.onClickSetBold,
+        handleCODE: handlers.onClickSetCode,
+        onClickCODE: handlers.onClickSetCode,
+        handleITALIC: handlers.onClickSetItalic,
+        onClickITALIC: handlers.onClickSetItalic,
+        handleLINK: handleSetLink,
+        onClickLINK: handleSetLink,
         handleTOGGLE_BOLD: handlers.onClickSetBold,
         handleTOGGLE_ITALIC: handlers.onClickSetItalic,
         handleTOGGLE_CODE: handlers.onClickSetCode,
@@ -146,8 +219,8 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
         onClickTOGGLE_ITALIC: handlers.onClickSetItalic,
         onClickTOGGLE_CODE: handlers.onClickSetCode,
         onClickTOGGLE_LINK: handleSetLink,
-        
-        // Alignment handlers
+
+        // ButtonType.ALIGNMENT handlers
         handleAlignLeft: handlers.onClickAlignLeft,
         handleAlignCenter: handlers.onClickAlignCenter,
         handleAlignRight: handlers.onClickAlignRight,
@@ -159,7 +232,7 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
         handleRIGHT: handlers.onClickAlignRight,
         onClickLEFT: handlers.onClickAlignLeft,
         onClickCENTER: handlers.onClickAlignCenter,
-        onClickRIGHT: handlers.onClickAlignRight
+        onClickRIGHT: handlers.onClickAlignRight,
     };
 
     return (

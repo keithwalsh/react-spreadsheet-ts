@@ -4,16 +4,16 @@
  * through a combination of Jotai atoms and React hooks.
  */
 
-import React, { useCallback, useRef, useEffect, useMemo, useState } from "react";
-import { useAtom } from "jotai";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Box } from "@mui/material";
+import { useAtom } from "jotai";
+
 import { defaultVisibleButtons } from "../config";
-import { useDragSelection, useOutsideClick, useTableActions, useTableStructure, useUndoRedo, useKeyboardNavigation } from "../hooks";
+import { useDragSelection, useKeyboardNavigation, useOutsideClick, useTableActions, useTableStructure, useUndoRedo } from "../hooks";
 import { initialState } from "../store";
-import { Alignment, CellCoordinate, CellData, InsertPosition } from "../types";
+import { Alignment, CellCoordinate, CellData, DragEventHandler, NavigationKey, SelectionType, SpreadsheetDirection, SpreadsheetProps, TextFormatting } from "../types";
 import { createHistoryEntry, createNewSelectionState, downloadCSV, handlePaste } from "../utils";
 import { ButtonGroup, Menu, NewTableModal, Table, TableSizeChooser, ToolbarProvider } from "./";
-import { SpreadsheetProps } from "../types";
 
 const Spreadsheet: React.FC<SpreadsheetProps> = ({ 
     atom, 
@@ -112,7 +112,8 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
                     activeCell: null,
                     rows: [],
                     columns: [],
-                    isAllSelected: false
+                    isAllSelected: false,
+                    type: SelectionType.NONE
                 }
             });
             setIsNewTableModalOpen(false);
@@ -136,13 +137,13 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
                 pasteData,
                 state.data,
                 {
-                    row: state.selection.activeCell.rowIndex,
-                    col: state.selection.activeCell.colIndex
+                    rowIndex: state.selection.activeCell.rowIndex,
+                    colIndex: state.selection.activeCell.colIndex
                 },
                 state.data.map((row) => row.map((cell) => cell.align as Alignment)),
-                state.data.map((row) => row.map((cell) => cell.style.bold)),
-                state.data.map((row) => row.map((cell) => cell.style.italic)),
-                state.data.map((row) => row.map((cell) => cell.style.code))
+                state.data.map((row) => row.map((cell) => cell.style.BOLD)),
+                state.data.map((row) => row.map((cell) => cell.style.ITALIC)),
+                state.data.map((row) => row.map((cell) => cell.style.CODE))
             );
 
             setState({
@@ -150,7 +151,8 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
                 data: result.newData,
                 selection: {
                     ...state.selection,
-                    cells: result.newSelectedCells
+                    cells: result.newSelectedCells,
+                    type: SelectionType.MULTI_CELL
                 }
             });
         },
@@ -162,48 +164,121 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
         return () => document.removeEventListener("paste", handleGlobalPaste);
     }, [handleGlobalPaste]);
 
-    const toolbarHandlers = useMemo(
-        () => ({
-            onClickUndo: handleUndo,
-            onClickRedo: handleRedo,
-            onClickAlignLeft: () => handleSetAlignment(Alignment.LEFT),
-            onClickAlignCenter: () => handleSetAlignment(Alignment.CENTER),
-            onClickAlignRight: () => handleSetAlignment(Alignment.RIGHT),
-            onClickAddRow: (position: InsertPosition.ROW_ABOVE | InsertPosition.ROW_BELOW) => handleAddRow(position),
-            onClickRemoveRow: handleRemoveRow,
-            onClickAddColumn: (position: InsertPosition.COL_LEFT | InsertPosition.COL_RIGHT) => handleAddColumn(position),
-            onClickRemoveColumn: handleRemoveColumn,
-            onClickSetBold: () => handleTextFormatting("bold"),
-            onClickSetItalic: () => handleTextFormatting("italic"),
-            onClickSetCode: () => handleTextFormatting("code"),
-            setTableSize: (rows: number, cols: number) => {
+    const handleKeyDown = useCallback(
+        (e: React.KeyboardEvent) => {
+            if (!state.selection.activeCell || state.selection.cells.some(row => row.some(cell => cell))) {
+                return;
+            }
+
+            const { rowIndex, colIndex } = state.selection.activeCell;
+            let key: NavigationKey | null = null;
+
+            switch (e.key) {
+                case 'ArrowUp':
+                    key = NavigationKey.UP;
+                    break;
+                case 'ArrowDown':
+                    key = NavigationKey.DOWN;
+                    break;
+                case 'ArrowLeft':
+                    key = NavigationKey.LEFT;
+                    break;
+                case 'ArrowRight':
+                    key = NavigationKey.RIGHT;
+                    break;
+                case 'Enter':
+                    key = NavigationKey.ENTER;
+                    break;
+                default:
+                    return;
+            }
+
+            const result: CellCoordinate | null = handleKeyNavigation(
+                key,
+                rowIndex,
+                colIndex,
+                state.data.length - 1,
+                state.data[0].length - 1
+            );
+            
+            if (result) {
+                setState((prev) => ({
+                    ...prev,
+                    selection: {
+                        cells: createNewSelectionState(state.data, result),
+                        activeCell: result,
+                        isAllSelected: false,
+                        rows: [],
+                        columns: [],
+                        type: SelectionType.SINGLE_CELL
+                    }
+                }));
+            }
+        },
+        [state, setState, handleKeyNavigation]
+    );
+
+    const handleDragStartEvent: DragEventHandler = (row: number, col: number) => {
+        handleDragStart(row, col);
+    };
+
+    const handleDragEnterEvent: DragEventHandler = (row: number, col: number) => {
+        handleDragEnter(row, col);
+    };
+
+    const handleDragEndEvent = () => {
+        handleDragEnd();
+    };
+
+    return (
+        <ToolbarProvider 
+            spreadsheetAtom={atom}
+            onClickUndo={handleUndo}
+            onClickRedo={handleRedo}
+            onClickAlignLeft={() => handleSetAlignment(Alignment.LEFT)}
+            onClickAlignCenter={() => handleSetAlignment(Alignment.CENTER)}
+            onClickAlignRight={() => handleSetAlignment(Alignment.RIGHT)}
+            onClickAddRow={handleAddRow}
+            onClickRemoveRow={handleRemoveRow}
+            onClickAddColumn={handleAddColumn}
+            onClickRemoveColumn={handleRemoveColumn}
+            onClickSetBold={() => handleTextFormatting(TextFormatting.BOLD)}
+            onClickSetItalic={() => handleTextFormatting(TextFormatting.ITALIC)}
+            onClickSetCode={() => handleTextFormatting(TextFormatting.CODE)}
+            setTableSize={(dimensions) => {
                 setState({
                     ...state,
-                    data: initialState(rows, cols).data,
+                    data: initialState(dimensions.rows, dimensions.cols).data,
                     selection: {
-                        cells: Array(rows).fill(Array(cols).fill(false)),
+                        cells: Array(dimensions.rows).fill(Array(dimensions.cols).fill(false)),
                         activeCell: null,
                         rows: [],
                         columns: [],
-                        isAllSelected: false
+                        isAllSelected: false,
+                        type: SelectionType.NONE
                     },
                     past: [...state.past, createHistoryEntry(state)],
                     future: [],
                 });
-            },
-            currentRows: state.data.length,
-            currentCols: state.data[0]?.length || 0,
-            clearTable: () => {
+            }}
+            currentRows={state.data.length}
+            currentCols={state.data[0]?.length || 0}
+            clearTable={() => {
                 setState({
                     ...state,
                     data: initialState(state.data.length, state.data[0].length).data,
                     past: [...state.past, createHistoryEntry(state)],
                     future: [],
                 });
-            },
-            deleteSelected: handleDeleteSelected,
-            transposeTable: () => {
-                const transposedData = state.data[0].map((_, colIndex) => state.data.map((row) => ({ ...row[colIndex] })));
+            }}
+            deleteSelected={handleDeleteSelected}
+            transposeTable={() => {
+                const transposedData = state.data[0].map((_, colIndex) => 
+                    state.data.map((row) => ({ 
+                        ...row[colIndex],
+                        direction: SpreadsheetDirection.COLUMN
+                    }))
+                );
 
                 setState({
                     ...state,
@@ -215,56 +290,12 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
                         activeCell: null,
                         rows: [],
                         columns: [],
-                        isAllSelected: false
+                        isAllSelected: false,
+                        type: SelectionType.NONE
                     },
                 });
-            },
-        }),
-        [
-            handleUndo,
-            handleRedo,
-            handleSetAlignment,
-            handleAddRow,
-            handleRemoveRow,
-            handleAddColumn,
-            handleRemoveColumn,
-            handleTextFormatting,
-            handleDeleteSelected,
-            state,
-            setState,
-        ]
-    );
-
-    const handleKeyDown = useCallback(
-        (e: React.KeyboardEvent) => {
-            if (!state.selection.activeCell || state.selection.cells.some(row => row.some(cell => cell))) {
-                return;
-            }
-
-            const { rowIndex, colIndex } = state.selection.activeCell;
-            const result: CellCoordinate | null = handleKeyNavigation(e, rowIndex, colIndex, state.data.length - 1, state.data[0].length - 1);
-            
-            if (result) {
-                setState((prev) => ({
-                    ...prev,
-                    selection: {
-                        cells: createNewSelectionState(state.data, {
-                            rowIndex: result.rowIndex,
-                            colIndex: result.colIndex
-                        }),
-                        activeCell: result,
-                        isAllSelected: false,
-                        rows: [],
-                        columns: []
-                    }
-                }));
-            }
-        },
-        [state, setState, handleKeyNavigation]
-    );
-
-    return (
-        <ToolbarProvider spreadsheetAtom={atom} {...toolbarHandlers}>
+            }}
+        >
             <div 
                 className="spreadsheet" 
                 ref={containerRef} 
@@ -272,7 +303,7 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
                 onKeyDown={handleKeyDown}
                 style={{ 
                     outline: 'none',
-                    height: tableHeight
+                    height: tableHeight,
                 }}
             >
                 <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -284,9 +315,9 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
                 <Table
                     atom={atom}
                     onCellChange={handleCellChange}
-                    onDragStart={handleDragStart}
-                    onDragEnter={handleDragEnter}
-                    onDragEnd={handleDragEnd}
+                    onDragStart={handleDragStartEvent}
+                    onDragEnter={handleDragEnterEvent}
+                    onDragEnd={handleDragEndEvent}
                     onAddColumnLeft={handleAddColumnLeft}
                     onAddColumnRight={handleAddColumnRight}
                     onRemoveColumn={handleRemoveColumn}

@@ -6,12 +6,16 @@
 import { CSSProperties } from "react";
 import { Property } from "csstype";
 import { CellContentStyleProps, CellStyleProps } from "../types";
+import { ThemeColors } from "../types/enums";
 
-export const getThemeBorderColor = (isDarkMode: boolean) => (isDarkMode ? "#686868" : "#e0e0e0");
+export const getThemeBorderColor = (isDarkMode: boolean) => 
+    isDarkMode ? ThemeColors.DARK_BORDER : ThemeColors.LIGHT_BORDER;
 
-export const getSelectionBackground = (isDarkMode: boolean) => (isDarkMode ? "rgba(25, 118, 210, 0.08)" : "rgba(25, 118, 210, 0.12)");
+export const getSelectionBackground = (isDarkMode: boolean) => 
+    isDarkMode ? "rgba(25, 118, 210, 0.08)" : "rgba(25, 118, 210, 0.12)";
 
-export const getLinkColor = (isDarkMode: boolean) => (isDarkMode ? "#90caf9" : "#1976d2");
+export const getLinkColor = (isDarkMode: boolean) => 
+    isDarkMode ? "#90caf9" : "#1976d2";
 
 export const getCellStyles = ({
     isDarkMode,
@@ -26,17 +30,17 @@ export const getCellStyles = ({
 }: CellStyleProps) => {
     const themeStyles = isDarkMode
         ? {
-              borderRight: "1px solid #686868",
-              borderBottom: "1px solid #686868",
+              borderRight: `1px solid ${ThemeColors.DARK_BORDER}`,
+              borderBottom: `1px solid ${ThemeColors.DARK_BORDER}`,
               "&:last-child": {
-                  borderRight: "1px solid #686868",
+                  borderRight: `1px solid ${ThemeColors.DARK_BORDER}`,
               },
           }
         : {
-              borderRight: "1px solid #e0e0e0",
-              borderBottom: "1px solid #e0e0e0",
+              borderRight: `1px solid ${ThemeColors.LIGHT_BORDER}`,
+              borderBottom: `1px solid ${ThemeColors.LIGHT_BORDER}`,
               "&:last-child": {
-                  borderRight: "1px solid #e0e0e0",
+                  borderRight: `1px solid ${ThemeColors.LIGHT_BORDER}`,
               },
           };
 
@@ -89,9 +93,9 @@ export const getCellContentStyles = ({ isEditing, cellData, style }: CellContent
     outline: "none",
     cursor: isEditing ? "text" : "inherit",
     userSelect: isEditing ? "text" : "none",
-    fontWeight: cellData.bold ? "bold" : "normal",
-    fontStyle: cellData.italic ? "italic" : "normal",
-    fontFamily: cellData.code ? "'Courier New', Consolas, monospace" : "inherit",
+    fontWeight: cellData.style.BOLD ? "bold" : "normal",
+    fontStyle: cellData.style.ITALIC ? "italic" : "normal",
+    fontFamily: cellData.style.CODE ? "'Courier New', Consolas, monospace" : "inherit",
     textAlign: (cellData.align || "left") as Property.TextAlign,
     ...style,
 });

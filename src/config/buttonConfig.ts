@@ -1,4 +1,7 @@
-// src/config/buttonConfig.ts
+/**
+ * @file src/config/buttonConfig.ts
+ * @fileoverview Defines button configurations and groupings for the spreadsheet toolbar
+ */
 
 import { LuUndo2, LuRedo2 } from "react-icons/lu";
 import {
@@ -15,10 +18,11 @@ import {
     RiLinkM,
 } from "react-icons/ri";
 import { ButtonDefinition } from "../types";
+import { ButtonType, ThemeColors } from "../types/enums";
 
 export const buttonConfig = (theme: string) => ({
-    borderColor: theme === "light" ? "divider" : "#686868",
-    svgStyle: theme === "light" ? {} : { color: "#BEBFC0" },
+    borderColor: theme === "light" ? ThemeColors.LIGHT_BORDER : ThemeColors.DARK_BORDER,
+    svgStyle: theme === "light" ? {} : { color: ThemeColors.DARK_TEXT },
     hoverStyle: theme !== "light" ? { backgroundColor: "#2F353D" } : {},
 });
 
@@ -42,17 +46,24 @@ export const defaultVisibleButtons: (string | "divider")[] = [
 ];
 
 export const buttonDefinitions: ButtonDefinition[] = [
-    { title: "Undo", icon: LuUndo2, handlerKey: "onClickUndo" },
-    { title: "Redo", icon: LuRedo2, handlerKey: "onClickRedo" },
-    { title: "Align Left", icon: RiAlignLeft, handlerKey: "onClickAlignLeft" },
-    { title: "Align Center", icon: RiAlignJustify, handlerKey: "onClickAlignCenter" },
-    { title: "Align Right", icon: RiAlignRight, handlerKey: "onClickAlignRight" },
-    { title: "Set Bold", icon: RiBold, handlerKey: "onClickSetBold" },
-    { title: "Set Italic", icon: RiItalic, handlerKey: "onClickSetItalic" },
-    { title: "Set Code", icon: RiCodeSSlashFill, handlerKey: "onClickSetCode" },
-    { title: "Set Link", icon: RiLinkM, handlerKey: "onClickSetLink" },
-    { title: "Add Row", icon: RiInsertRowBottom, handlerKey: "onClickAddRow" },
-    { title: "Remove Last Row", icon: RiDeleteRow, handlerKey: "onClickRemoveRow" },
-    { title: "Add Column", icon: RiInsertColumnRight, handlerKey: "onClickAddColumn" },
-    { title: "Remove Last Column", icon: RiDeleteColumn, handlerKey: "onClickRemoveColumn" },
+    // History buttons
+    { title: "Undo", icon: LuUndo2, buttonType: ButtonType.HISTORY, handlerKey: "onClickUndo" },
+    { title: "Redo", icon: LuRedo2, buttonType: ButtonType.HISTORY, handlerKey: "onClickRedo" },
+    
+    // Alignment buttons
+    { title: "Align Left", icon: RiAlignLeft, buttonType: ButtonType.ALIGNMENT, handlerKey: "onClickAlignLeft" },
+    { title: "Align Center", icon: RiAlignJustify, buttonType: ButtonType.ALIGNMENT, handlerKey: "onClickAlignCenter" },
+    { title: "Align Right", icon: RiAlignRight, buttonType: ButtonType.ALIGNMENT, handlerKey: "onClickAlignRight" },
+    
+    // Text formatting buttons
+    { title: "Set Bold", icon: RiBold, buttonType: ButtonType.TEXT_FORMATTING, handlerKey: "onClickSetBold" },
+    { title: "Set Italic", icon: RiItalic, buttonType: ButtonType.TEXT_FORMATTING, handlerKey: "onClickSetItalic" },
+    { title: "Set Code", icon: RiCodeSSlashFill, buttonType: ButtonType.TEXT_FORMATTING, handlerKey: "onClickSetCode" },
+    { title: "Set Link", icon: RiLinkM, buttonType: ButtonType.TEXT_FORMATTING, handlerKey: "onClickSetLink" },
+    
+    // Table structure buttons
+    { title: "Add Row", icon: RiInsertRowBottom, buttonType: ButtonType.TABLE_STRUCTURE, handlerKey: "onClickAddRow" },
+    { title: "Remove Last Row", icon: RiDeleteRow, buttonType: ButtonType.TABLE_STRUCTURE, handlerKey: "onClickRemoveRow" },
+    { title: "Add Column", icon: RiInsertColumnRight, buttonType: ButtonType.TABLE_STRUCTURE, handlerKey: "onClickAddColumn" },
+    { title: "Remove Last Column", icon: RiDeleteColumn, buttonType: ButtonType.TABLE_STRUCTURE, handlerKey: "onClickRemoveColumn" },
 ];

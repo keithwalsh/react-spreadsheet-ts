@@ -4,14 +4,15 @@
  */
 
 import { SxProps, Theme } from "@mui/material";
+import { ThemeColors } from "../types/enums";
 
 export const getTableContainerStyles = (isDarkMode: boolean): SxProps<Theme> => {
     const lightThemeStyles = {
-        border: "1px solid #e0e0e0",
+        border: `1px solid ${ThemeColors.LIGHT_BORDER}`,
     };
 
     const darkThemeStyles = {
-        border: "1px solid #686868",
+        border: `1px solid ${ThemeColors.DARK_BORDER}`,
     };
 
     const commonStyles = {

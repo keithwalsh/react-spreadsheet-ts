@@ -6,7 +6,7 @@
 import { useState } from "react";
 import { Modal, Box, Typography, Button, TextField, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { NewTableModalProps, TableDimensionInputProps, Dimensions } from "../types";
+import { NewTableModalProps, TableDimensionInputProps, Dimensions, TableDimensionLimits } from "../types";
 
 function TableDimensionInput({ label, value, onChange, max }: TableDimensionInputProps) {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,13 +32,11 @@ function TableDimensionInput({ label, value, onChange, max }: TableDimensionInpu
     );
 }
 
-const DIMENSION_LIMITS = {
-    rows: { min: 1, max: 500 },
-    cols: { min: 1, max: 20 },
-} as const;
+const validateDimension = (value: number, dimension: "rows" | "cols"): string | null => {
+    const [min, max] = dimension === "rows" 
+        ? [TableDimensionLimits.MIN_ROWS, TableDimensionLimits.MAX_ROWS]
+        : [TableDimensionLimits.MIN_COLUMNS, TableDimensionLimits.MAX_COLUMNS];
 
-const validateDimension = (value: number, dimension: keyof typeof DIMENSION_LIMITS): string | null => {
-    const { min, max } = DIMENSION_LIMITS[dimension];
     if (!value || value < min || value > max) {
         return `${dimension.charAt(0).toUpperCase() + dimension.slice(1)} must be between ${min} and ${max}`;
     }
@@ -118,7 +116,7 @@ export function NewTableModal({ open, onClose, onCreateNewTable }: NewTableModal
                         label={dimension}
                         value={dimensions[dimension]}
                         onChange={updateDimension(dimension)}
-                        max={DIMENSION_LIMITS[dimension].max}
+                        max={dimension === "rows" ? TableDimensionLimits.MAX_ROWS : TableDimensionLimits.MAX_COLUMNS}
                     />
                 ))}
                 <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>

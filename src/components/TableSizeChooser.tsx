@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Box, Typography, TextField } from "@mui/material";
-import { SizeInputProps, TableSizeChooserProps, DimensionType } from "../types";
+import { SizeInputProps, TableSizeChooserProps, DimensionType, TableDimensionLimits } from "../types";
 
 /** SizeInput component for handling input of row or column size. */
 function SizeInput({ label, type, value, onChange, max, ...props }: SizeInputProps): JSX.Element {
@@ -23,7 +23,13 @@ function SizeInput({ label, type, value, onChange, max, ...props }: SizeInputPro
 }
 
 /** Renders a component to choose the number of rows and columns in a table. */
-const TableSizeChooser: React.FC<TableSizeChooserProps> = ({ maxRows = 20, maxCols = 20, currentRows, currentCols, onSizeSelect }) => {
+const TableSizeChooser: React.FC<TableSizeChooserProps> = ({ 
+    maxRows = TableDimensionLimits.MAX_ROWS, 
+    maxCols = TableDimensionLimits.MAX_COLUMNS, 
+    currentRows, 
+    currentCols, 
+    onSizeSelect 
+}) => {
     const [hoveredRow, setHoveredRow] = useState(0);
     const [hoveredCol, setHoveredCol] = useState(0);
     const [inputRows, setInputRows] = useState(currentRows.toString());
@@ -51,12 +57,13 @@ const TableSizeChooser: React.FC<TableSizeChooserProps> = ({ maxRows = 20, maxCo
             const numValue = parseInt(value, 10);
             if (isNaN(numValue)) return;
 
+            const minValue = TableDimensionLimits.MIN_ROWS; // Same min value for both rows and columns
             if (type === "rows") {
                 setInputRows(value);
-                setHoveredRow(Math.min(numValue - 1, maxRows - 1));
+                setHoveredRow(Math.min(Math.max(numValue - 1, minValue - 1), maxRows - 1));
             } else {
                 setInputCols(value);
-                setHoveredCol(Math.min(numValue - 1, maxCols - 1));
+                setHoveredCol(Math.min(Math.max(numValue - 1, minValue - 1), maxCols - 1));
             }
         },
         [maxRows, maxCols]
@@ -67,8 +74,14 @@ const TableSizeChooser: React.FC<TableSizeChooserProps> = ({ maxRows = 20, maxCo
             clearTimeout(timeoutRef.current);
         }
         timeoutRef.current = setTimeout(() => {
-            const rows = Math.max(1, Math.min(parseInt(inputRows, 10), maxRows));
-            const cols = Math.max(1, Math.min(parseInt(inputCols, 10), maxCols));
+            const rows = Math.max(
+                TableDimensionLimits.MIN_ROWS, 
+                Math.min(parseInt(inputRows, 10), maxRows)
+            );
+            const cols = Math.max(
+                TableDimensionLimits.MIN_COLUMNS, 
+                Math.min(parseInt(inputCols, 10), maxCols)
+            );
             onSizeSelect(rows, cols);
         }, 200);
     }, [inputRows, inputCols, maxRows, maxCols, onSizeSelect]);

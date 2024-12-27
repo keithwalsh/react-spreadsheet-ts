@@ -7,6 +7,12 @@ import React, { useState, useRef, useCallback, useMemo } from "react";
 import { TableCell as TableCellMui, useTheme, Link } from "@mui/material";
 import type { CellStyleProps, CellProps } from "../types";
 import { getCellStyles, getCellContentStyles, getLinkStyles } from "../styles";
+import {
+    CellState,
+    SelectionType,
+    ThemeMode,
+    NavigationKey
+} from "../types";
 
 const Cell: React.FC<CellProps> = React.memo(
     ({
@@ -28,21 +34,37 @@ const Cell: React.FC<CellProps> = React.memo(
         onCellChange,
     }) => {
         const theme = useTheme();
-        const isDarkMode = theme.palette.mode === "dark";
-        const [isEditing, setIsEditing] = useState(false);
+        const isDarkMode = theme.palette.mode === ThemeMode.DARK.toLowerCase();
+        const [cellState, setCellState] = useState<CellState>(CellState.DEFAULT);
         const cellRef = useRef<HTMLDivElement>(null);
 
-        const isSingleCellSelected = activeCell?.rowIndex === rowIndex && activeCell?.colIndex === colIndex;
-        const isColumnSelected = selectedColumns.includes(colIndex);
-        const isRowSelected = selectedRows.includes(rowIndex);
-        const isMultiSelected = !!selectedCells[rowIndex]?.[colIndex];
-        const isSelected = isSingleCellSelected || isColumnSelected || isRowSelected || isMultiSelected;
+        // Determine selection type
+        const selectionType = useMemo(() => {
+            if (activeCell?.rowIndex === rowIndex && activeCell?.colIndex === colIndex) {
+                return SelectionType.SINGLE_CELL;
+            }
+            if (selectedColumns.includes(colIndex)) {
+                return SelectionType.COLUMN;
+            }
+            if (selectedRows.includes(rowIndex)) {
+                return SelectionType.ROW;
+            }
+            if (selectedCells[rowIndex]?.[colIndex]) {
+                return SelectionType.MULTI_CELL;
+            }
+            if (selectAll) {
+                return SelectionType.SELECT_ALL;
+            }
+            return SelectionType.NONE;
+        }, [activeCell, selectedColumns, selectedRows, selectedCells, selectAll, rowIndex, colIndex]);
+
+        const isSelected = selectionType !== SelectionType.NONE;
         const multipleCellsSelected = useMemo(() => {
             return Object.values(selectedCells).reduce((count, row) => count + Object.values(row).filter(Boolean).length, 0) > 1;
         }, [selectedCells]);
 
         const enableEditMode = useCallback(() => {
-            setIsEditing(true);
+            setCellState(CellState.EDITING);
             requestAnimationFrame(() => {
                 if (!cellRef.current) return;
                 cellRef.current.focus();
@@ -60,24 +82,24 @@ const Cell: React.FC<CellProps> = React.memo(
                 const newValue = cellRef.current.textContent || "";
                 onCellChange?.(rowIndex, colIndex, newValue);
             }
-            setIsEditing(false);
+            setCellState(CellState.DEFAULT);
             onCellBlur?.();
         }, [onCellChange, rowIndex, colIndex, onCellBlur]);
 
         const handleKeyDown = useCallback(
             (e: React.KeyboardEvent) => {
-                if (isEditing) {
-                    if (e.key === "Enter" && !e.shiftKey) {
+                if (cellState === CellState.EDITING) {
+                    if (e.key === NavigationKey.ENTER.toLowerCase() && !e.shiftKey) {
                         e.preventDefault();
                         handleBlur();
                     }
-                } else if (isSingleCellSelected && !isMultiSelected && !isColumnSelected && !isRowSelected) {
+                } else if (selectionType === SelectionType.SINGLE_CELL) {
                     // Handle arrow key navigation when not editing and only this cell is selected
                     switch (e.key) {
-                        case "ArrowUp":
-                        case "ArrowDown":
-                        case "ArrowLeft":
-                        case "ArrowRight":
+                        case NavigationKey.UP.toLowerCase():
+                        case NavigationKey.DOWN.toLowerCase():
+                        case NavigationKey.LEFT.toLowerCase():
+                        case NavigationKey.RIGHT.toLowerCase():
                             e.preventDefault();
                             onCellKeyDown?.(e);
                             break;
@@ -88,33 +110,49 @@ const Cell: React.FC<CellProps> = React.memo(
                     onCellKeyDown?.(e);
                 }
             },
-            [handleBlur, onCellKeyDown, isEditing, isSingleCellSelected, isMultiSelected, isColumnSelected, isRowSelected]
+            [handleBlur, onCellKeyDown, cellState, selectionType]
         );
 
         const handleDoubleClick = useCallback(() => {
-            onDoubleClick?.(rowIndex, colIndex);
+            if (onDoubleClick) {
+                onDoubleClick(rowIndex, colIndex);
+            }
             enableEditMode();
         }, [onDoubleClick, rowIndex, colIndex, enableEditMode]);
 
         const handleMouseDown = useCallback(
-            ({ shiftKey, ctrlKey }: React.MouseEvent) => onMouseDown?.(rowIndex, colIndex, shiftKey, ctrlKey),
+            ({ shiftKey, ctrlKey }: React.MouseEvent) => {
+                if (onMouseDown) {
+                    onMouseDown(rowIndex, colIndex, shiftKey, ctrlKey);
+                }
+            },
             [onMouseDown, rowIndex, colIndex]
         );
 
-        const handleMouseEnter = useCallback(() => onMouseEnter?.(rowIndex, colIndex), [onMouseEnter, rowIndex, colIndex]);
+        const handleMouseEnter = useCallback(() => {
+            if (onMouseEnter) {
+                onMouseEnter(rowIndex, colIndex);
+            }
+        }, [onMouseEnter, rowIndex, colIndex]);
+
+        const handleMouseUp = useCallback(() => {
+            if (onMouseUp) {
+                onMouseUp();
+            }
+        }, [onMouseUp]);
 
         const cellStyleProps: CellStyleProps = {
             isDarkMode,
-            isEditing,
+            isEditing: cellState === CellState.EDITING,
             isSelected,
             selectedCells,
             rowIndex,
             colIndex,
             multipleCellsSelected,
             style,
-            isColumnSelected,
-            isRowSelected,
-            isSelectAllSelected: selectAll,
+            isColumnSelected: selectionType === SelectionType.COLUMN,
+            isRowSelected: selectionType === SelectionType.ROW,
+            isSelectAllSelected: selectionType === SelectionType.SELECT_ALL,
             hasLink: Boolean(cellData.link),
         };
 
@@ -122,15 +160,15 @@ const Cell: React.FC<CellProps> = React.memo(
             <TableCellMui
                 onMouseDown={handleMouseDown}
                 onMouseEnter={handleMouseEnter}
-                onMouseUp={onMouseUp}
+                onMouseUp={handleMouseUp}
                 onDoubleClick={handleDoubleClick}
                 onKeyDown={handleKeyDown}
-                tabIndex={isSingleCellSelected ? 0 : -1}
+                tabIndex={selectionType === SelectionType.SINGLE_CELL ? 0 : -1}
                 sx={getCellStyles(cellStyleProps)}
                 data-row={rowIndex}
                 data-col={colIndex}
             >
-                {isEditing ? (
+                {cellState === CellState.EDITING ? (
                     <div
                         ref={cellRef}
                         contentEditable
@@ -138,12 +176,12 @@ const Cell: React.FC<CellProps> = React.memo(
                         spellCheck={false}
                         onBlur={handleBlur}
                         onKeyDown={handleKeyDown}
-                        style={getCellContentStyles({ isEditing, cellData, style })}
+                        style={getCellContentStyles({ isEditing: true, cellData, style })}
                     >
                         {cellData.value}
                     </div>
                 ) : (
-                    <div style={getCellContentStyles({ isEditing, cellData, style })}>
+                    <div style={getCellContentStyles({ isEditing: false, cellData, style })}>
                         {cellData.link ? (
                             <Link
                                 href={cellData.link}

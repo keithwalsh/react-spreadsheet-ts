@@ -3,26 +3,36 @@
  * @fileoverview Manages pasting operations in the spreadsheet, adjusting table size and updating cell data and formatting.
  */
 
-import { Alignment, CellData, PasteOperationResult } from "../types/index";
+import { 
+    Alignment, 
+    CellData, 
+    CellCoordinate, 
+    PasteOperationResult, 
+    TextStyle,
+    Dimensions 
+} from "../types";
 
-/** Handles pasting clipboard data into the table, adjusting table size and updating data and alignments. */
-const createFormattingArray = <T>(sourceArray: T[][], rowIndex: number, requiredCols: number, defaultValue: T): T[] => {
+/** Creates a formatting array for text styles or alignments */
+const createFormattingArray = <T>(
+    sourceArray: T[][], 
+    rowIndex: number, 
+    requiredCols: number, 
+    defaultValue: T
+): T[] => {
     if (rowIndex < sourceArray.length) {
-        // Existing row: copy and extend if needed
         const existingRow = [...sourceArray[rowIndex]];
         while (existingRow.length < requiredCols) {
             existingRow.push(defaultValue);
         }
         return existingRow;
     }
-    // New row: create with default values
     return Array(requiredCols).fill(defaultValue);
 };
 
 export const handlePaste = (
     clipboardText: string,
     data: CellData[][],
-    selectedCell: { row: number; col: number } | null,
+    selectedCell: CellCoordinate | null,
     alignments: Alignment[][],
     bold: boolean[][] = [],
     italic: boolean[][] = [],
@@ -32,32 +42,41 @@ export const handlePaste = (
     const parsedData = rows.map((row) => row.split("\t"));
 
     if (parsedData.length === 0) {
+        const dimensions: Dimensions = {
+            rows: data.length,
+            cols: data[0].length
+        };
+
         return {
             newData: data,
             newAlignments: alignments,
             newBold: bold,
             newItalic: italic,
             newCode: code,
-            newSelectedCells: Array.from({ length: data.length }, () => Array(data[0].length).fill(false)),
-            dimensions: {
-                rows: data.length,
-                cols: data[0].length,
-            },
+            newSelectedCells: Array.from({ length: dimensions.rows }, () => 
+                Array(dimensions.cols).fill(false)
+            ),
+            dimensions
         };
     }
 
-    const startRow = selectedCell?.row ?? 0;
-    const startCol = selectedCell?.col ?? 0;
+    const startRow = selectedCell?.rowIndex ?? 0;
+    const startCol = selectedCell?.colIndex ?? 0;
 
     // Calculate required dimensions
-    const requiredRows = Math.max(data.length, startRow + parsedData.length);
-    const requiredCols = Math.max(data[0]?.length ?? 0, startCol + Math.max(...parsedData.map((row) => row.length)));
+    const dimensions: Dimensions = {
+        rows: Math.max(data.length, startRow + parsedData.length),
+        cols: Math.max(
+            data[0]?.length ?? 0, 
+            startCol + Math.max(...parsedData.map((row) => row.length))
+        )
+    };
 
-    // Create new array with required dimensions
-    const newData = Array.from({ length: requiredRows }, (_, rowIndex) => {
+    // Create new arrays with required dimensions
+    const newData = Array.from({ length: dimensions.rows }, (_, rowIndex) => {
         if (rowIndex < data.length) {
             const existingRow = [...data[rowIndex]];
-            while (existingRow.length < requiredCols) {
+            while (existingRow.length < dimensions.cols) {
                 existingRow.push({
                     value: "",
                     align: Alignment.LEFT,
@@ -65,46 +84,44 @@ export const handlePaste = (
                         bold: false,
                         italic: false,
                         code: false
-                    }
+                    } as TextStyle
                 });
             }
             return existingRow;
         }
-        return Array(requiredCols)
-            .fill(null)
-            .map(() => ({
-                value: "",
-                align: Alignment.LEFT,
-                style: {
-                    bold: false,
-                    italic: false,
-                    code: false
-                }
-            }));
+        return Array(dimensions.cols).fill(null).map(() => ({
+            value: "",
+            align: Alignment.LEFT,
+            style: {
+                bold: false,
+                italic: false,
+                code: false
+            } as TextStyle
+        }));
     });
 
     // Create new formatting arrays with required dimensions
-    const newAlignments = Array.from({ length: requiredRows }, (_, rowIndex) => {
+    const newAlignments = Array.from({ length: dimensions.rows }, (_, rowIndex) => {
         if (rowIndex < alignments.length) {
             // Existing row: copy and extend if needed
             const existingRow = [...alignments[rowIndex]];
-            while (existingRow.length < requiredCols) {
+            while (existingRow.length < dimensions.cols) {
                 existingRow.push(Alignment.LEFT);
             }
             return existingRow;
         }
         // New row: create with default left alignment
-        return Array(requiredCols).fill(Alignment.LEFT);
+        return Array(dimensions.cols).fill(Alignment.LEFT);
     });
 
-    const newBold = Array.from({ length: requiredRows }, (_, rowIndex) => createFormattingArray(bold, rowIndex, requiredCols, false));
+    const newBold = Array.from({ length: dimensions.rows }, (_, rowIndex) => createFormattingArray(bold, rowIndex, dimensions.cols, false));
 
-    const newItalic = Array.from({ length: requiredRows }, (_, rowIndex) => createFormattingArray(italic, rowIndex, requiredCols, false));
+    const newItalic = Array.from({ length: dimensions.rows }, (_, rowIndex) => createFormattingArray(italic, rowIndex, dimensions.cols, false));
 
-    const newCode = Array.from({ length: requiredRows }, (_, rowIndex) => createFormattingArray(code, rowIndex, requiredCols, false));
+    const newCode = Array.from({ length: dimensions.rows }, (_, rowIndex) => createFormattingArray(code, rowIndex, dimensions.cols, false));
 
     // Create a new array for selected cells
-    const newSelectedCells = Array.from({ length: requiredRows }, () => Array(requiredCols).fill(false));
+    const newSelectedCells = Array.from({ length: dimensions.rows }, () => Array(dimensions.cols).fill(false));
 
     // Mark the target cells as selected
     if (startRow !== null && startCol !== null) {
@@ -144,9 +161,6 @@ export const handlePaste = (
         newItalic,
         newCode,
         newSelectedCells,
-        dimensions: {
-            rows: requiredRows,
-            cols: requiredCols,
-        },
+        dimensions
     };
 };

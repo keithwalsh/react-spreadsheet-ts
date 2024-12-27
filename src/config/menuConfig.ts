@@ -99,6 +99,10 @@ export function createMenuConfig({
         transposeTable,
     } as const;
 
+    const handleSizeSelect = (rows: number, cols: number) => {
+        setTableSize({ rows, cols });
+    };
+
     return MENU_TEMPLATE.map((menu) => ({
         ...menu,
         items: menu.items.map((item) =>
@@ -111,7 +115,7 @@ export function createMenuConfig({
                           {
                               kind: "custom",
                               component: React.createElement(TableSizeChooser, {
-                                  onSizeSelect: setTableSize,
+                                  onSizeSelect: handleSizeSelect,
                                   currentRows,
                                   currentCols,
                               }),

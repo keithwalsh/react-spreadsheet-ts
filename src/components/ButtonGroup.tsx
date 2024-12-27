@@ -1,14 +1,14 @@
 /**
- * @fileoverview Toolbar button group component providing spreadsheet operation controls
- * like adding rows/columns, undo/redo, and formatting.
+ * @file src/components/ButtonGroup.tsx
+ * @fileoverview Provides toolbar button group for spreadsheet operations like adding rows/columns, undo/redo, and formatting.
  */
 
 import React, { useCallback } from "react";
-import { IconButton, ButtonGroup as MuiButtonGroup, Tooltip, Divider, Paper } from "@mui/material";
+import { ButtonGroup as MuiButtonGroup, Divider, IconButton, Paper, Tooltip } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { buttonConfig, buttonDefinitions, defaultVisibleButtons } from "../config";
 import { createButtonGroupStyles } from "../styles";
-import { ButtonGroupProps, Orientation, TooltipPlacement, InsertPosition, ToolbarContextType } from "../types";
+import { ButtonGroupProps, ButtonType, InsertPosition, Orientation, TooltipPlacement } from "../types";
 import { useToolbar } from "./ToolbarProvider";
 
 const ButtonGroup: React.FC<ButtonGroupProps> = ({
@@ -21,15 +21,33 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
     tooltipPlacement = TooltipPlacement.TOP,
 }) => {
     const theme = useTheme();
-    const isDark = theme.palette.mode === "dark";
+    const isDarkMode = theme.palette.mode === "dark";
     const handlers = useToolbar();
-    const config = buttonConfig(isDark ? "dark" : "light");
-    const styles = createButtonGroupStyles(isDark, config, iconMargin, dividerMargin);
+    const config = buttonConfig(isDarkMode ? "dark" : "light");
+    const styles = createButtonGroupStyles(isDarkMode, config, iconMargin, dividerMargin);
 
-    // Map button clicks to their corresponding handlers
-    const handleClickMap: Record<string, () => void> = {
-        onClickAddRow: () => handlers.onClickAddRow?.(InsertPosition.ROW_BELOW),
-        onClickAddColumn: () => handlers.onClickAddColumn?.(InsertPosition.COL_RIGHT),
+    const handleClickMap: Record<ButtonType, () => Record<string, () => void>> = {
+        [ButtonType.TABLE_STRUCTURE]: () => ({
+            onClickAddRow: () => handlers.onClickAddRow?.(InsertPosition.ROW_BELOW),
+            onClickAddColumn: () => handlers.onClickAddColumn?.(InsertPosition.COL_RIGHT),
+            onClickRemoveRow: () => handlers.onClickRemoveRow?.(),
+            onClickRemoveColumn: () => handlers.onClickRemoveColumn?.(),
+        }),
+        [ButtonType.HISTORY]: () => ({
+            onClickUndo: () => handlers.onClickUndo?.(),
+            onClickRedo: () => handlers.onClickRedo?.(),
+        }),
+        [ButtonType.ALIGNMENT]: () => ({
+            onClickAlignLeft: () => handlers.onClickAlignLeft?.(),
+            onClickAlignCenter: () => handlers.onClickAlignCenter?.(),
+            onClickAlignRight: () => handlers.onClickAlignRight?.(),
+        }),
+        [ButtonType.TEXT_FORMATTING]: () => ({
+            onClickBold: () => handlers.onClickBold?.(),
+            onClickItalic: () => handlers.onClickItalic?.(),
+            onClickCode: () => handlers.onClickCode?.(),
+            onClickLink: () => handlers.onClickLink?.(),
+        }),
     };
 
     const renderButton = useCallback(
@@ -48,9 +66,10 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
             const btn = buttonDefinitions.find((b) => b.title === item);
             if (!btn) return null;
 
-            const { title, icon: Icon, handlerKey } = btn;
+            const { title, icon: Icon, buttonType, handlerKey } = btn;
             const handleClick = () => {
-                const handler = handleClickMap[handlerKey] || handlers[handlerKey as keyof ToolbarContextType];
+                const categoryHandlers = handleClickMap[buttonType]();
+                const handler = categoryHandlers[handlerKey];
                 if (typeof handler === 'function') {
                     handler();
                 }
@@ -69,7 +88,7 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
                 </Tooltip>
             );
         },
-        [dividerMargin, handlers, iconMargin, iconSize, isDark, config, orientation, tooltipArrow, tooltipPlacement, handleClickMap, styles]
+        [orientation, tooltipArrow, tooltipPlacement, handleClickMap, styles, iconSize]
     );
 
     return (
