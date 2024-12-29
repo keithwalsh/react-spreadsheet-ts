@@ -7,12 +7,17 @@
 import React, { useCallback } from "react";
 import { TableContainer as TableContainerMui, Table as TableMui, Paper as PaperMui, TableHead, TableBody, useTheme } from "@mui/material";
 import { useAtom } from "jotai";
-import { TableProps, SpreadsheetState, CellData, SpreadsheetDirection, SelectionType, DragType, CellCoordinate } from "../types";
+import { TableProps, SpreadsheetState, CellData, SpreadsheetDirection, SelectionType, DragType, CellCoordinate, NavigationKey } from "../types";
 import { Cell, ColumnHeaderCell, Row, RowNumberCell, SelectAllCell, useToolbar } from "./";
 import { useKeyboardNavigation } from "../hooks";
 import { createNewSelectionState } from "../utils";
 import { getTableContainerStyles, tableStyles } from "../styles";
 import { ColumnContextMenu } from "./";
+
+// Add type for the drag event handlers
+type TableDragHandler = (
+    event: React.DragEvent<HTMLElement> | number
+) => void;
 
 /** Renders the spreadsheet table. */
 const Table = React.forwardRef<HTMLTableElement, TableProps>(
@@ -83,33 +88,29 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
         const theme = useTheme();
         const isDarkMode = theme?.palette?.mode === "dark" || false;
 
-        const handleRowDragStart = React.useCallback(
-            (rowIndex: number) => {
-                onDragStart(rowIndex, -1);
-            },
-            [onDragStart]
-        );
+        const handleRowDragStart: TableDragHandler = useCallback((event) => {
+            const rowIndex = typeof event === 'number' 
+                ? event 
+                : parseInt(event.currentTarget.getAttribute('data-row') || '-1', 10);
+            onDragStart(rowIndex, -1);
+        }, [onDragStart]);
 
-        const handleRowDragEnter = React.useCallback(
-            (rowIndex: number) => {
-                onDragEnter(rowIndex, -1);
-            },
-            [onDragEnter]
-        );
+        const handleRowDragEnter: TableDragHandler = useCallback((event) => {
+            const rowIndex = typeof event === 'number' 
+                ? event 
+                : parseInt(event.currentTarget.getAttribute('data-row') || '-1', 10);
+            onDragEnter(rowIndex, -1);
+        }, [onDragEnter]);
 
-        const handleColumnDragStart = React.useCallback(
-            (colIndex: number) => {
-                onDragStart(-1, colIndex);
-            },
-            [onDragStart]
-        );
+        const handleColumnDragStart: TableDragHandler = useCallback((event) => {
+            const index = typeof event === 'number' ? event : parseInt(event.currentTarget.getAttribute('data-col') || '-1', 10);
+            onDragStart(-1, index);
+        }, [onDragStart]);
 
-        const handleColumnDragEnter = React.useCallback(
-            (colIndex: number) => {
-                onDragEnter(-1, colIndex);
-            },
-            [onDragEnter]
-        );
+        const handleColumnDragEnter: TableDragHandler = useCallback((event) => {
+            const index = typeof event === 'number' ? event : parseInt(event.currentTarget.getAttribute('data-col') || '-1', 10);
+            onDragEnter(-1, index);
+        }, [onDragEnter]);
 
         const handleToggleSelectAll = React.useCallback(() => {
             setState((prevState: SpreadsheetState) => ({
@@ -127,21 +128,19 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
         }, [setState]);
 
         const handleCellMouseDown = React.useCallback(
-            (rowIndex: number, colIndex: number, shiftKey: boolean, ctrlKey: boolean) => {
+            (coordinate: CellCoordinate, shiftKey: boolean, ctrlKey: boolean) => {
                 setDragState({ type: DragType.CELL, isActive: true });
-                setLastCell({ rowIndex, colIndex });
-                onDragStart(rowIndex, colIndex);
+                setLastCell(coordinate);
+                onDragStart(coordinate.rowIndex, coordinate.colIndex);
 
                 setState((prev: SpreadsheetState) => {
-                    let selectionType: SelectionType;
                     let newSelectedCells: boolean[][];
 
                     if (shiftKey && prev.selection.activeCell) {
-                        selectionType = SelectionType.MULTI_CELL;
-                        const startRow = Math.min(prev.selection.activeCell.rowIndex, rowIndex);
-                        const endRow = Math.max(prev.selection.activeCell.rowIndex, rowIndex);
-                        const startCol = Math.min(prev.selection.activeCell.colIndex, colIndex);
-                        const endCol = Math.max(prev.selection.activeCell.colIndex, colIndex);
+                        const startRow = Math.min(prev.selection.activeCell.rowIndex, coordinate.rowIndex);
+                        const endRow = Math.max(prev.selection.activeCell.rowIndex, coordinate.rowIndex);
+                        const startCol = Math.min(prev.selection.activeCell.colIndex, coordinate.colIndex);
+                        const endCol = Math.max(prev.selection.activeCell.colIndex, coordinate.colIndex);
 
                         newSelectedCells = prev.data.map((row: CellData[], r: number) =>
                             row.map((_: CellData, c: number) => {
@@ -150,28 +149,25 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                             })
                         );
                     } else if (ctrlKey) {
-                        selectionType = SelectionType.MULTI_CELL;
                         newSelectedCells = prev.selection.cells.map((row: boolean[], r: number) =>
                             row.map((cell: boolean, c: number) => {
-                                if (r === rowIndex && c === colIndex) {
+                                if (r === coordinate.rowIndex && c === coordinate.colIndex) {
                                     return !cell;
                                 }
                                 return cell;
                             })
                         );
                     } else {
-                        selectionType = SelectionType.SINGLE_CELL;
                         newSelectedCells = prev.data.map((row) => row.map(() => false));
-                        newSelectedCells[rowIndex][colIndex] = true;
+                        newSelectedCells[coordinate.rowIndex][coordinate.colIndex] = true;
                     }
 
                     return {
                         ...prev,
                         selection: {
                             ...prev.selection,
-                            type: selectionType,
+                            activeCell: coordinate,
                             cells: newSelectedCells,
-                            activeCell: { rowIndex, colIndex },
                             isAllSelected: false,
                             rows: [],
                             columns: []
@@ -179,13 +175,13 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                     };
                 });
             },
-            [state, setState, onDragStart]
+            [setState, onDragStart, setDragState, setLastCell]
         );
 
         const toolbar = useToolbar();
         const handleKeyNavigation = useKeyboardNavigation();
 
-        const handleCellKeyDown = useCallback(
+        const handleCellKeyDown = React.useCallback(
             (e: React.KeyboardEvent) => {
                 if (e.key === "Delete") {
                     toolbar?.deleteSelected?.();
@@ -195,17 +191,21 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                 if (!state.selection.activeCell) return;
 
                 const { rowIndex, colIndex } = state.selection.activeCell;
-                const result = handleKeyNavigation(e, rowIndex, colIndex, state.data.length - 1, state.data[0].length - 1);
+                const result = handleKeyNavigation(
+                    e.key.toUpperCase() as NavigationKey,
+                    rowIndex,
+                    colIndex,
+                    state.data.length - 1,
+                    state.data[0].length - 1
+                );
 
                 if (result) {
-                    const newSelectedCells = createNewSelectionState(state.data, result);
-
                     setState((prev: SpreadsheetState) => ({
                         ...prev,
                         selection: {
                             ...prev.selection,
-                            activeCell: { rowIndex: result.rowIndex, colIndex: result.colIndex },
-                            cells: newSelectedCells,
+                            activeCell: result,
+                            cells: createNewSelectionState(state.data, result),
                             isAllSelected: false,
                             rows: [],
                             columns: []
@@ -221,7 +221,15 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                 <TableContainerMui component={!isDarkMode ? PaperMui : "div"} sx={getTableContainerStyles(isDarkMode)} onPaste={handlePasteEvent}>
                     <TableMui ref={ref} sx={tableStyles}>
                         <TableHead>
-                            <Row>
+                            <Row
+                                rowIndex={-1}
+                                onDragStart={() => {}}
+                                onDragEnter={() => {}}
+                                onDragEnd={() => {}}
+                                onAddAbove={() => {}}
+                                onAddBelow={() => {}}
+                                onRemove={() => {}}
+                            >
                                 <SelectAllCell 
                                     selectAll={state.selection.isAllSelected} 
                                     toggleSelectAll={handleToggleSelectAll} 
@@ -229,13 +237,12 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                                 {state.data[0].map((_: CellData, colIndex: number) => (
                                     <ColumnHeaderCell
                                         key={colIndex}
-                                        atom={atom}
                                         type={SpreadsheetDirection.COLUMN}
                                         index={colIndex}
                                         isHighlighted={false}
                                         isSelected={state.selection.columns.includes(colIndex)}
-                                        onDragStart={handleColumnDragStart}
-                                        onDragEnter={handleColumnDragEnter}
+                                        onDragStart={(event) => handleColumnDragStart(event as React.DragEvent<HTMLElement>)}
+                                        onDragEnter={(event) => handleColumnDragEnter(event as React.DragEvent<HTMLElement>)}
                                         onDragEnd={onDragEnd}
                                         ContextMenu={ColumnContextMenu}
                                         menuProps={{
@@ -243,41 +250,51 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
                                             onAddRight: () => onAddColumnRight(colIndex),
                                             onRemove: () => onRemoveColumn(colIndex)
                                         }}
-                                        renderContent={(index) => `${String.fromCharCode(65 + index)}`}
+                                        renderContent={(index) => String.fromCharCode(65 + index)}
+                                        atom={atom}
                                     />
                                 ))}
                             </Row>
                         </TableHead>
                         <TableBody>
                             {state.data.map((row: CellData[], rowIndex: number) => (
-                                <Row key={rowIndex}>
+                                <Row
+                                    key={rowIndex}
+                                    rowIndex={rowIndex}
+                                    onDragStart={(event) => handleRowDragStart(event as React.DragEvent<HTMLElement>)}
+                                    onDragEnter={(event) => handleRowDragEnter(event as React.DragEvent<HTMLElement>)}
+                                    onDragEnd={onDragEnd}
+                                    onAddAbove={onAddRowAbove}
+                                    onAddBelow={onAddRowBelow}
+                                    onRemove={onRemoveRow}
+                                >
                                     <RowNumberCell
                                         atom={atom}
                                         spreadsheetAtom={atom}
                                         rowIndex={rowIndex}
-                                        onDragStart={handleRowDragStart}
-                                        onDragEnter={handleRowDragEnter}
+                                        onDragStart={(event) => handleRowDragStart(event as React.DragEvent<HTMLElement>)}
+                                        onDragEnter={(event) => handleRowDragEnter(event as React.DragEvent<HTMLElement>)}
                                         onDragEnd={onDragEnd}
                                         onAddAbove={onAddRowAbove}
                                         onAddBelow={onAddRowBelow}
                                         onRemove={onRemoveRow}
                                     />
-                                    {row.map((cellData: CellData, colIndex: number) => (
+                                    {row.map((cell: CellData, colIndex: number) => (
                                         <Cell
-                                            key={colIndex}
+                                            key={`${rowIndex}-${colIndex}`}
                                             rowIndex={rowIndex}
                                             colIndex={colIndex}
-                                            cellData={cellData}
+                                            cellData={cell}
                                             activeCell={state.selection.activeCell}
                                             selectedCells={state.selection.cells}
-                                            selectedColumns={state.selection.columns}
                                             selectedRows={state.selection.rows}
-                                            isDarkMode={theme.palette.mode === "dark"}
+                                            selectedColumns={state.selection.columns}
                                             selectAll={state.selection.isAllSelected}
-                                            onMouseDown={handleCellMouseDown}
+                                            isDarkMode={isDarkMode}
+                                            onMouseDown={(coordinate: CellCoordinate) => handleCellMouseDown(coordinate, false, false)}
                                             onMouseEnter={() => onDragEnter(rowIndex, colIndex)}
                                             onMouseUp={onDragEnd}
-                                            onCellChange={onCellChange}
+                                            onCellChange={(coordinate: CellCoordinate, value: string) => onCellChange(coordinate.rowIndex, coordinate.colIndex, value)}
                                             onCellKeyDown={handleCellKeyDown}
                                         />
                                     ))}

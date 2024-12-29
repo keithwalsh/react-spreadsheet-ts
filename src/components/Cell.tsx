@@ -5,7 +5,7 @@
 
 import React, { useState, useRef, useCallback, useMemo } from "react";
 import { TableCell as TableCellMui, useTheme, Link } from "@mui/material";
-import type { CellStyleProps, CellProps } from "../types";
+import type { CellStyleProps, CellProps, CellCoordinate } from "../types";
 import { getCellStyles, getCellContentStyles, getLinkStyles } from "../styles";
 import {
     CellState,
@@ -80,7 +80,7 @@ const Cell: React.FC<CellProps> = React.memo(
         const handleBlur = useCallback(() => {
             if (cellRef.current) {
                 const newValue = cellRef.current.textContent || "";
-                onCellChange?.(rowIndex, colIndex, newValue);
+                onCellChange?.({ rowIndex, colIndex } as CellCoordinate, newValue);
             }
             setCellState(CellState.DEFAULT);
             onCellBlur?.();
@@ -115,15 +115,15 @@ const Cell: React.FC<CellProps> = React.memo(
 
         const handleDoubleClick = useCallback(() => {
             if (onDoubleClick) {
-                onDoubleClick(rowIndex, colIndex);
+                onDoubleClick({ rowIndex, colIndex } as CellCoordinate);
             }
             enableEditMode();
         }, [onDoubleClick, rowIndex, colIndex, enableEditMode]);
 
         const handleMouseDown = useCallback(
-            ({ shiftKey, ctrlKey }: React.MouseEvent) => {
+            (e: React.MouseEvent) => {
                 if (onMouseDown) {
-                    onMouseDown(rowIndex, colIndex, shiftKey, ctrlKey);
+                    onMouseDown({ rowIndex, colIndex } as CellCoordinate, e.shiftKey, e.ctrlKey);
                 }
             },
             [onMouseDown, rowIndex, colIndex]
@@ -131,7 +131,7 @@ const Cell: React.FC<CellProps> = React.memo(
 
         const handleMouseEnter = useCallback(() => {
             if (onMouseEnter) {
-                onMouseEnter(rowIndex, colIndex);
+                onMouseEnter({ rowIndex, colIndex } as CellCoordinate);
             }
         }, [onMouseEnter, rowIndex, colIndex]);
 

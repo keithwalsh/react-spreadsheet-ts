@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Box } from "@mui/material";
 import { LinkModalProps } from "../types";
+import { linkModalStyles } from '../styles/linkModalStyles';
 
 const LinkModal: React.FC<LinkModalProps> = ({ open, onClose, onSubmit, initialUrl = "" }) => {
     const [url, setUrl] = useState(initialUrl);
@@ -39,13 +40,13 @@ const LinkModal: React.FC<LinkModalProps> = ({ open, onClose, onSubmit, initialU
                     placeholder="https://markdowntablegenerator.com"
                 />
             </DialogContent>
-            <DialogActions sx={{ justifyContent: "space-between", px: 1 }}>
+            <DialogActions sx={linkModalStyles.dialogActions}>
                 {initialUrl && (
                     <Button onClick={handleRemove} color="error">
                         Remove Link
                     </Button>
                 )}
-                <Box>
+                <Box sx={linkModalStyles.buttonContainer}>
                     <Button onClick={onClose}>Cancel</Button>
                     <Button onClick={handleSubmit} variant="contained" color="primary" disabled={!url.trim()}>
                         {initialUrl ? "Update" : "Add"} Link

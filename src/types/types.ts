@@ -223,6 +223,13 @@ export type RowProps = {
     children?: React.ReactNode;
     className?: string;
     ref?: React.Ref<HTMLTableRowElement> | null;
+    rowIndex: number;
+    onDragStart: (event: React.DragEvent<HTMLElement>) => void;
+    onDragEnter: (event: React.DragEvent<HTMLElement>) => void;
+    onDragEnd: () => void;
+    onAddAbove: (index: number) => void;
+    onAddBelow: (index: number) => void;
+    onRemove: (index: number) => void;
 };
 
 export type SelectAllCellProps = TableCellProps & {

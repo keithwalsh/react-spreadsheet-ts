@@ -56,10 +56,10 @@ export const buttonDefinitions: ButtonDefinition[] = [
     { title: "Align Right", icon: RiAlignRight, buttonType: ButtonType.ALIGNMENT, handlerKey: "onClickAlignRight" },
     
     // Text formatting buttons
-    { title: "Set Bold", icon: RiBold, buttonType: ButtonType.TEXT_FORMATTING, handlerKey: "onClickSetBold" },
-    { title: "Set Italic", icon: RiItalic, buttonType: ButtonType.TEXT_FORMATTING, handlerKey: "onClickSetItalic" },
-    { title: "Set Code", icon: RiCodeSSlashFill, buttonType: ButtonType.TEXT_FORMATTING, handlerKey: "onClickSetCode" },
-    { title: "Set Link", icon: RiLinkM, buttonType: ButtonType.TEXT_FORMATTING, handlerKey: "onClickSetLink" },
+    { title: "Set Bold", icon: RiBold, buttonType: ButtonType.TEXT_FORMATTING, handlerKey: "onClickBold" },
+    { title: "Set Italic", icon: RiItalic, buttonType: ButtonType.TEXT_FORMATTING, handlerKey: "onClickItalic" },
+    { title: "Set Code", icon: RiCodeSSlashFill, buttonType: ButtonType.TEXT_FORMATTING, handlerKey: "onClickCode" },
+    { title: "Set Link", icon: RiLinkM, buttonType: ButtonType.TEXT_FORMATTING, handlerKey: "onClickLink" },
     
     // Table structure buttons
     { title: "Add Row", icon: RiInsertRowBottom, buttonType: ButtonType.TABLE_STRUCTURE, handlerKey: "onClickAddRow" },

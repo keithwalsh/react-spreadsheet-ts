@@ -8,7 +8,7 @@ import { ActionConfig } from "./types";
 // External dependencies
 import { CSSProperties } from 'react';
 import { DragEventHandler } from 'react';
-import { MenuItemProps, PopoverOrigin, TextFieldProps } from '@mui/material';
+import { MenuItemProps, PopoverOrigin, SxProps, TextFieldProps, Theme } from '@mui/material';
 import { PrimitiveAtom } from 'jotai';
 import { ArrowBack, ArrowDownward, ArrowForward, ArrowUpward } from '@mui/icons-material';
 
@@ -254,6 +254,11 @@ export interface LinkModalProps {
     open: boolean;
     onClose: () => void;
     onSubmit: (url: string | undefined) => void;
+}
+
+export interface LinkModalStyles {
+    dialogActions: SxProps<Theme>;
+    buttonContainer: SxProps<Theme>;
 }
 
 /** Parameters for configuring the menu */
