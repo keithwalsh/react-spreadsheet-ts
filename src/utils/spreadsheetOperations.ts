@@ -25,7 +25,7 @@ const spliceColumn = <T>(array: T[][], index: number, count: number): T[][] => {
 export function addRow({ data, selectedCells, targetIndex = data.length, position = InsertPosition.ROW_BELOW }: AddRowOptions) {
     const newRow = Array(data[0].length).fill({
         value: "",
-        style: { bold: false, italic: false, code: false },
+        style: { BOLD: false, ITALIC: false, CODE: false },
         align: Alignment.LEFT
     });
     const newSelectedRow = Array(data[0].length).fill(false);
@@ -55,7 +55,7 @@ export function addColumn({ data, selectedCells, targetIndex = 0, position = Ins
         const insertIndex = position === InsertPosition.COL_LEFT ? targetIndex : targetIndex + 1;
         newRow.splice(insertIndex, 0, {
             value: "",
-            style: { bold: false, italic: false, code: false },
+            style: { BOLD: false, ITALIC: false, CODE: false },
             align: Alignment.LEFT
         });
         return newRow;

@@ -3,12 +3,7 @@
  * @fileoverview Provides utility functions for managing selection state in the spreadsheet component.
  */
 
-import { AdjacentRange, CellCoordinate, CellData, SpreadsheetState } from "../types";
-import { markSelectedCells } from "./markSelectedCells";
-
-export function createSelectionMatrix({ data, selection }: { data: CellData[][]; selection: AdjacentRange }): boolean[][] {
-    return markSelectedCells(data.length, data[0].length, selection);
-}
+import { CellCoordinate, CellData, SpreadsheetState } from "../types";
 
 export function isCellInSelection({ state, rowIndex, colIndex }: { state: SpreadsheetState; rowIndex: number; colIndex: number }): boolean {
     return (
@@ -18,10 +13,6 @@ export function isCellInSelection({ state, rowIndex, colIndex }: { state: Spread
         state.selection.columns.includes(colIndex) ||
         state.selection.rows.includes(rowIndex)
     );
-}
-
-export function isCellSelected({ state, rowIndex, colIndex }: { state: SpreadsheetState; rowIndex: number; colIndex: number }): boolean {
-    return isCellInSelection({ state, rowIndex, colIndex });
 }
 
 export function createNewSelectionState(

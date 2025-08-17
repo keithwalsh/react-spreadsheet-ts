@@ -81,9 +81,9 @@ export const handlePaste = (
                     value: "",
                     align: Alignment.LEFT,
                     style: {
-                        bold: false,
-                        italic: false,
-                        code: false
+                        BOLD: false,
+                        ITALIC: false,
+                        CODE: false
                     } as TextStyle
                 });
             }
@@ -93,9 +93,9 @@ export const handlePaste = (
             value: "",
             align: Alignment.LEFT,
             style: {
-                bold: false,
-                italic: false,
-                code: false
+                BOLD: false,
+                ITALIC: false,
+                CODE: false
             } as TextStyle
         }));
     });
@@ -145,9 +145,9 @@ export const handlePaste = (
                     value: cellData,
                     style: {
                         ...newData[targetRow][targetCol].style,
-                        bold: newBold[targetRow][targetCol],
-                        italic: newItalic[targetRow][targetCol],
-                        code: newCode[targetRow][targetCol]
+                        BOLD: newBold[targetRow][targetCol],
+                        ITALIC: newItalic[targetRow][targetCol],
+                        CODE: newCode[targetRow][targetCol]
                     }
                 };
             }

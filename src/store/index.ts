@@ -4,4 +4,4 @@
  */
 
 export * from "./initialState";
-export * from "./atoms";
+export { createSpreadsheetAtom } from "./atoms";

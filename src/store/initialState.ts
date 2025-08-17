@@ -4,7 +4,7 @@
  * including default cell properties and selection states.
  */
 
-import { SpreadsheetState, Alignment } from "../types";
+import { SpreadsheetState, Alignment, SelectionType } from "../types";
 
 export const initialState = (rows: number, columns: number): SpreadsheetState => ({
     data: Array.from({ length: rows }, () =>
@@ -15,9 +15,9 @@ export const initialState = (rows: number, columns: number): SpreadsheetState =>
                 align: Alignment.LEFT,
                 link: undefined,
                 style: {
-                    bold: false,
-                    italic: false,
-                    code: false
+                    BOLD: false,
+                    ITALIC: false,
+                    CODE: false
                 }
             }))
     ),
@@ -29,6 +29,7 @@ export const initialState = (rows: number, columns: number): SpreadsheetState =>
         columns: [],
         isAllSelected: false,
         activeCell: null,
+        type: SelectionType.NONE,
         dragState: {
             isDragging: false,
             start: null

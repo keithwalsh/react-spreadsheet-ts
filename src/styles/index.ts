@@ -8,8 +8,7 @@ import {
     getCellContentStyles, 
     getCellStyles, 
     getLinkStyles, 
-    getSelectionBackground, 
-    getThemeBorderColor 
+    getSelectionBackground
 } from "./cellStyles";
 import { linkModalStyles } from "./linkModalStyles";
 import { 
@@ -31,7 +30,6 @@ export {
     getSelectionBackground,
     getTableCellStyles,
     getTableContainerStyles,
-    getThemeBorderColor,
     linkModalStyles,
     tableStyles,
     useHeaderCellStyles

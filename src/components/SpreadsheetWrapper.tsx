@@ -34,7 +34,7 @@ export const SpreadsheetWrapper: React.FC<SpreadsheetWrapperProps> = ({
         <Provider>
             <ThemeProvider theme={theme}>
                 <CssBaseline />
-                <Spreadsheet atom={spreadsheetAtom as any} />
+                <Spreadsheet atom={spreadsheetAtom} />
             </ThemeProvider>
         </Provider>
     );

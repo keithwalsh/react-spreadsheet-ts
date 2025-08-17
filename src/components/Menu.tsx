@@ -8,7 +8,7 @@ import React from "react";
 import { MenuBar } from "mui-menubar";
 import { useHotkeys } from "react-hotkeys-hook";
 import { createMenuConfig } from "../config/menuConfig";
-import { useToolbar } from "./ToolbarProvider";
+import { useToolbar } from "../contexts";
 import { TableSizeChooserProps } from "../types";
 
 const Menu: React.FC<{

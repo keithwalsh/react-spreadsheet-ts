@@ -71,26 +71,7 @@ export const useAlignment = (atom: PrimitiveAtom<SpreadsheetState>) => {
     );
 };
 
-export const useLink = (atom: PrimitiveAtom<SpreadsheetState>) => {
-    const [state, setState] = useAtom(atom);
 
-    return useCallback(
-        (url: string | undefined, { rowIndex, colIndex }: CellCoordinate) => {
-            const newData = [...state.data];
-            const cell = newData[rowIndex][colIndex];
-
-            newData[rowIndex][colIndex] = url ? { ...cell, link: url } : (({ link, ...rest }) => rest)(cell);
-
-            setState({
-                ...state,
-                data: newData,
-                past: [...state.past, { ...state }],
-                future: [],
-            });
-        },
-        [state, setState]
-    );
-};
 
 // Optional: Combine hooks if needed
 export const useSpreadsheetActions = (atom: PrimitiveAtom<SpreadsheetState>) => {
@@ -102,6 +83,7 @@ export const useSpreadsheetActions = (atom: PrimitiveAtom<SpreadsheetState>) => 
 
         newData[activeCell.rowIndex][activeCell.colIndex] = url 
             ? { ...cell, link: url } 
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             : (({ link, ...rest }) => rest)(cell);
 
         setState({

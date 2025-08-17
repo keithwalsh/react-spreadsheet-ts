@@ -3,7 +3,13 @@
  * @fileoverview Defines styles for the ButtonGroup component, supporting both light and dark themes.
  */
 
-export const createButtonGroupStyles = (isDark: boolean, config: any, iconMargin: number, dividerMargin: number) => ({
+interface ButtonConfig {
+    borderColor: string;
+    svgStyle: { color?: string };
+    hoverStyle: { backgroundColor?: string };
+}
+
+export const createButtonGroupStyles = (isDark: boolean, config: ButtonConfig, iconMargin: number, dividerMargin: number) => ({
     paper: {
         display: "inline-flex",
         padding: 0.5,

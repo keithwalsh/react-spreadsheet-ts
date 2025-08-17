@@ -10,8 +10,7 @@ import { useAtom } from "jotai";
 import { 
     HeaderCellProps, 
     HeaderCellStylesParams, 
-    SpreadsheetDirection,
-    WithDirectionalMenuProps
+    SpreadsheetDirection
 } from "../types";
 import { useHeaderCellStyles } from "../styles";
 
@@ -50,7 +49,7 @@ export const HeaderCell = <T extends SpreadsheetDirection>({
         anchorEl,
         open: Boolean(anchorEl),
         onClose: handleCloseMenu,
-    } as WithDirectionalMenuProps<T>;
+    };
 
     return (
         <>
@@ -75,7 +74,8 @@ export const HeaderCell = <T extends SpreadsheetDirection>({
                 {renderContent(index)}
             </TableCell>
             {ContextMenu && (
-                <ContextMenu {...(menuComponentProps as any)} />
+                // @ts-expect-error - Complex conditional types make proper typing difficult
+                <ContextMenu {...menuComponentProps} />
             )}
         </>
     );

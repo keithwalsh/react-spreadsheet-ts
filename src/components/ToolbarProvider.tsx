@@ -4,18 +4,17 @@
  */
 
 // External dependencies
-import { useState, createContext, useContext } from "react";
+import { useState } from "react";
 import { useAtom } from "jotai";
 import { Snackbar } from "@mui/material";
 
 // Internal project modules
 import LinkModal from "./LinkModal";
+import { ToolbarContext } from "../contexts/ToolbarContext";
 import { ToolbarContextType, ToolbarProviderProps } from "../types";
 import { useTableActions } from "../hooks";
 import type { Dimensions, SpreadsheetState } from "../types";
 import { ButtonType } from "../types/enums";
-
-export const ToolbarContext = createContext<ToolbarContextType | null>(null);
 
 /** Maps ButtonType to its corresponding handler keys */
 type ButtonTypeHandlers = {
@@ -143,7 +142,7 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
             setActiveCell(null);
             setSnackbarMessage(url ? "Link added successfully!" : "Link removed successfully!");
             setIsSnackbarOpen(true);
-        } catch (error) {
+        } catch {
             setSnackbarMessage("Error setting link");
             setIsSnackbarOpen(true);
         }
@@ -249,10 +248,3 @@ export const ToolbarProvider = ({ children, spreadsheetAtom, ...handlers }: Tool
     );
 };
 
-export const useToolbar = () => {
-    const context = useContext(ToolbarContext);
-    if (!context) {
-        throw new Error("useToolbar must be used within a ToolbarProvider");
-    }
-    return context;
-};

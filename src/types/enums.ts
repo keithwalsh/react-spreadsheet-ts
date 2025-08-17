@@ -166,17 +166,17 @@ export enum ThemeColors {
   DARK_TEXT = "#BEBFC0",
   DARK_BORDER = "#686868",
   DARK_BACKGROUND = "#414547",
-  DARK_SELECTED = "#686868",
+  DARK_SELECTED = "#5A5A5A",
   LIGHT_TEXT = "rgba(0, 0, 0, 0.54)",
   LIGHT_BORDER = "#e0e0e0",
   LIGHT_BACKGROUND = "#f0f0f0",
-  LIGHT_SELECTED = "#e0e0e0"
+  LIGHT_SELECTED = "#d0d0d0"
 }
 
 export enum TableDimensionLimits {
   MIN_ROWS = 1,
   MAX_ROWS = 500,
-  MIN_COLUMNS = 1,
+  MIN_COLUMNS = 2,
   MAX_COLUMNS = 20
 }
 

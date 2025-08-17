@@ -51,12 +51,12 @@ const Spreadsheet: React.FC<SpreadsheetProps> = ({
 
     useEffect(() => {
         if (value) {
-            setState({
-                ...state,
+            setState((prevState) => ({
+                ...prevState,
                 data: value,
                 past: [],
                 future: []
-            });
+            }));
         }
     }, [value, setState]);
 

@@ -9,7 +9,7 @@ import { useTheme } from "@mui/material/styles";
 import { buttonConfig, buttonDefinitions, defaultVisibleButtons } from "../config";
 import { createButtonGroupStyles } from "../styles";
 import { ButtonGroupProps, ButtonType, InsertPosition, Orientation, TooltipPlacement } from "../types";
-import { useToolbar } from "./ToolbarProvider";
+import { useToolbar } from "../contexts";
 
 const ButtonGroup: React.FC<ButtonGroupProps> = ({
     visibleButtons = defaultVisibleButtons,
@@ -25,30 +25,6 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
     const handlers = useToolbar();
     const config = buttonConfig(isDarkMode ? "dark" : "light");
     const styles = createButtonGroupStyles(isDarkMode, config, iconMargin, dividerMargin);
-
-    const handleClickMap: Record<ButtonType, () => Record<string, () => void>> = {
-        [ButtonType.TABLE_STRUCTURE]: () => ({
-            onClickAddRow: () => handlers.onClickAddRow?.(InsertPosition.ROW_BELOW),
-            onClickAddColumn: () => handlers.onClickAddColumn?.(InsertPosition.COL_RIGHT),
-            onClickRemoveRow: () => handlers.onClickRemoveRow?.(),
-            onClickRemoveColumn: () => handlers.onClickRemoveColumn?.(),
-        }),
-        [ButtonType.HISTORY]: () => ({
-            onClickUndo: () => handlers.onClickUndo?.(),
-            onClickRedo: () => handlers.onClickRedo?.(),
-        }),
-        [ButtonType.ALIGNMENT]: () => ({
-            onClickAlignLeft: () => handlers.onClickAlignLeft?.(),
-            onClickAlignCenter: () => handlers.onClickAlignCenter?.(),
-            onClickAlignRight: () => handlers.onClickAlignRight?.(),
-        }),
-        [ButtonType.TEXT_FORMATTING]: () => ({
-            onClickBold: () => handlers.onClickBold?.(),
-            onClickItalic: () => handlers.onClickItalic?.(),
-            onClickCode: () => handlers.onClickCode?.(),
-            onClickLink: () => handlers.onClickLink?.(),
-        }),
-    };
 
     const renderButton = useCallback(
         (item: string, index: number) => {
@@ -67,6 +43,31 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
             if (!btn) return null;
 
             const { title, icon: Icon, buttonType, handlerKey } = btn;
+            
+            const handleClickMap: Record<ButtonType, () => Record<string, () => void>> = {
+                [ButtonType.TABLE_STRUCTURE]: () => ({
+                    onClickAddRow: () => handlers.onClickAddRow?.(InsertPosition.ROW_BELOW),
+                    onClickAddColumn: () => handlers.onClickAddColumn?.(InsertPosition.COL_RIGHT),
+                    onClickRemoveRow: () => handlers.onClickRemoveRow?.(),
+                    onClickRemoveColumn: () => handlers.onClickRemoveColumn?.(),
+                }),
+                [ButtonType.HISTORY]: () => ({
+                    onClickUndo: () => handlers.onClickUndo?.(),
+                    onClickRedo: () => handlers.onClickRedo?.(),
+                }),
+                [ButtonType.ALIGNMENT]: () => ({
+                    onClickAlignLeft: () => handlers.onClickAlignLeft?.(),
+                    onClickAlignCenter: () => handlers.onClickAlignCenter?.(),
+                    onClickAlignRight: () => handlers.onClickAlignRight?.(),
+                }),
+                [ButtonType.TEXT_FORMATTING]: () => ({
+                    onClickBold: () => handlers.onClickBold?.(),
+                    onClickItalic: () => handlers.onClickItalic?.(),
+                    onClickCode: () => handlers.onClickCode?.(),
+                    onClickLink: () => handlers.onClickLink?.(),
+                }),
+            };
+            
             const handleClick = () => {
                 const categoryHandlers = handleClickMap[buttonType]();
                 const handler = categoryHandlers[handlerKey];
@@ -88,7 +89,7 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
                 </Tooltip>
             );
         },
-        [orientation, tooltipArrow, tooltipPlacement, handleClickMap, styles, iconSize]
+        [orientation, tooltipArrow, tooltipPlacement, handlers, styles, iconSize]
     );
 
     return (

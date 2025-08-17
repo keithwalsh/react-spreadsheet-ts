@@ -4,4 +4,5 @@
  */
 
 export { default } from './components/SpreadsheetWrapper';
+export { useToolbar } from './contexts';
 export type { SpreadsheetProps } from './types';

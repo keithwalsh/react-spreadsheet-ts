@@ -8,9 +8,6 @@ import { Property } from "csstype";
 import { CellContentStyleProps, CellStyleProps } from "../types";
 import { ThemeColors } from "../types/enums";
 
-export const getThemeBorderColor = (isDarkMode: boolean) => 
-    isDarkMode ? ThemeColors.DARK_BORDER : ThemeColors.LIGHT_BORDER;
-
 export const getSelectionBackground = (isDarkMode: boolean) => 
     isDarkMode ? "rgba(25, 118, 210, 0.08)" : "rgba(25, 118, 210, 0.12)";
 
