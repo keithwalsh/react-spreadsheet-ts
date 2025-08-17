@@ -1,0 +1,876 @@
+[18:48:54.546] [INFO] Storybook Upgrade - v9.1.2
+[18:48:54.628] [INFO] detect-projects-spinner-start: Detecting projects...
+[18:48:54.631] [DEBUG] Finding Storybook projects...
+[18:48:54.987] [DEBUG] Found 1 Storybook projects
+[18:48:54.988] [INFO] detect-projects-spinner: Detecting projects: 1 projects
+[18:48:54.989] [DEBUG] Getting Storybook data...
+[18:48:54.989] [DEBUG] Getting Storybook info...
+[18:48:54.990] [DEBUG] Loading main config...
+[18:48:55.238] [DEBUG] Getting stories paths...
+[18:48:55.280] [DEBUG] Getting package manager...
+[18:48:55.887] [DEBUG] Getting Storybook version...
+[18:48:55.888] [DEBUG] C:/Personal Programs/react-spreadsheet-ts/.storybook - Validating before version... 8.4.7
+[18:48:55.888] [DEBUG] C:/Personal Programs/react-spreadsheet-ts/.storybook - Validating upgrade compatibility...
+[18:48:55.888] [DEBUG] C:/Personal Programs/react-spreadsheet-ts/.storybook - Fetching NPM version information...
+[18:48:55.889] [DEBUG] Getting CLI versions from NPM for storybook...
+[18:48:55.901] [DEBUG] Getting CLI versions from NPM for storybook@next...
+[18:48:57.172] [DEBUG] C:/Personal Programs/react-spreadsheet-ts/.storybook - Evaluating blockers...
+[18:48:57.179] [DEBUG] Getting installed version for @storybook/experimental-addon-test...
+[18:49:00.586] [INFO] detect-projects-spinner-stop: 1 project detected
+[18:49:00.586] [DEBUG] Found 1 valid projects and 0 error projects
+[18:49:00.587] [INFO] Upgrading from 8.4.7 to 9.1.2
+[18:49:00.658] [INFO] upgrade-dependencies-task-start: Fetching versions to update package.json files..
+[18:49:00.658] [DEBUG] Updating dependencies in C:/Personal Programs/react-spreadsheet-ts/.storybook...
+[18:49:00.723] [INFO] upgrade-dependencies-task: \package.json
+[18:49:00.725] [DEBUG] Getting CLI versions from NPM for @chromatic-com/storybook...
+[18:49:01.778] [DEBUG] {
+  "upgradedDependencies": []
+}
+[18:49:01.778] [DEBUG] {
+  "upgradedDevDependencies": [
+    "@storybook/addon-links@^9.1.2",
+    "@storybook/addon-onboarding@^9.1.2",
+    "@storybook/addon-themes@^9.1.2",
+    "@storybook/builder-vite@^9.1.2",
+    "@storybook/react@^9.1.2",
+    "@storybook/react-vite@^9.1.2",
+    "eslint-plugin-storybook@^9.1.2",
+    "@chromatic-com/storybook@^4.1.0"
+  ]
+}
+[18:49:01.778] [DEBUG] {
+  "upgradedPeerDependencies": []
+}
+[18:49:01.780] [DEBUG] Getting CLI versions from NPM for @storybook/addon-links...
+[18:49:03.043] [DEBUG] Getting CLI versions from NPM for @storybook/addon-onboarding...
+[18:49:04.108] [DEBUG] Getting CLI versions from NPM for @storybook/addon-themes...
+[18:49:06.677] [DEBUG] Getting CLI versions from NPM for @storybook/builder-vite...
+[18:49:08.414] [DEBUG] Getting CLI versions from NPM for @storybook/react...
+[18:49:09.576] [DEBUG] Getting CLI versions from NPM for @storybook/react-vite...
+[18:49:10.691] [DEBUG] Getting CLI versions from NPM for eslint-plugin-storybook...
+[18:49:11.663] [DEBUG] Using cached version for @chromatic-com/storybook...
+[18:49:11.665] [INFO] upgrade-dependencies-task-success: Updated package versions in package.json files
+[18:49:11.667] [INFO] detect-automigrations-task-start: Detecting automigrations...
+[18:49:11.667] [DEBUG] Starting automigration collection across 1 projects and 15 fixes...
+[18:49:11.735] [INFO] detect-automigrations-task: Checking automigrations for C:/Personal
+Programs/react-spreadsheet-ts/.storybook...
+[18:49:11.735] [DEBUG] Processing project: C:/Personal Programs/react-spreadsheet-ts/.storybook
+[18:49:11.735] [DEBUG] Checking fix eslintPlugin for project C:/Personal Programs/react-spreadsheet-ts/.storybook...
+[18:49:11.741] [DEBUG] Checking fix addon-mdx-gfm-remove for project C:/Personal Programs/react-spreadsheet-ts/.storybook...
+[18:49:11.742] [DEBUG] Checking fix addon-storysource-code-panel for project C:/Personal Programs/react-spreadsheet-ts/.storybook...
+[18:49:11.742] [DEBUG] Checking fix upgrade-storybook-related-dependencies for project C:/Personal Programs/react-spreadsheet-ts/.storybook...
+[18:49:11.742] [DEBUG] Checking for incompatible storybook packages...
+[18:49:11.747] [DEBUG] Getting installed version for @storybook/addon-essentials...
+[18:49:11.752] [DEBUG] Getting installed version for @storybook/addon-interactions...
+[18:49:11.759] [DEBUG] Getting installed version for @storybook/blocks...
+[18:49:11.764] [DEBUG] Getting installed version for @storybook/test...
+[18:49:11.770] [DEBUG] Getting installed version for @storybook/testing-library...
+[18:49:16.777] [DEBUG] An issue occurred while trying to find dependencies metadata using npm.
+[18:49:16.778] [DEBUG] Getting CLI versions from NPM for @storybook/addon-interactions...
+[18:49:16.810] [DEBUG] An issue occurred while trying to find dependencies metadata using npm.
+[18:49:16.810] [DEBUG] Getting CLI versions from NPM for @storybook/test...
+[18:49:16.893] [DEBUG] An issue occurred while trying to find dependencies metadata using npm.
+[18:49:16.893] [DEBUG] Getting CLI versions from NPM for @storybook/addon-essentials...
+[18:49:17.028] [DEBUG] An issue occurred while trying to find dependencies metadata using npm.
+[18:49:17.028] [DEBUG] Getting CLI versions from NPM for @storybook/testing-library...
+[18:49:17.054] [DEBUG] An issue occurred while trying to find dependencies metadata using npm.
+[18:49:17.054] [DEBUG] Getting CLI versions from NPM for @storybook/blocks...
+[18:49:18.641] [DEBUG] Checking fix initial-globals for project C:/Personal Programs/react-spreadsheet-ts/.storybook...
+[18:49:18.660] [DEBUG] Checking fix addon-a11y-addon-test for project C:/Personal Programs/react-spreadsheet-ts/.storybook...
+[18:49:18.661] [DEBUG] Checking fix consolidated-imports for project C:/Personal Programs/react-spreadsheet-ts/.storybook...
+[18:49:18.661] [DEBUG] Checking fix addon-experimental-test for project C:/Personal Programs/react-spreadsheet-ts/.storybook...
+[18:49:18.661] [DEBUG] Using cached installed version for @storybook/experimental-addon-test...
+[18:49:18.662] [DEBUG] Checking fix rnstorybook-config for project C:/Personal Programs/react-spreadsheet-ts/.storybook...
+[18:49:18.662] [DEBUG] Checking fix remove-addon-interactions for project C:/Personal Programs/react-spreadsheet-ts/.storybook...
+[18:49:18.662] [DEBUG] Checking fix renderer-to-framework for project C:/Personal Programs/react-spreadsheet-ts/.storybook...
+[18:49:18.663] [DEBUG] Checking fix remove-essential-addons for project C:/Personal Programs/react-spreadsheet-ts/.storybook...
+[18:49:18.663] [DEBUG] Checking fix addon-a11y-parameters for project C:/Personal Programs/react-spreadsheet-ts/.storybook...
+[18:49:18.663] [DEBUG] Checking fix remove-docs-autodocs for project C:/Personal Programs/react-spreadsheet-ts/.storybook...
+[18:49:18.668] [DEBUG] Checking fix wrap-require for project C:/Personal Programs/react-spreadsheet-ts/.storybook...
+[18:49:18.726] [INFO] detect-automigrations-task: 
+Automigrations detected:
+[18:49:18.795] [INFO] detect-automigrations-task: ✔ consolidated-imports
+[18:49:18.864] [INFO] detect-automigrations-task: ✔ remove-addon-interactions
+[18:49:18.924] [INFO] detect-automigrations-task: ✔ renderer-to-framework
+[18:49:18.989] [INFO] detect-automigrations-task: ✔ remove-essential-addons
+[18:49:18.989] [INFO] detect-automigrations-task-success: 4 automigration(s) detected
+[18:51:18.185] [PROMPT] Select automigrations to run {"choice":["consolidated-imports","remove-addon-interactions","renderer-to-framework","remove-essential-addons"]}
+[18:51:18.186] [INFO] automigrate-C:/Personal Programs/react-spreadsheet-ts/.storybook-task-start: Running automigrations for C:/Personal Programs/react-spreadsheet-ts/.storybook
+[18:51:18.272] [INFO] automigrate-C:/Personal Programs/react-spreadsheet-ts/.storybook-task: ✔ consolidated-imports
+[18:51:18.279] [DEBUG] Uninstalling @storybook/addon-interactions
+[18:51:18.292] [DEBUG] Removing '@storybook/addon-interactions' from main.js addons field.
+[18:51:18.381] [INFO] automigrate-C:/Personal Programs/react-spreadsheet-ts/.storybook-task: ✔ remove-addon-interactions
+[18:51:18.382] [DEBUG] 
+Migrating @storybook/react to @storybook/react-vite
+[18:51:18.388] [DEBUG] Updating package.json files...
+[18:51:18.470] [INFO] automigrate-C:/Personal Programs/react-spreadsheet-ts/.storybook-task: ✔ renderer-to-framework
+[18:51:18.476] [DEBUG] Uninstalling @storybook/addon-essentials
+[18:51:18.477] [DEBUG] Removing '@storybook/addon-essentials' from main.js addons field.
+[18:51:18.482] [DEBUG] Getting Storybook info...
+[18:51:18.483] [DEBUG] Loading main config...
+[18:51:18.498] [DEBUG] Getting stories paths...
+[18:51:18.499] [DEBUG] Getting package manager...
+[18:51:18.504] [DEBUG] Getting Storybook version...
+[18:51:18.581] [INFO] automigrate-C:/Personal Programs/react-spreadsheet-ts/.storybook-task: Verifying @storybook/addon-docs
+[18:51:18.664] [INFO] automigrate-C:/Personal Programs/react-spreadsheet-ts/.storybook-task: Installing @storybook/addon-docs@9.1.2
+[18:51:18.665] [DEBUG] Getting CLI versions from NPM for @storybook/addon-docs...
+[18:51:20.589] [INFO] automigrate-C:/Personal Programs/react-spreadsheet-ts/.storybook-task: Adding '@storybook/addon-docs' to the "addons" field in C:\Personal
+Programs\react-spreadsheet-ts\.storybook\main.ts
+[18:51:20.688] [INFO] automigrate-C:/Personal Programs/react-spreadsheet-ts/.storybook-task: ✔ remove-essential-addons
+[18:51:20.689] [INFO] automigrate-C:/Personal Programs/react-spreadsheet-ts/.storybook-task-success: Completed automigrations for C:/Personal Programs/react-spreadsheet-ts/.storybook
+[18:51:20.690] [INFO] Installing dependencies...
+[18:51:20.691] [INFO] install-dependencies-task-start: Installing dependencies...
+[18:51:45.774] [INFO] > react-spreadsheet-ts@1.6.4 prepare
+> npm run build
+[18:51:45.845] [INFO] install-dependencies-task: > react-spreadsheet-ts@1.6.4 prepare
+> npm run build
+[18:51:46.542] [INFO] > react-spreadsheet-ts@1.6.4 build
+> tsc -b && vite build
+[18:51:46.672] [INFO] install-dependencies-task: > react-spreadsheet-ts@1.6.4 build
+> tsc -b && vite build
+[18:52:03.346] [INFO] vite v5.4.11 building for production...
+[18:52:03.420] [INFO] install-dependencies-task: vite v5.4.11 building for production...
+[18:52:14.798] [INFO] transforming...
+[18:52:14.877] [INFO] install-dependencies-task: transforming...
+[18:52:21.716] [INFO] ✓ 413 modules transformed.
+[18:52:21.779] [INFO] install-dependencies-task: ✓ 413 modules transformed.
+[18:52:22.214] [INFO] rendering chunks...
+[18:52:22.334] [INFO] install-dependencies-task: rendering chunks...
+[18:52:22.459] [INFO] [vite:dts] Start generate declaration files...
+[18:52:22.543] [INFO] install-dependencies-task: [vite:dts] Start generate declaration files...
+[18:52:22.545] [INFO] computing gzip size...
+[18:52:22.643] [INFO] install-dependencies-task: computing gzip size...
+[18:52:22.644] [INFO] dist/index.esm14.js    0.04 kB │ gzip: 0.06 kB
+dist/index.esm15.js    0.04 kB │ gzip: 0.06 kB
+dist/index.esm164.js   0.04 kB │ gzip: 0.06 kB
+dist/index.esm165.js   0.04 kB │ gzip: 0.06 kB
+dist/index.esm170.js   0.04 kB │ gzip: 0.06 kB
+dist/index.esm171.js   0.04 kB │ gzip: 0.06 kB
+dist/index.esm59.js    0.05 kB │ gzip: 0.07 kB
+dist/index.esm9.js     0.05 kB │ gzip: 0.07 kB
+dist/index.esm143.js   0.05 kB │ gzip: 0.07 kB
+dist/index.esm150.js   0.05 kB │ gzip: 0.07 kB
+dist/index.esm167.js   0.05 kB │ gzip: 0.07 kB
+dist/index.esm100.js   0.06 kB │ gzip: 0.07 kB
+dist/index.esm120.js   0.06 kB │ gzip: 0.08 kB
+dist/index.esm104.js   0.08 kB │ gzip: 0.09 kB
+dist/index.esm123.js   0.08 kB │ gzip: 0.09 kB
+dist/index.esm67.js    0.08 kB │ gzip: 0.09 kB
+dist/index.esm70.js    0.10 kB │ gzip: 0.11 kB
+dist/index.esm149.js   0.11 kB │ gzip: 0.12 kB
+dist/index.esm116.js   0.12 kB │ gzip: 0.11 kB
+dist/index.esm135.js   0.12 kB │ gzip: 0.12 kB
+dist/index.esm155.js   0.14 kB │ gzip: 0.14 kB
+dist/index.esm141.js   0.14 kB │ gzip: 0.13 kB
+dist/index.esm66.js    0.15 kB │ gzip: 0.14 kB
+dist/index.esm.js      0.16 kB │ gzip: 0.13 kB
+dist/index.esm55.js    0.16 kB │ gzip: 0.15 kB
+dist/index.esm154.js   0.16 kB │ gzip: 0.15 kB
+dist/index.esm161.js   0.17 kB │ gzip: 0.16 kB
+dist/index.esm126.js   0.17 kB │ gzip: 0.15 kB
+dist/index.esm128.js   0.17 kB │ gzip: 0.17 kB
+dist/index.esm68.js    0.18 kB │ gzip: 0.15 kB
+dist/index.esm133.js   0.18 kB │ gzip: 0.16 kB
+dist/index.esm113.js   0.18 kB │ gzip: 0.15 kB
+dist/index.esm29.js    0.18 kB │ gzip: 0.15 kB
+dist/index.esm24.js    0.20 kB │ gzip: 0.18 kB
+dist/index.esm88.js    0.21 kB │ gzip: 0.15 kB
+dist/index.esm157.js   0.22 kB │ gzip: 0.14 kB
+dist/index.esm118.js   0.22 kB │ gzip: 0.19 kB
+dist/index.esm93.js    0.23 kB │ gzip: 0.20 kB
+dist/index.esm57.js    0.24 kB │ gzip: 0.17 kB
+dist/index.esm75.js    0.24 kB │ gzip: 0.21 kB
+dist/index.esm140.js   0.25 kB │ gzip: 0.18 kB
+dist/index.esm3.js     0.26 kB │ gzip: 0.19 kB
+dist/index.esm4.js     0.27 kB │ gzip: 0.17 kB
+dist/index.esm101.js   0.27 kB │ gzip: 0.19 kB
+dist/index.esm35.js    0.27 kB │ gzip: 0.20 kB
+dist/index.esm159.js   0.27 kB │ gzip: 0.17 kB
+dist/index.esm69.js    0.27 kB │ gzip: 0.17 kB
+dist/index.esm19.js    0.27 kB │ gzip: 0.20 kB
+dist/index.esm163.js   0.28 kB │ gzip: 0.20 kB
+dist/index.esm87.js    0.28 kB │ gzip: 0.17 kB
+dist/index.esm121.js   0.28 kB │ gzip: 0.24 kB
+dist/index.esm105.js   0.30 kB │ gzip: 0.15 kB
+dist/index.esm106.js   0.30 kB │ gzip: 0.18 kB
+dist/index.esm107.js   0.30 kB │ gzip: 0.18 kB
+dist/index.esm108.js   0.30 kB │ gzip: 0.16 kB
+dist/index.esm109.js   0.30 kB │ gzip: 0.18 kB
+dist/index.esm110.js   0.30 kB │ gzip: 0.17 kB
+dist/index.esm111.js   0.30 kB │ gzip: 0.18 kB
+dist/index.esm148.js   0.31 kB │ gzip: 0.22 kB
+dist/index.esm119.js   0.32 kB │ gzip: 0.23 kB
+dist/index.esm144.js   0.33 kB │ gzip: 0.20 kB
+dist/index.esm72.js    0.33 kB │ gzip: 0.25 kB
+dist/index.esm158.js   0.33 kB │ gzip: 0.22 kB
+dist/index.esm162.js   0.34 kB │ gzip: 0.22 kB
+dist/index.esm102.js   0.34 kB │ gzip: 0.24 kB
+dist/index.esm54.js    0.38 kB │ gzip: 0.21 kB
+dist/index.esm84.js    0.42 kB │ gzip: 0.29 kB
+dist/index.esm92.js    0.42 kB │ gzip: 0.26 kB
+dist/index.esm76.js    0.43 kB │ gzip: 0.24 kB
+dist/index.esm139.js   0.43 kB │ gzip: 0.28 kB
+dist/index.esm129.js   0.44 kB │ gzip: 0.29 kB
+dist/index.esm58.js    0.46 kB │ gzip: 0.29 kB
+dist/index.esm44.js    0.46 kB │ gzip: 0.31 kB
+dist/index.esm136.js   0.48 kB │ gzip: 0.24 kB
+dist/index.esm115.js   0.48 kB │ gzip: 0.29 kB
+dist/index.esm142.js   0.48 kB │ gzip: 0.27 kB
+dist/index.esm80.js    0.49 kB │ gzip: 0.36 kB
+dist/index.esm81.js    0.51 kB │ gzip: 0.33 kB
+dist/index.esm147.js   0.52 kB │ gzip: 0.28 kB
+dist/index.esm5.js     0.55 kB │ gzip: 0.31 kB
+dist/index.esm43.js    0.56 kB │ gzip: 0.29 kB
+dist/index.esm42.js    0.58 kB │ gzip: 0.26 kB
+dist/index.esm51.js    0.61 kB │ gzip: 0.30 kB
+dist/index.esm18.js    0.62 kB │ gzip: 0.32 kB
+dist/index.esm53.js    0.62 kB │ gzip: 0.40 kB
+dist/index.esm138.js   0.62 kB │ gzip: 0.31 kB
+dist/index.esm12.js    0.63 kB │ gzip: 0.36 kB
+dist/index.esm48.js    0.63 kB │ gzip: 0.33 kB
+dist/index.esm38.js    0.67 kB │ gzip: 0.35 kB
+dist/index.esm166.js   0.69 kB │ gzip: 0.38 kB
+dist/index.esm36.js    0.70 kB │ gzip: 0.43 kB
+dist/index.esm40.js    0.73 kB │ gzip: 0.37 kB
+dist/index.esm160.js   0.77 kB │ gzip: 0.33 kB
+dist/index.esm30.js    0.78 kB │ gzip: 0.38 kB
+dist/index.esm95.js    0.83 kB │ gzip: 0.33 kB
+dist/index.esm23.js    0.83 kB │ gzip: 0.32 kB
+dist/index.esm74.js    0.84 kB │ gzip: 0.45 kB
+dist/index.esm2.js     0.85 kB │ gzip: 0.44 kB
+dist/index.esm91.js    0.86 kB │ gzip: 0.41 kB
+dist/index.esm78.js    0.90 kB │ gzip: 0.45 kB
+dist/index.esm65.js    0.90 kB │ gzip: 0.45 kB
+dist/index.esm125.js   0.92 kB │ gzip: 0.36 kB
+dist/index.esm124.js   0.94 kB │ gzip: 0.34 kB
+dist/index.esm114.js   0.95 kB │ gzip: 0.43 kB
+dist/index.esm27.js    0.95 kB │ gzip: 0.46 kB
+dist/index.esm39.js    0.97 kB │ gzip: 0.46 kB
+dist/index.esm22.js    1.06 kB │ gzip: 0.49 kB
+dist/index.esm73.js    1.07 kB │ gzip: 0.48 kB
+dist/index.esm146.js   1.09 kB │ gzip: 0.51 kB
+dist/index.esm10.js    1.12 kB │ gzip: 0.64 kB
+dist/index.esm37.js    1.16 kB │ gzip: 0.57 kB
+dist/index.esm97.js    1.17 kB │ gzip: 0.67 kB
+dist/index.esm117.js   1.17 kB │ gzip: 0.49 kB
+dist/index.esm130.js   1.20 kB │ gzip: 0.62 kB
+dist/index.esm112.js   1.31 kB │ gzip: 0.43 kB
+dist/index.esm103.js   1.37 kB │ gzip: 0.71 kB
+dist/index.esm137.js   1.38 kB │ gzip: 0.55 kB
+dist/index.esm25.js    1.40 kB │ gzip: 0.67 kB
+dist/index.esm127.js   1.41 kB │ gzip: 0.61 kB
+dist/index.esm153.js   1.43 kB │ gzip: 0.66 kB
+dist/index.esm99.js    1.47 kB │ gzip: 0.65 kB
+dist/index.esm60.js    1.54 kB │ gzip: 0.62 kB
+dist/index.esm94.js    1.55 kB │ gzip: 0.58 kB
+dist/index.esm28.js    1.62 kB │ gzip: 0.72 kB
+dist/index.esm131.js   1.73 kB │ gzip: 0.83 kB
+dist/index.esm49.js    1.76 kB │ gzip: 0.69 kB
+dist/index.esm47.js    1.79 kB │ gzip: 0.70 kB
+dist/index.esm134.js   1.82 kB │ gzip: 0.59 kB
+dist/index.esm31.js    1.83 kB │ gzip: 0.81 kB
+dist/index.esm132.js   1.90 kB │ gzip: 0.88 kB
+dist/index.esm156.js   1.91 kB │ gzip: 0.83 kB
+dist/index.esm26.js    2.10 kB │ gzip: 0.83 kB
+dist/index.esm17.js    2.26 kB │ gzip: 0.75 kB
+dist/index.esm83.js    2.34 kB │ gzip: 0.94 kB
+dist/index.esm21.js    2.34 kB │ gzip: 0.94 kB
+dist/index.esm50.js    2.38 kB │ gzip: 0.87 kB
+dist/index.esm64.js    2.41 kB │ gzip: 1.06 kB
+dist/index.esm63.js    2.46 kB │ gzip: 1.12 kB
+dist/index.esm86.js    2.51 kB │ gzip: 1.17 kB
+dist/index.esm7.js     2.51 kB │ gzip: 1.11 kB
+dist/index.esm33.js    2.54 kB │ gzip: 0.77 kB
+dist/index.esm6.js     2.57 kB │ gzip: 0.89 kB
+dist/index.esm79.js    2.66 kB │ gzip: 0.97 kB
+dist/index.esm52.js    2.68 kB │ gzip: 0.93 kB
+dist/index.esm168.js   2.86 kB │ gzip: 0.88 kB
+dist/index.esm169.js   3.03 kB │ gzip: 0.92 kB
+dist/index.esm34.js    3.04 kB │ gzip: 1.27 kB
+dist/index.esm98.js    3.16 kB │ gzip: 1.23 kB
+dist/index.esm56.js    3.28 kB │ gzip: 1.24 kB
+dist/index.esm151.js   3.37 kB │ gzip: 1.01 kB
+dist/index.esm85.js    3.45 kB │ gzip: 1.37 kB
+dist/index.esm45.js    3.46 kB │ gzip: 1.31 kB
+dist/index.esm16.js    4.03 kB │ gzip: 1.16 kB
+dist/index.esm152.js   4.08 kB │ gzip: 1.35 kB
+dist/index.esm82.js    4.24 kB │ gzip: 0.98 kB
+dist/index.esm20.js    4.24 kB │ gzip: 1.60 kB
+dist/index.esm46.js    4.25 kB │ gzip: 1.32 kB
+dist/index.esm71.js    4.54 kB │ gzip: 1.76 kB
+dist/index.esm77.js    4.55 kB │ gzip: 1.70 kB
+dist/index.esm96.js    4.74 kB │ gzip: 1.42 kB
+dist/index.esm90.js    5.07 kB │ gzip: 1.80 kB
+dist/index.esm89.js    5.93 kB │ gzip: 1.79 kB
+dist/index.esm122.js   7.25 kB │ gzip: 2.65 kB
+dist/index.esm61.js    7.61 kB │ gzip: 2.43 kB
+dist/index.esm32.js    7.74 kB │ gzip: 2.60 kB
+dist/index.esm8.js     8.26 kB │ gzip: 2.36 kB
+dist/index.esm41.js    8.53 kB │ gzip: 2.39 kB
+dist/index.esm13.js   10.11 kB │ gzip: 3.30 kB
+dist/index.esm145.js  11.36 kB │ gzip: 3.00 kB
+dist/index.esm62.js   12.30 kB │ gzip: 3.13 kB
+dist/index.esm11.js   20.37 kB │ gzip: 6.12 kB
+[18:52:22.776] [INFO] install-dependencies-task: dist/index.esm14.js    0.04 kB │ gzip: 0.06 kB
+dist/index.esm15.js    0.04 kB │ gzip: 0.06 kB
+dist/index.esm164.js   0.04 kB │ gzip: 0.06 kB
+dist/index.esm165.js   0.04 kB │ gzip: 0.06 kB
+dist/index.esm170.js   0.04 kB │ gzip: 0.06 kB
+dist/index.esm171.js   0.04 kB │ gzip: 0.06 kB
+dist/index.esm59.js    0.05 kB │ gzip: 0.07 kB
+dist/index.esm9.js     0.05 kB │ gzip: 0.07 kB
+dist/index.esm143.js   0.05 kB │ gzip: 0.07 kB
+dist/index.esm150.js   0.05 kB │ gzip: 0.07 kB
+dist/index.esm167.js   0.05 kB │ gzip: 0.07 kB
+dist/index.esm100.js   0.06 kB │ gzip: 0.07 kB
+dist/index.esm120.js   0.06 kB │ gzip: 0.08 kB
+dist/index.esm104.js   0.08 kB │ gzip: 0.09 kB
+dist/index.esm123.js   0.08 kB │ gzip: 0.09 kB
+dist/index.esm67.js    0.08 kB │ gzip: 0.09 kB
+dist/index.esm70.js    0.10 kB │ gzip: 0.11 kB
+dist/index.esm149.js   0.11 kB │ gzip: 0.12 kB
+dist/index.esm116.js   0.12 kB │ gzip: 0.11 kB
+dist/index.esm135.js   0.12 kB │ gzip: 0.12 kB
+dist/index.esm155.js   0.14 kB │ gzip: 0.14 kB
+dist/index.esm141.js   0.14 kB │ gzip: 0.13 kB
+dist/index.esm66.js    0.15 kB │ gzip: 0.14 kB
+dist/index.esm.js      0.16 kB │ gzip: 0.13 kB
+dist/index.esm55.js    0.16 kB │ gzip: 0.15 kB
+dist/index.esm154.js   0.16 kB │ gzip: 0.15 kB
+dist/index.esm161.js   0.17 kB │ gzip: 0.16 kB
+dist/index.esm126.js   0.17 kB │ gzip: 0.15 kB
+dist/index.esm128.js   0.17 kB │ gzip: 0.17 kB
+dist/index.esm68.js    0.18 kB │ gzip: 0.15 kB
+dist/index.esm133.js   0.18 kB │ gzip: 0.16 kB
+dist/index.esm113.js   0.18 kB │ gzip: 0.15 kB
+dist/index.esm29.js    0.18 kB │ gzip: 0.15 kB
+dist/index.esm24.js    0.20 kB │ gzip: 0.18 kB
+dist/index.esm88.js    0.21 kB │ gzip: 0.15 kB
+dist/index.esm157.js   0.22 kB │ gzip: 0.14 kB
+dist/index.esm118.js   0.22 kB │ gzip: 0.19 kB
+dist/index.esm93.js    0.23 kB │ gzip: 0.20 kB
+dist/index.esm57.js    0.24 kB │ gzip: 0.17 kB
+dist/index.esm75.js    0.24 kB │ gzip: 0.21 kB
+dist/index.esm140.js   0.25 kB │ gzip: 0.18 kB
+dist/index.esm3.js     0.26 kB │ gzip: 0.19 kB
+dist/index.esm4.js     0.27 kB │ gzip: 0.17 kB
+dist/index.esm101.js   0.27 kB │ gzip: 0.19 kB
+dist/index.esm35.js    0.27 kB │ gzip: 0.20 kB
+dist/index.esm159.js   0.27 kB │ gzip: 0.17 kB
+dist/index.esm69.js    0.27 kB │ gzip: 0.17 kB
+dist/index.esm19.js    0.27 kB │ gzip: 0.20 kB
+dist/index.esm163.js   0.28 kB │ gzip: 0.20 kB
+dist/index.esm87.js    0.28 kB │ gzip: 0.17 kB
+dist/index.esm121.js   0.28 kB │ gzip: 0.24 kB
+dist/index.esm105.js   0.30 kB │ gzip: 0.15 kB
+dist/index.esm106.js   0.30 kB │ gzip: 0.18 kB
+dist/index.esm107.js   0.30 kB │ gzip: 0.18 kB
+dist/index.esm108.js   0.30 kB │ gzip: 0.16 kB
+dist/index.esm109.js   0.30 kB │ gzip: 0.18 kB
+dist/index.esm110.js   0.30 kB │ gzip: 0.17 kB
+dist/index.esm111.js   0.30 kB │ gzip: 0.18 kB
+dist/index.esm148.js   0.31 kB │ gzip: 0.22 kB
+dist/index.esm119.js   0.32 kB │ gzip: 0.23 kB
+dist/index.esm144.js   0.33 kB │ gzip: 0.20 kB
+dist/index.esm72.js    0.33 kB │ gzip: 0.25 kB
+dist/index.esm158.js   0.33 kB │ gzip: 0.22 kB
+dist/index.esm162.js   0.34 kB │ gzip: 0.22 kB
+dist/index.esm102.js   0.34 kB │ gzip: 0.24 kB
+dist/index.esm54.js    0.38 kB │ gzip: 0.21 kB
+dist/index.esm84.js    0.42 kB │ gzip: 0.29 kB
+dist/index.esm92.js    0.42 kB │ gzip: 0.26 kB
+dist/index.esm76.js    0.43 kB │ gzip: 0.24 kB
+dist/index.esm139.js   0.43 kB │ gzip: 0.28 kB
+dist/index.esm129.js   0.44 kB │ gzip: 0.29 kB
+dist/index.esm58.js    0.46 kB │ gzip: 0.29 kB
+dist/index.esm44.js    0.46 kB │ gzip: 0.31 kB
+dist/index.esm136.js   0.48 kB │ gzip: 0.24 kB
+dist/index.esm115.js   0.48 kB │ gzip: 0.29 kB
+dist/index.esm142.js   0.48 kB │ gzip: 0.27 kB
+dist/index.esm80.js    0.49 kB │ gzip: 0.36 kB
+dist/index.esm81.js    0.51 kB │ gzip: 0.33 kB
+dist/index.esm147.js   0.52 kB │ gzip: 0.28 kB
+dist/index.esm5.js     0.55 kB │ gzip: 0.31 kB
+dist/index.esm43.js    0.56 kB │ gzip: 0.29 kB
+dist/index.esm42.js    0.58 kB │ gzip: 0.26 kB
+dist/index.esm51.js    0.61 kB │ gzip: 0.30 kB
+dist/index.esm18.js    0.62 kB │ gzip: 0.32 kB
+dist/index.esm53.js    0.62 kB │ gzip: 0.40 kB
+dist/index.esm138.js   0.62 kB │ gzip: 0.31 kB
+dist/index.esm12.js    0.63 kB │ gzip: 0.36 kB
+dist/index.esm48.js    0.63 kB │ gzip: 0.33 kB
+dist/index.esm38.js    0.67 kB │ gzip: 0.35 kB
+dist/index.esm166.js   0.69 kB │ gzip: 0.38 kB
+dist/index.esm36.js    0.70 kB │ gzip: 0.43 kB
+dist/index.esm40.js    0.73 kB │ gzip: 0.37 kB
+dist/index.esm160.js   0.77 kB │ gzip: 0.33 kB
+dist/index.esm30.js    0.78 kB │ gzip: 0.38 kB
+dist/index.esm95.js    0.83 kB │ gzip: 0.33 kB
+dist/index.esm23.js    0.83 kB │ gzip: 0.32 kB
+dist/index.esm74.js    0.84 kB │ gzip: 0.45 kB
+dist/index.esm2.js     0.85 kB │ gzip: 0.44 kB
+dist/index.esm91.js    0.86 kB │ gzip: 0.41 kB
+dist/index.esm78.js    0.90 kB │ gzip: 0.45 kB
+dist/index.esm65.js    0.90 kB │ gzip: 0.45 kB
+dist/index.esm125.js   0.92 kB │ gzip: 0.36 kB
+dist/index.esm124.js   0.94 kB │ gzip: 0.34 kB
+dist/index.esm114.js   0.95 kB │ gzip: 0.43 kB
+dist/index.esm27.js    0.95 kB │ gzip: 0.46 kB
+dist/index.esm39.js    0.97 kB │ gzip: 0.46 kB
+dist/index.esm22.js    1.06 kB │ gzip: 0.49 kB
+dist/index.esm73.js    1.07 kB │ gzip: 0.48 kB
+dist/index.esm146.js   1.09 kB │ gzip: 0.51 kB
+dist/index.esm10.js    1.12 kB │ gzip: 0.64 kB
+dist/index.esm37.js    1.16 kB │ gzip: 0.57 kB
+dist/index.esm97.js    1.17 kB │ gzip: 0.67 kB
+dist/index.esm117.js   1.17 kB │ gzip: 0.49 kB
+dist/index.esm130.js   1.20 kB │ gzip: 0.62 kB
+dist/index.esm112.js   1.31 kB │ gzip: 0.43 kB
+dist/index.esm103.js   1.37 kB │ gzip: 0.71 kB
+dist/index.esm137.js   1.38 kB │ gzip: 0.55 kB
+dist/index.esm25.js    1.40 kB │ gzip: 0.67 kB
+dist/index.esm127.js   1.41 kB │ gzip: 0.61 kB
+dist/index.esm153.js   1.43 kB │ gzip: 0.66 kB
+dist/index.esm99.js    1.47 kB │ gzip: 0.65 kB
+dist/index.esm60.js    1.54 kB │ gzip: 0.62 kB
+dist/index.esm94.js    1.55 kB │ gzip: 0.58 kB
+dist/index.esm28.js    1.62 kB │ gzip: 0.72 kB
+dist/index.esm131.js   1.73 kB │ gzip: 0.83 kB
+dist/index.esm49.js    1.76 kB │ gzip: 0.69 kB
+dist/index.esm47.js    1.79 kB │ gzip: 0.70 kB
+dist/index.esm134.js   1.82 kB │ gzip: 0.59 kB
+dist/index.esm31.js    1.83 kB │ gzip: 0.81 kB
+dist/index.esm132.js   1.90 kB │ gzip: 0.88 kB
+dist/index.esm156.js   1.91 kB │ gzip: 0.83 kB
+dist/index.esm26.js    2.10 kB │ gzip: 0.83 kB
+dist/index.esm17.js    2.26 kB │ gzip: 0.75 kB
+dist/index.esm83.js    2.34 kB │ gzip: 0.94 kB
+dist/index.esm21.js    2.34 kB │ gzip: 0.94 kB
+dist/index.esm50.js    2.38 kB │ gzip: 0.87 kB
+dist/index.esm64.js    2.41 kB │ gzip: 1.06 kB
+dist/index.esm63.js    2.46 kB │ gzip: 1.12 kB
+dist/index.esm86.js    2.51 kB │ gzip: 1.17 kB
+dist/index.esm7.js     2.51 kB │ gzip: 1.11 kB
+dist/index.esm33.js    2.54 kB │ gzip: 0.77 kB
+dist/index.esm6.js     2.57 kB │ gzip: 0.89 kB
+dist/index.esm79.js    2.66 kB │ gzip: 0.97 kB
+dist/index.esm52.js    2.68 kB │ gzip: 0.93 kB
+dist/index.esm168.js   2.86 kB │ gzip: 0.88 kB
+dist/index.esm169.js   3.03 kB │ gzip: 0.92 kB
+dist/index.esm34.js    3.04 kB │ gzip: 1.27 kB
+dist/index.esm98.js    3.16 kB │ gzip: 1.23 kB
+dist/index.esm56.js    3.28 kB │ gzip: 1.24 kB
+dist/index.esm151.js   3.37 kB │ gzip: 1.01 kB
+dist/index.esm85.js    3.45 kB │ gzip: 1.37 kB
+dist/index.esm45.js    3.46 kB │ gzip: 1.31 kB
+dist/index.esm16.js    4.03 kB │ gzip: 1.16 kB
+dist/index.esm152.js   4.08 kB │ gzip: 1.35 kB
+dist/index.esm82.js    4.24 kB │ gzip: 0.98 kB
+dist/index.esm20.js    4.24 kB │ gzip: 1.60 kB
+dist/index.esm46.js    4.25 kB │ gzip: 1.32 kB
+dist/index.esm71.js    4.54 kB │ gzip: 1.76 kB
+dist/index.esm77.js    4.55 kB │ gzip: 1.70 kB
+dist/index.esm96.js    4.74 kB │ gzip: 1.42 kB
+dist/index.esm90.js    5.07 kB │ gzip: 1.80 kB
+dist/index.esm89.js    5.93 kB │ gzip: 1.79 kB
+dist/index.esm122.js   7.25 kB │ gzip: 2.65 kB
+dist/index.esm61.js    7.61 kB │ gzip: 2.43 kB
+dist/index.esm32.js    7.74 kB │ gzip: 2.60 kB
+dist/index.esm8.js     8.26 kB │ gzip: 2.36 kB
+dist/index.esm41.js    8.53 kB │ gzip: 2.39 kB
+dist/index.esm13.js   10.11 kB │ gzip: 3.30 kB
+dist/index.esm145.js  11.36 kB │ gzip: 3.00 kB
+dist/index.esm62.js   12.30 kB │ gzip: 3.13 kB
+dist/index.esm11.js   20.37 kB │ gzip: 6.12 kB
+[18:52:22.862] [INFO] [vite:dts] Declaration files built in 15536ms.
+[18:52:22.936] [INFO] install-dependencies-task: [vite:dts] Declaration files built in 15536ms.
+[18:52:23.268] [INFO] dist/index.cjs14.js    0.11 kB │ gzip: 0.12 kB
+[18:52:23.352] [INFO] install-dependencies-task: dist/index.cjs14.js    0.11 kB │ gzip: 0.12 kB
+[18:52:23.353] [INFO] dist/index.cjs15.js    0.11 kB │ gzip: 0.12 kB
+dist/index.cjs164.js   0.11 kB │ gzip: 0.12 kB
+dist/index.cjs165.js   0.11 kB │ gzip: 0.12 kB
+dist/index.cjs170.js   0.11 kB │ gzip: 0.12 kB
+dist/index.cjs171.js   0.11 kB │ gzip: 0.12 kB
+dist/index.cjs9.js     0.12 kB │ gzip: 0.13 kB
+dist/index.cjs143.js   0.12 kB │ gzip: 0.13 kB
+dist/index.cjs150.js   0.12 kB │ gzip: 0.13 kB
+dist/index.cjs167.js   0.12 kB │ gzip: 0.13 kB
+dist/index.cjs59.js    0.15 kB │ gzip: 0.15 kB
+dist/index.cjs100.js   0.15 kB │ gzip: 0.15 kB
+dist/index.cjs104.js   0.16 kB │ gzip: 0.16 kB
+dist/index.cjs149.js   0.17 kB │ gzip: 0.16 kB
+dist/index.cjs120.js   0.17 kB │ gzip: 0.16 kB
+dist/index.cjs123.js   0.18 kB │ gzip: 0.16 kB
+dist/index.cjs67.js    0.18 kB │ gzip: 0.16 kB
+dist/index.cjs155.js   0.19 kB │ gzip: 0.17 kB
+dist/index.cjs135.js   0.20 kB │ gzip: 0.18 kB
+dist/index.cjs70.js    0.20 kB │ gzip: 0.18 kB
+dist/index.cjs116.js   0.20 kB │ gzip: 0.17 kB
+dist/index.cjs154.js   0.21 kB │ gzip: 0.19 kB
+dist/index.cjs29.js    0.21 kB │ gzip: 0.19 kB
+dist/index.cjs55.js    0.22 kB │ gzip: 0.18 kB
+dist/index.cjs66.js    0.22 kB │ gzip: 0.20 kB
+dist/index.cjs133.js   0.22 kB │ gzip: 0.19 kB
+dist/index.cjs126.js   0.23 kB │ gzip: 0.19 kB
+dist/index.cjs141.js   0.23 kB │ gzip: 0.19 kB
+dist/index.cjs157.js   0.23 kB │ gzip: 0.19 kB
+dist/index.cjs24.js    0.23 kB │ gzip: 0.22 kB
+dist/index.cjs113.js   0.24 kB │ gzip: 0.21 kB
+dist/index.cjs.js      0.24 kB │ gzip: 0.19 kB
+dist/index.cjs161.js   0.25 kB │ gzip: 0.21 kB
+dist/index.cjs57.js    0.27 kB │ gzip: 0.20 kB
+dist/index.cjs87.js    0.27 kB │ gzip: 0.22 kB
+dist/index.cjs68.js    0.27 kB │ gzip: 0.21 kB
+dist/index.cjs88.js    0.29 kB │ gzip: 0.22 kB
+dist/index.cjs3.js     0.29 kB │ gzip: 0.22 kB
+dist/index.cjs128.js   0.30 kB │ gzip: 0.23 kB
+dist/index.cjs118.js   0.31 kB │ gzip: 0.25 kB
+dist/index.cjs93.js    0.31 kB │ gzip: 0.25 kB
+dist/index.cjs101.js   0.32 kB │ gzip: 0.24 kB
+dist/index.cjs158.js   0.32 kB │ gzip: 0.25 kB
+dist/index.cjs75.js    0.33 kB │ gzip: 0.27 kB
+dist/index.cjs4.js     0.33 kB │ gzip: 0.22 kB
+dist/index.cjs159.js   0.33 kB │ gzip: 0.22 kB
+dist/index.cjs105.js   0.34 kB │ gzip: 0.22 kB
+dist/index.cjs106.js   0.34 kB │ gzip: 0.25 kB
+dist/index.cjs107.js   0.34 kB │ gzip: 0.25 kB
+dist/index.cjs108.js   0.34 kB │ gzip: 0.23 kB
+dist/index.cjs109.js   0.34 kB │ gzip: 0.25 kB
+dist/index.cjs110.js   0.34 kB │ gzip: 0.25 kB
+dist/index.cjs111.js   0.34 kB │ gzip: 0.25 kB
+dist/index.cjs148.js   0.34 kB │ gzip: 0.25 kB
+dist/index.cjs163.js   0.35 kB │ gzip: 0.24 kB
+dist/index.cjs35.js    0.35 kB │ gzip: 0.25 kB
+dist/index.cjs144.js   0.36 kB │ gzip: 0.23 kB
+dist/index.cjs121.js   0.36 kB │ gzip: 0.29 kB
+dist/index.cjs69.js    0.38 kB │ gzip: 0.23 kB
+dist/index.cjs72.js    0.38 kB │ gzip: 0.29 kB
+dist/index.cjs102.js   0.38 kB │ gzip: 0.27 kB
+dist/index.cjs54.js    0.38 kB │ gzip: 0.24 kB
+dist/index.cjs92.js    0.40 kB │ gzip: 0.28 kB
+dist/index.cjs162.js   0.40 kB │ gzip: 0.27 kB
+dist/index.cjs44.js    0.43 kB │ gzip: 0.31 kB
+dist/index.cjs139.js   0.44 kB │ gzip: 0.32 kB
+dist/index.cjs5.js     0.45 kB │ gzip: 0.31 kB
+dist/index.cjs84.js    0.46 kB │ gzip: 0.33 kB
+dist/index.cjs76.js    0.46 kB │ gzip: 0.28 kB
+dist/index.cjs129.js   0.48 kB │ gzip: 0.32 kB
+dist/index.cjs12.js    0.49 kB │ gzip: 0.35 kB
+dist/index.cjs147.js   0.50 kB │ gzip: 0.32 kB
+dist/index.cjs142.js   0.50 kB │ gzip: 0.29 kB
+dist/index.cjs51.js    0.51 kB │ gzip: 0.31 kB
+dist/index.cjs80.js    0.51 kB │ gzip: 0.38 kB
+dist/index.cjs115.js   0.52 kB │ gzip: 0.34 kB
+dist/index.cjs136.js   0.52 kB │ gzip: 0.27 kB
+dist/index.cjs81.js    0.52 kB │ gzip: 0.36 kB
+dist/index.cjs18.js    0.52 kB │ gzip: 0.33 kB
+dist/index.cjs43.js    0.54 kB │ gzip: 0.31 kB
+dist/index.cjs42.js    0.54 kB │ gzip: 0.28 kB
+dist/index.cjs160.js   0.54 kB │ gzip: 0.32 kB
+dist/index.cjs48.js    0.56 kB │ gzip: 0.36 kB
+dist/index.cjs138.js   0.58 kB │ gzip: 0.35 kB
+dist/index.cjs140.js   0.58 kB │ gzip: 0.35 kB
+dist/index.cjs119.js   0.60 kB │ gzip: 0.38 kB
+dist/index.cjs53.js    0.60 kB │ gzip: 0.40 kB
+dist/index.cjs19.js    0.65 kB │ gzip: 0.37 kB
+dist/index.cjs38.js    0.65 kB │ gzip: 0.37 kB
+dist/index.cjs36.js    0.65 kB │ gzip: 0.44 kB
+dist/index.cjs23.js    0.66 kB │ gzip: 0.32 kB
+dist/index.cjs30.js    0.68 kB │ gzip: 0.39 kB
+dist/index.cjs124.js   0.68 kB │ gzip: 0.34 kB
+dist/index.cjs91.js    0.73 kB │ gzip: 0.40 kB
+dist/index.cjs58.js    0.74 kB │ gzip: 0.44 kB
+dist/index.cjs65.js    0.74 kB │ gzip: 0.43 kB
+dist/index.cjs2.js     0.79 kB │ gzip: 0.43 kB
+dist/index.cjs125.js   0.80 kB │ gzip: 0.41 kB
+dist/index.cjs74.js    0.80 kB │ gzip: 0.46 kB
+dist/index.cjs95.js    0.81 kB │ gzip: 0.37 kB
+dist/index.cjs146.js   0.82 kB │ gzip: 0.50 kB
+dist/index.cjs40.js    0.82 kB │ gzip: 0.38 kB
+dist/index.cjs73.js    0.83 kB │ gzip: 0.49 kB
+dist/index.cjs114.js   0.84 kB │ gzip: 0.43 kB
+dist/index.cjs22.js    0.92 kB │ gzip: 0.48 kB
+dist/index.cjs166.js   0.92 kB │ gzip: 0.49 kB
+dist/index.cjs27.js    0.95 kB │ gzip: 0.47 kB
+dist/index.cjs37.js    0.97 kB │ gzip: 0.55 kB
+dist/index.cjs39.js    1.00 kB │ gzip: 0.50 kB
+dist/index.cjs130.js   1.01 kB │ gzip: 0.60 kB
+dist/index.cjs99.js    1.01 kB │ gzip: 0.54 kB
+dist/index.cjs78.js    1.05 kB │ gzip: 0.53 kB
+dist/index.cjs25.js    1.06 kB │ gzip: 0.58 kB
+dist/index.cjs10.js    1.06 kB │ gzip: 0.63 kB
+dist/index.cjs103.js   1.09 kB │ gzip: 0.66 kB
+dist/index.cjs153.js   1.11 kB │ gzip: 0.62 kB
+dist/index.cjs112.js   1.12 kB │ gzip: 0.50 kB
+dist/index.cjs117.js   1.15 kB │ gzip: 0.56 kB
+dist/index.cjs60.js    1.19 kB │ gzip: 0.57 kB
+dist/index.cjs131.js   1.21 kB │ gzip: 0.68 kB
+dist/index.cjs137.js   1.21 kB │ gzip: 0.53 kB
+dist/index.cjs97.js    1.31 kB │ gzip: 0.71 kB
+dist/index.cjs28.js    1.32 kB │ gzip: 0.66 kB
+dist/index.cjs127.js   1.32 kB │ gzip: 0.59 kB
+dist/index.cjs47.js    1.35 kB │ gzip: 0.63 kB
+dist/index.cjs94.js    1.35 kB │ gzip: 0.55 kB
+dist/index.cjs49.js    1.35 kB │ gzip: 0.65 kB
+dist/index.cjs156.js   1.42 kB │ gzip: 0.76 kB
+dist/index.cjs86.js    1.45 kB │ gzip: 0.78 kB
+dist/index.cjs33.js    1.64 kB │ gzip: 0.64 kB
+dist/index.cjs64.js    1.65 kB │ gzip: 0.84 kB
+dist/index.cjs83.js    1.67 kB │ gzip: 0.84 kB
+dist/index.cjs132.js   1.70 kB │ gzip: 0.87 kB
+dist/index.cjs134.js   1.73 kB │ gzip: 0.59 kB
+dist/index.cjs79.js    1.74 kB │ gzip: 0.87 kB
+dist/index.cjs7.js     1.75 kB │ gzip: 0.90 kB
+dist/index.cjs31.js    1.79 kB │ gzip: 0.78 kB
+dist/index.cjs52.js    1.85 kB │ gzip: 0.80 kB
+dist/index.cjs26.js    1.89 kB │ gzip: 0.77 kB
+dist/index.cjs50.js    1.89 kB │ gzip: 0.78 kB
+dist/index.cjs21.js    1.93 kB │ gzip: 0.91 kB
+dist/index.cjs63.js    2.00 kB │ gzip: 1.01 kB
+dist/index.cjs17.js    2.03 kB │ gzip: 0.66 kB
+dist/index.cjs6.js     2.08 kB │ gzip: 0.89 kB
+dist/index.cjs98.js    2.11 kB │ gzip: 1.08 kB
+dist/index.cjs168.js   2.43 kB │ gzip: 0.85 kB
+dist/index.cjs45.js    2.45 kB │ gzip: 1.10 kB
+dist/index.cjs169.js   2.47 kB │ gzip: 0.88 kB
+dist/index.cjs34.js    2.51 kB │ gzip: 1.14 kB
+dist/index.cjs56.js    2.55 kB │ gzip: 1.11 kB
+dist/index.cjs16.js    2.72 kB │ gzip: 1.01 kB
+dist/index.cjs151.js   2.85 kB │ gzip: 0.96 kB
+dist/index.cjs85.js    3.03 kB │ gzip: 1.31 kB
+dist/index.cjs71.js    3.07 kB │ gzip: 1.41 kB
+dist/index.cjs152.js   3.18 kB │ gzip: 1.21 kB
+dist/index.cjs20.js    3.23 kB │ gzip: 1.40 kB
+dist/index.cjs46.js    3.27 kB │ gzip: 1.15 kB
+dist/index.cjs82.js    3.36 kB │ gzip: 0.89 kB
+dist/index.cjs77.js    3.74 kB │ gzip: 1.62 kB
+dist/index.cjs122.js   3.81 kB │ gzip: 1.54 kB
+dist/index.cjs89.js    4.56 kB │ gzip: 1.66 kB
+dist/index.cjs96.js    4.59 kB │ gzip: 1.47 kB
+dist/index.cjs90.js    4.78 kB │ gzip: 1.65 kB
+dist/index.cjs61.js    4.91 kB │ gzip: 1.75 kB
+dist/index.cjs41.js    5.49 kB │ gzip: 1.99 kB
+dist/index.cjs8.js     5.78 kB │ gzip: 2.03 kB
+dist/index.cjs32.js    5.95 kB │ gzip: 2.36 kB
+dist/index.cjs13.js    6.24 kB │ gzip: 2.72 kB
+dist/index.cjs145.js   7.51 kB │ gzip: 2.60 kB
+dist/index.cjs62.js   12.00 kB │ gzip: 2.98 kB
+dist/index.cjs11.js   13.09 kB │ gzip: 5.24 kB
+✓ built in 19.86s
+[18:52:23.458] [INFO] install-dependencies-task: dist/index.cjs15.js    0.11 kB │ gzip: 0.12 kB
+dist/index.cjs164.js   0.11 kB │ gzip: 0.12 kB
+dist/index.cjs165.js   0.11 kB │ gzip: 0.12 kB
+dist/index.cjs170.js   0.11 kB │ gzip: 0.12 kB
+dist/index.cjs171.js   0.11 kB │ gzip: 0.12 kB
+dist/index.cjs9.js     0.12 kB │ gzip: 0.13 kB
+dist/index.cjs143.js   0.12 kB │ gzip: 0.13 kB
+dist/index.cjs150.js   0.12 kB │ gzip: 0.13 kB
+dist/index.cjs167.js   0.12 kB │ gzip: 0.13 kB
+dist/index.cjs59.js    0.15 kB │ gzip: 0.15 kB
+dist/index.cjs100.js   0.15 kB │ gzip: 0.15 kB
+dist/index.cjs104.js   0.16 kB │ gzip: 0.16 kB
+dist/index.cjs149.js   0.17 kB │ gzip: 0.16 kB
+dist/index.cjs120.js   0.17 kB │ gzip: 0.16 kB
+dist/index.cjs123.js   0.18 kB │ gzip: 0.16 kB
+dist/index.cjs67.js    0.18 kB │ gzip: 0.16 kB
+dist/index.cjs155.js   0.19 kB │ gzip: 0.17 kB
+dist/index.cjs135.js   0.20 kB │ gzip: 0.18 kB
+dist/index.cjs70.js    0.20 kB │ gzip: 0.18 kB
+dist/index.cjs116.js   0.20 kB │ gzip: 0.17 kB
+dist/index.cjs154.js   0.21 kB │ gzip: 0.19 kB
+dist/index.cjs29.js    0.21 kB │ gzip: 0.19 kB
+dist/index.cjs55.js    0.22 kB │ gzip: 0.18 kB
+dist/index.cjs66.js    0.22 kB │ gzip: 0.20 kB
+dist/index.cjs133.js   0.22 kB │ gzip: 0.19 kB
+dist/index.cjs126.js   0.23 kB │ gzip: 0.19 kB
+dist/index.cjs141.js   0.23 kB │ gzip: 0.19 kB
+dist/index.cjs157.js   0.23 kB │ gzip: 0.19 kB
+dist/index.cjs24.js    0.23 kB │ gzip: 0.22 kB
+dist/index.cjs113.js   0.24 kB │ gzip: 0.21 kB
+dist/index.cjs.js      0.24 kB │ gzip: 0.19 kB
+dist/index.cjs161.js   0.25 kB │ gzip: 0.21 kB
+dist/index.cjs57.js    0.27 kB │ gzip: 0.20 kB
+dist/index.cjs87.js    0.27 kB │ gzip: 0.22 kB
+dist/index.cjs68.js    0.27 kB │ gzip: 0.21 kB
+dist/index.cjs88.js    0.29 kB │ gzip: 0.22 kB
+dist/index.cjs3.js     0.29 kB │ gzip: 0.22 kB
+dist/index.cjs128.js   0.30 kB │ gzip: 0.23 kB
+dist/index.cjs118.js   0.31 kB │ gzip: 0.25 kB
+dist/index.cjs93.js    0.31 kB │ gzip: 0.25 kB
+dist/index.cjs101.js   0.32 kB │ gzip: 0.24 kB
+dist/index.cjs158.js   0.32 kB │ gzip: 0.25 kB
+dist/index.cjs75.js    0.33 kB │ gzip: 0.27 kB
+dist/index.cjs4.js     0.33 kB │ gzip: 0.22 kB
+dist/index.cjs159.js   0.33 kB │ gzip: 0.22 kB
+dist/index.cjs105.js   0.34 kB │ gzip: 0.22 kB
+dist/index.cjs106.js   0.34 kB │ gzip: 0.25 kB
+dist/index.cjs107.js   0.34 kB │ gzip: 0.25 kB
+dist/index.cjs108.js   0.34 kB │ gzip: 0.23 kB
+dist/index.cjs109.js   0.34 kB │ gzip: 0.25 kB
+dist/index.cjs110.js   0.34 kB │ gzip: 0.25 kB
+dist/index.cjs111.js   0.34 kB │ gzip: 0.25 kB
+dist/index.cjs148.js   0.34 kB │ gzip: 0.25 kB
+dist/index.cjs163.js   0.35 kB │ gzip: 0.24 kB
+dist/index.cjs35.js    0.35 kB │ gzip: 0.25 kB
+dist/index.cjs144.js   0.36 kB │ gzip: 0.23 kB
+dist/index.cjs121.js   0.36 kB │ gzip: 0.29 kB
+dist/index.cjs69.js    0.38 kB │ gzip: 0.23 kB
+dist/index.cjs72.js    0.38 kB │ gzip: 0.29 kB
+dist/index.cjs102.js   0.38 kB │ gzip: 0.27 kB
+dist/index.cjs54.js    0.38 kB │ gzip: 0.24 kB
+dist/index.cjs92.js    0.40 kB │ gzip: 0.28 kB
+dist/index.cjs162.js   0.40 kB │ gzip: 0.27 kB
+dist/index.cjs44.js    0.43 kB │ gzip: 0.31 kB
+dist/index.cjs139.js   0.44 kB │ gzip: 0.32 kB
+dist/index.cjs5.js     0.45 kB │ gzip: 0.31 kB
+dist/index.cjs84.js    0.46 kB │ gzip: 0.33 kB
+dist/index.cjs76.js    0.46 kB │ gzip: 0.28 kB
+dist/index.cjs129.js   0.48 kB │ gzip: 0.32 kB
+dist/index.cjs12.js    0.49 kB │ gzip: 0.35 kB
+dist/index.cjs147.js   0.50 kB │ gzip: 0.32 kB
+dist/index.cjs142.js   0.50 kB │ gzip: 0.29 kB
+dist/index.cjs51.js    0.51 kB │ gzip: 0.31 kB
+dist/index.cjs80.js    0.51 kB │ gzip: 0.38 kB
+dist/index.cjs115.js   0.52 kB │ gzip: 0.34 kB
+dist/index.cjs136.js   0.52 kB │ gzip: 0.27 kB
+dist/index.cjs81.js    0.52 kB │ gzip: 0.36 kB
+dist/index.cjs18.js    0.52 kB │ gzip: 0.33 kB
+dist/index.cjs43.js    0.54 kB │ gzip: 0.31 kB
+dist/index.cjs42.js    0.54 kB │ gzip: 0.28 kB
+dist/index.cjs160.js   0.54 kB │ gzip: 0.32 kB
+dist/index.cjs48.js    0.56 kB │ gzip: 0.36 kB
+dist/index.cjs138.js   0.58 kB │ gzip: 0.35 kB
+dist/index.cjs140.js   0.58 kB │ gzip: 0.35 kB
+dist/index.cjs119.js   0.60 kB │ gzip: 0.38 kB
+dist/index.cjs53.js    0.60 kB │ gzip: 0.40 kB
+dist/index.cjs19.js    0.65 kB │ gzip: 0.37 kB
+dist/index.cjs38.js    0.65 kB │ gzip: 0.37 kB
+dist/index.cjs36.js    0.65 kB │ gzip: 0.44 kB
+dist/index.cjs23.js    0.66 kB │ gzip: 0.32 kB
+dist/index.cjs30.js    0.68 kB │ gzip: 0.39 kB
+dist/index.cjs124.js   0.68 kB │ gzip: 0.34 kB
+dist/index.cjs91.js    0.73 kB │ gzip: 0.40 kB
+dist/index.cjs58.js    0.74 kB │ gzip: 0.44 kB
+dist/index.cjs65.js    0.74 kB │ gzip: 0.43 kB
+dist/index.cjs2.js     0.79 kB │ gzip: 0.43 kB
+dist/index.cjs125.js   0.80 kB │ gzip: 0.41 kB
+dist/index.cjs74.js    0.80 kB │ gzip: 0.46 kB
+dist/index.cjs95.js    0.81 kB │ gzip: 0.37 kB
+dist/index.cjs146.js   0.82 kB │ gzip: 0.50 kB
+dist/index.cjs40.js    0.82 kB │ gzip: 0.38 kB
+dist/index.cjs73.js    0.83 kB │ gzip: 0.49 kB
+dist/index.cjs114.js   0.84 kB │ gzip: 0.43 kB
+dist/index.cjs22.js    0.92 kB │ gzip: 0.48 kB
+dist/index.cjs166.js   0.92 kB │ gzip: 0.49 kB
+dist/index.cjs27.js    0.95 kB │ gzip: 0.47 kB
+dist/index.cjs37.js    0.97 kB │ gzip: 0.55 kB
+dist/index.cjs39.js    1.00 kB │ gzip: 0.50 kB
+dist/index.cjs130.js   1.01 kB │ gzip: 0.60 kB
+dist/index.cjs99.js    1.01 kB │ gzip: 0.54 kB
+dist/index.cjs78.js    1.05 kB │ gzip: 0.53 kB
+dist/index.cjs25.js    1.06 kB │ gzip: 0.58 kB
+dist/index.cjs10.js    1.06 kB │ gzip: 0.63 kB
+dist/index.cjs103.js   1.09 kB │ gzip: 0.66 kB
+dist/index.cjs153.js   1.11 kB │ gzip: 0.62 kB
+dist/index.cjs112.js   1.12 kB │ gzip: 0.50 kB
+dist/index.cjs117.js   1.15 kB │ gzip: 0.56 kB
+dist/index.cjs60.js    1.19 kB │ gzip: 0.57 kB
+dist/index.cjs131.js   1.21 kB │ gzip: 0.68 kB
+dist/index.cjs137.js   1.21 kB │ gzip: 0.53 kB
+dist/index.cjs97.js    1.31 kB │ gzip: 0.71 kB
+dist/index.cjs28.js    1.32 kB │ gzip: 0.66 kB
+dist/index.cjs127.js   1.32 kB │ gzip: 0.59 kB
+dist/index.cjs47.js    1.35 kB │ gzip: 0.63 kB
+dist/index.cjs94.js    1.35 kB │ gzip: 0.55 kB
+dist/index.cjs49.js    1.35 kB │ gzip: 0.65 kB
+dist/index.cjs156.js   1.42 kB │ gzip: 0.76 kB
+dist/index.cjs86.js    1.45 kB │ gzip: 0.78 kB
+dist/index.cjs33.js    1.64 kB │ gzip: 0.64 kB
+dist/index.cjs64.js    1.65 kB │ gzip: 0.84 kB
+dist/index.cjs83.js    1.67 kB │ gzip: 0.84 kB
+dist/index.cjs132.js   1.70 kB │ gzip: 0.87 kB
+dist/index.cjs134.js   1.73 kB │ gzip: 0.59 kB
+dist/index.cjs79.js    1.74 kB │ gzip: 0.87 kB
+dist/index.cjs7.js     1.75 kB │ gzip: 0.90 kB
+dist/index.cjs31.js    1.79 kB │ gzip: 0.78 kB
+dist/index.cjs52.js    1.85 kB │ gzip: 0.80 kB
+dist/index.cjs26.js    1.89 kB │ gzip: 0.77 kB
+dist/index.cjs50.js    1.89 kB │ gzip: 0.78 kB
+dist/index.cjs21.js    1.93 kB │ gzip: 0.91 kB
+dist/index.cjs63.js    2.00 kB │ gzip: 1.01 kB
+dist/index.cjs17.js    2.03 kB │ gzip: 0.66 kB
+dist/index.cjs6.js     2.08 kB │ gzip: 0.89 kB
+dist/index.cjs98.js    2.11 kB │ gzip: 1.08 kB
+dist/index.cjs168.js   2.43 kB │ gzip: 0.85 kB
+dist/index.cjs45.js    2.45 kB │ gzip: 1.10 kB
+dist/index.cjs169.js   2.47 kB │ gzip: 0.88 kB
+dist/index.cjs34.js    2.51 kB │ gzip: 1.14 kB
+dist/index.cjs56.js    2.55 kB │ gzip: 1.11 kB
+dist/index.cjs16.js    2.72 kB │ gzip: 1.01 kB
+dist/index.cjs151.js   2.85 kB │ gzip: 0.96 kB
+dist/index.cjs85.js    3.03 kB │ gzip: 1.31 kB
+dist/index.cjs71.js    3.07 kB │ gzip: 1.41 kB
+dist/index.cjs152.js   3.18 kB │ gzip: 1.21 kB
+dist/index.cjs20.js    3.23 kB │ gzip: 1.40 kB
+dist/index.cjs46.js    3.27 kB │ gzip: 1.15 kB
+dist/index.cjs82.js    3.36 kB │ gzip: 0.89 kB
+dist/index.cjs77.js    3.74 kB │ gzip: 1.62 kB
+dist/index.cjs122.js   3.81 kB │ gzip: 1.54 kB
+dist/index.cjs89.js    4.56 kB │ gzip: 1.66 kB
+dist/index.cjs96.js    4.59 kB │ gzip: 1.47 kB
+dist/index.cjs90.js    4.78 kB │ gzip: 1.65 kB
+dist/index.cjs61.js    4.91 kB │ gzip: 1.75 kB
+dist/index.cjs41.js    5.49 kB │ gzip: 1.99 kB
+dist/index.cjs8.js     5.78 kB │ gzip: 2.03 kB
+dist/index.cjs32.js    5.95 kB │ gzip: 2.36 kB
+dist/index.cjs13.js    6.24 kB │ gzip: 2.72 kB
+dist/index.cjs145.js   7.51 kB │ gzip: 2.60 kB
+dist/index.cjs62.js   12.00 kB │ gzip: 2.98 kB
+dist/index.cjs11.js   13.09 kB │ gzip: 5.24 kB
+✓ built in 19.86s
+[18:52:23.459] [INFO] added 38 packages, removed 67 packages, changed 35 packages, and audited 834 packages in 1m
+
+162 packages are looking for funding
+  run `npm fund` for details
+[18:52:23.538] [INFO] install-dependencies-task: added 38 packages, removed 67 packages, changed 35 packages, and audited 834
+packages in 1m
+
+162 packages are looking for funding
+run `npm fund` for details
+[18:52:23.558] [INFO] 9 vulnerabilities (3 low, 5 moderate, 1 critical)
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+[18:52:23.634] [INFO] install-dependencies-task: 9 vulnerabilities (3 low, 5 moderate, 1 critical)
+
+To address all issues, run:
+npm audit fix
+
+Run `npm audit` for details.
+[18:52:23.635] [INFO] Dependencies installed
+[18:52:23.635] [INFO] install-dependencies-task-success: Dependencies installed
+[18:52:23.636] [INFO] Checking the health of your project(s)..
+[18:52:26.340] [WARN] C:/Personal Programs/react-spreadsheet-ts/.storybook: 1 issue found
+[18:52:26.397] [INFO] The "storybook" package was not found in your package.json.
+Installing "storybook" as a direct dev dependency in your package.json is required.
+[18:52:26.397] [INFO] Missing Storybook Dependency
+[18:52:26.478] [INFO] The "storybook" package was not found in your package.json.
+Installing "storybook" as a direct dev dependency in your package.json is required.
+[18:52:26.555] [INFO] Storybook doctor is complete!
+[18:52:26.636] [INFO] You can always recheck the health of your project(s) by running:
+npx storybook doctor
+[18:52:26.718] [INFO] The upgrade is complete!
+[18:52:26.821] [INFO] Your project(s) have been upgraded successfully, but some issues were found which need your attention, please check Storybook doctor logs above.
+[18:52:27.345] [INFO] If you want to learn more about the automigrations that executed in your project(s), please check the following links:
+
+• consolidated-imports
+• remove-addon-interactions
+• renderer-to-framework
+• remove-essential-addons
+[18:52:27.426] [INFO] For a full list of changes, please check our migration guide: https://storybook.js.org/docs/migration-guide
+[18:52:27.515] [INFO] Attention: Storybook now collects completely anonymous telemetry regarding usage. This information is used to shape Storybook's roadmap and prioritize features.
+[18:52:27.614] [INFO] You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+[18:52:27.698] [INFO] https://storybook.js.org/telemetry
+[18:52:27.779] [INFO] 

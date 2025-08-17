@@ -1,68 +1,80 @@
 /**
- * @file stories/index.stories.tsx
- * @fileoverview Storybook configuration for the Spreadsheet component, including theme customization and control options.
+ * @fileoverview Storybook stories for the SpreadsheetWrapper component, showcasing various
+ * configurations and themes. Includes examples for light and dark modes with theme toggle.
  */
 
-import { Meta, StoryObj } from "@storybook/react";
-import { ThemeProvider, createTheme } from "@mui/material";
+import React from "react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import SpreadsheetWrapper from "../src";
-import { SpreadsheetWrapperProps } from "../src/types";
+import type { SpreadsheetWrapperProps } from "../src/types";
+import { Container, IconButton } from "@mui/material";
+import { Brightness4, Brightness7 } from "@mui/icons-material";
 
-const SpreadsheetMeta: Meta<SpreadsheetWrapperProps> = {
+const meta: Meta<typeof SpreadsheetWrapper> = {
     title: "Spreadsheet",
     component: SpreadsheetWrapper,
     tags: ["autodocs"],
     argTypes: {
-        darkMode: {
-            control: "boolean",
-            description: "Switch between light and dark mode.",
-            defaultValue: false,
-        },
         rows: {
             control: { type: "number", min: 1, max: 100 },
             description: "Number of initial rows",
-            defaultValue: 4,
+            table: {
+                defaultValue: { summary: "4" },
+                type: { summary: "number" },
+            },
         },
         cols: {
             control: { type: "number", min: 1, max: 100 },
             description: "Number of initial columns",
-            defaultValue: 4,
+            table: {
+                defaultValue: { summary: "4" },
+                type: { summary: "number" },
+            },
         },
     },
-    decorators: [
-        (Story, context) => {
-            const { darkMode = false } = context.args;
-            const theme = createTheme({
-                palette: {
-                    mode: darkMode ? "dark" : "light",
-                },
-            });
-
-            return (
-                <ThemeProvider theme={theme}>
-                    <div
-                        style={{
-                            display: "inline-block",
-                            padding: 0,
-                            backgroundColor: darkMode ? "#000" : "#fff",
-                        }}
-                    >
-                        <Story {...context.args} />
-                    </div>
-                </ThemeProvider>
-            );
-        },
-    ],
 };
 
-export default SpreadsheetMeta;
+export default meta;
+type Story = StoryObj<typeof SpreadsheetWrapper>;
 
-type Story = StoryObj<SpreadsheetWrapperProps>;
+const SpreadsheetStory = (args: SpreadsheetWrapperProps) => {
+    const [mode, setMode] = React.useState<'light' | 'dark'>('light');
+    const isDarkMode = mode === 'dark';
+
+    return (
+        <Container maxWidth="lg" sx={{ 
+            display: 'flex', 
+            alignItems: 'flex-start', 
+            justifyContent: 'space-between', 
+            mt: 2,
+            backgroundColor: isDarkMode ? '#121212' : '#fff',
+            minHeight: '100vh',
+            padding: 2
+        }}>
+            <SpreadsheetWrapper {...args} darkMode={isDarkMode} />
+            <IconButton 
+                aria-label="toggle color scheme" 
+                color="inherit" 
+                onClick={() => setMode(prev => (prev === 'light' ? 'dark' : 'light'))}
+                sx={{ 
+                    ml: 2,
+                    color: isDarkMode ? '#fff' : '#000',
+                    backgroundColor: isDarkMode ? '#333' : '#f5f5f5',
+                    '&:hover': {
+                        backgroundColor: isDarkMode ? '#444' : '#e0e0e0',
+                    }
+                }}
+            >
+                {isDarkMode ? <Brightness7 /> : <Brightness4 />}
+            </IconButton>
+        </Container>
+    );
+};
 
 export const Default: Story = {
     args: {
-        darkMode: false,
         rows: 4,
         cols: 4,
     },
+    render: SpreadsheetStory,
 };

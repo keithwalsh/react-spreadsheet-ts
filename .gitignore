@@ -3,3 +3,6 @@ dist
 .*ignore
 .*rules
 tree.py
+package-lock.json
+*.md
+!README.md
