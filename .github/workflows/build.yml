@@ -40,21 +40,21 @@ jobs:
                   echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
                   cat ~/.npmrc
               env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN2 }}
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
             - name: Verify npm authentication
               run: |
                   npm whoami
                   npm config get registry
               env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN2 }}
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
             - name: Publish to npm
               run: |
                   npm config list
                   npm publish --access public
               env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN2 }}
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
             - name: Get version from package.json
               id: package_version
