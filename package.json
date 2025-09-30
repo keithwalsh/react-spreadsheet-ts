@@ -1,6 +1,6 @@
 {
   "name": "react-spreadsheet-ts",
-  "version": "1.6.5",
+  "version": "1.6.9",
   "description": "A simple spreadsheet component written in typescript.",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
