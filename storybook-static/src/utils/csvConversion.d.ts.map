@@ -1,0 +1,1 @@
+{"version":3,"file":"csvConversion.d.ts","sourceRoot":"","sources":["../../../src/utils/csvConversion.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAEH,OAAO,EAAE,QAAQ,EAAE,MAAM,UAAU,CAAC;AAEpC,mEAAmE;AACnE,eAAO,MAAM,YAAY,GAAI,MAAM,QAAQ,EAAE,EAAE,KAAG,MAejD,CAAC;AAEF,6DAA6D;AAC7D,eAAO,MAAM,WAAW,GAAI,MAAM,QAAQ,EAAE,EAAE,EAAE,WAAU,MAAoB,KAAG,IAahF,CAAC"}

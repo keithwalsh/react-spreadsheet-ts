@@ -1,0 +1,1 @@
+{"version":3,"file":"useKeyboardNavigation.d.ts","sourceRoot":"","sources":["../../../src/hooks/useKeyboardNavigation.ts"],"names":[],"mappings":"AAAA;;;;GAIG;AAEH,OAAO,EAAE,aAAa,EAAE,MAAM,gBAAgB,CAAC;AAC/C,OAAO,EAAE,cAAc,EAAE,MAAM,UAAU,CAAC;AAE1C,eAAO,MAAM,qBAAqB,SAE1B,KAAK,aAAa,EAClB,YAAY,MAAM,EAClB,YAAY,MAAM,EAClB,QAAQ,MAAM,EACd,QAAQ,MAAM,KACf,cAAc,GAAG,IA0BvB,CAAC"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"useDragSelection.d.ts","sourceRoot":"","sources":["../../../src/hooks/useDragSelection.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAIH,OAAO,EAAE,aAAa,EAAE,MAAM,OAAO,CAAC;AACtC,OAAO,EAAE,gBAAgB,EAAE,MAAM,UAAU,CAAC;AAE5C,eAAO,MAAM,gBAAgB,GAAI,MAAM,aAAa,CAAC,gBAAgB,CAAC;2BAIxD,MAAM,OAAO,MAAM;2BAgCnB,MAAM,OAAO,MAAM;;CA+ChC,CAAC;AAEF,eAAe,gBAAgB,CAAC"}
