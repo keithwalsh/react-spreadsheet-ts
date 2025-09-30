@@ -27,15 +27,16 @@
     "access": "public"
   },
   "dependencies": {
-    "@emotion/react": "^11.13.3",
-    "@emotion/styled": "^11.13.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@types/node": "^22.7.4",
     "chalk": "^5.3.0",
     "glob": "^7.2.3",
     "ignore": "^6.0.2",
     "jotai": "^2.10.4",
-    "material-ui-popup-state": "^5.3.1",
-    "mui-menubar": "^0.1.15",
+    "material-ui-popup-state": "^5.3.6",
+    "mui-menubar": "^1.5.8",
+    "react-hotkeys-hook": "^4.6.2",
     "react-icons": "^5.3.0"
   },
   "devDependencies": {
@@ -69,10 +70,10 @@
     ]
   },
   "peerDependencies": {
+    "@mui/icons-material": "^6.5.0",
+    "@mui/material": "^6.5.0",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "@mui/icons-material": "^6.1.1",
-    "@mui/material": "^6.1.1"
+    "react-dom": "^18.0.0"
   },
   "sideEffects": false,
   "exports": {

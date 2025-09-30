@@ -6,7 +6,7 @@
 
 import React from "react";
 import { BorderAll, ClearAll, SwapVert, Save, FolderOpen, Undo, Redo, Delete } from "@mui/icons-material";
-import { MenuConfig } from "mui-menubar";
+import { type MenuConfig } from "mui-menubar";
 import { MenuConfigParams } from "../types";
 
 const MENU_TEMPLATE = [
@@ -14,14 +14,14 @@ const MENU_TEMPLATE = [
         label: "File",
         items: [
             {
-                kind: "action",
+                kind: "action" as const,
                 id: "handleNewTable",
                 label: "New table",
                 icon: React.createElement(FolderOpen),
                 shortcut: "Ctrl+N",
             },
             {
-                kind: "action",
+                kind: "action" as const,
                 id: "onDownloadCSV",
                 label: "Download as CSV",
                 icon: React.createElement(Save),
@@ -33,22 +33,22 @@ const MENU_TEMPLATE = [
         label: "Edit",
         items: [
             {
-                kind: "action",
+                kind: "action" as const,
                 id: "onClickUndo",
                 label: "Undo",
                 icon: React.createElement(Undo),
                 shortcut: "Ctrl+Z",
             },
             {
-                kind: "action",
+                kind: "action" as const,
                 id: "onClickRedo",
                 label: "Redo",
                 icon: React.createElement(Redo),
                 shortcut: "Ctrl+Y",
             },
-            { kind: "divider" },
+            { kind: "divider" as const },
             {
-                kind: "action",
+                kind: "action" as const,
                 id: "deleteSelected",
                 label: "Delete selected",
                 icon: React.createElement(Delete),
@@ -60,28 +60,28 @@ const MENU_TEMPLATE = [
         label: "Table",
         items: [
             {
-                kind: "submenu",
+                kind: "submenu" as const,
                 id: "setTableSize",
                 label: "Set size",
                 icon: React.createElement(BorderAll),
-                items: [{ kind: "custom" }],
+                items: [{ kind: "custom" as const }],
             },
-            { kind: "divider" },
+            { kind: "divider" as const },
             {
-                kind: "action",
+                kind: "action" as const,
                 id: "clearTable",
                 label: "Clear table",
                 icon: React.createElement(ClearAll),
             },
             {
-                kind: "action",
+                kind: "action" as const,
                 id: "transposeTable",
                 label: "Transpose table",
                 icon: React.createElement(SwapVert),
             },
         ],
     },
-] as const;
+];
 
 export function createMenuConfig({
     handleNewTable,
@@ -113,7 +113,7 @@ export function createMenuConfig({
                       ...item,
                       items: [
                           {
-                              kind: "custom",
+                              kind: "custom" as const,
                               component: React.createElement(TableSizeChooser, {
                                   onSizeSelect: handleSizeSelect,
                                   currentRows,
@@ -127,5 +127,5 @@ export function createMenuConfig({
                       action: handlers[item.id as keyof typeof handlers],
                   }
         ),
-    }));
+    })) as MenuConfig[];
 }

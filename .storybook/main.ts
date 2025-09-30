@@ -7,6 +7,15 @@ const config: StorybookConfig = {
         name: "@storybook/react-vite",
         options: {},
     },
-
+    docs: {
+        autodocs: 'tag',
+    },
+    typescript: {
+        reactDocgen: 'react-docgen-typescript',
+        reactDocgenTypescriptOptions: {
+            shouldExtractLiteralValuesFromEnum: true,
+            propFilter: (prop) => (prop.parent ? !/node_modules/.test(prop.parent.fileName) : true),
+        },
+    },
 };
 export default config;

@@ -5,7 +5,7 @@
  */
 
 import React from "react";
-import { MenuBar } from "mui-menubar";
+import { MenuBar } from 'mui-menubar';
 import { useHotkeys } from "react-hotkeys-hook";
 import { createMenuConfig } from "../config/menuConfig";
 import { useToolbar } from "../contexts";
